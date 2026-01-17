@@ -1,0 +1,23 @@
+﻿@model IEnumerable<Booking.web.Models.FlightViewModel>
+@{
+    ViewData["Title"] = "Available Flights";
+}
+
+<h2 class="text-3xl font-bold mb-4 text-blue-400">Available Flights</h2>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var flight in Model)
+    {
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">@flight.Origin → @flight.Destination</h5>
+                    <p>Departure: @flight.DepartureTime.ToString("g")</p>
+                    <p>Arrival: @flight.ArrivalTime.ToString("g")</p>
+                    <p class="fw-bold">Price: $@flight.Price</p>
+                    <a href="/Flight/Reserve/@flight.Id" class="btn btn-primary w-100">Reserve Seat</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

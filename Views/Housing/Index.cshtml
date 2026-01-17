@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
+@{
+    ViewData["Title"] = "Accommodations";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-white">Available Accommodations</h2>
+    <div class="row">
+        @foreach (var housing in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card bg-dark text-white shadow-lg">
+                    <img class="card-img-top" src="@housing.ImageUrl" alt="@housing.Name" style="height:200px; object-fit:cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@housing.Name</h5>
+                        <p class="card-text">@housing.Description</p>
+                        <p class="card-text"><strong>Location:</strong> @housing.Location</p>
+                        <p class="card-text"><strong>Price/Night:</strong> $@housing.PricePerNight</p>
+                        <a href="@Url.Action("Reserve", "Housing", new { id = housing.Id })" class="btn btn-primary w-100">Reserve</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

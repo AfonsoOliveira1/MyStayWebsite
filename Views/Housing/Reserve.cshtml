@@ -1,0 +1,30 @@
+﻿@model Booking.web.Models.HousingBookingViewModel
+@{
+    ViewData["Title"] = "Reserve Housing";
+}
+
+<h2 class="text-3xl font-bold mb-4 text-blue-400">Reserve @Model.HousingName</h2>
+
+<div class="card p-4">
+    <form asp-action="Reserve" method="post">
+        <input type="hidden" asp-for="HousingId" />
+        <input type="hidden" asp-for="CustomerId" />
+
+        <div class="mb-3">
+            <label asp-for="CheckInDate" class="form-label">Check-In Date</label>
+            <input asp-for="CheckInDate" class="form-control" type="date" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CheckOutDate" class="form-label">Check-Out Date</label>
+            <input asp-for="CheckOutDate" class="form-control" type="date" />
+        </div>
+
+        <div class="mb-3">
+            <label>Total Price</label>
+            <input class="form-control" value="@Model.TotalPrice" readonly />
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Confirm Booking</button>
+    </form>
+</div>

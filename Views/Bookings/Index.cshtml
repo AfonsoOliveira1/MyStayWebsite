@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Booking.web.Models.BookingViewModel>
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<h2 class="text-3xl font-bold mb-4 text-blue-400">My Bookings</h2>
+
+<table class="table table-dark table-striped">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Item</th>
+            <th>Check-In / Departure</th>
+            <th>Check-Out / Arrival</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var booking in Model)
+        {
+            <tr>
+                <td>@booking.Type</td>
+                <td>@booking.ItemName</td>
+                <td>@(booking.CheckInDate?.ToString("g") ?? booking.FlightDepartureDate?.ToString("g"))</td>
+                <td>@(booking.CheckOutDate?.ToString("g") ?? booking.FlightArrivalDate?.ToString("g"))</td>
+                <td>@booking.Status</td>
+                <td>
+                    @if (booking.IsActive)
+                    {
+                        <form asp-action="Cancel" method="post">
+                            <input type="hidden" name="bookingId" value="@booking.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
