@@ -1,17 +1,48 @@
 ﻿@model Booking.web.Models.LoginModel
 
-<h2>Login</h2>
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
 
-<form asp-action="Login" method="post">
-    <div>
-        <label>Email:</label>
-        <input asp-for="Email" />
-        <span asp-validation-for="Email"></span>
+        <div class="card mt-5">
+            <div class="card-body p-4">
+
+                <h3 class="text-center mb-4">Sign in</h3>
+
+                <form asp-action="Login" method="post" novalidate>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email address</label>
+                        <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Password</label>
+                        <input asp-for="Password"
+                               type="password"
+                               class="form-control"
+                               placeholder="Enter your password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Sign in
+                        </button>
+                    </div>
+
+                </form>
+
+                <hr class="my-4" />
+
+                <div class="d-grid">
+                    <a href="/Account/Register" class="btn btn-outline-primary btn-lg">
+                        Create an account
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
     </div>
-    <div>
-        <label>Password:</label>
-        <input asp-for="Password" type="password" />
-        <span asp-validation-for="Password"></span>
-    </div>
-    <button type="submit">Login</button>
-</form>
+</div>
