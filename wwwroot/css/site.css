@@ -8,13 +8,25 @@ body {
 .navbar {
     background-color: #003580;
     padding: 0.75rem 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .navbar-brand {
     font-weight: 700;
     font-size: 1.5rem;
+    height: auto;
     color: #ffffff !important;
 }
+    .navbar-brand img {
+        height: 120px;
+        width: auto;
+        max-height: none;
+    }
+
+    .navbar-brand span {
+        font-size: 1.5rem;
+        color: #ffffff;
+    }
 
 .nav-link {
     color: #e5efff !important;
@@ -24,6 +36,21 @@ body {
 
     .nav-link:hover {
         text-decoration: underline;
+    }
+
+.nav-link {
+    position: relative;
+}
+
+    .nav-link:hover::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -3px;
+        width: 100%;
+        height: 2px;
+        background-color: #ffffff;
+        border-radius: 2px;
     }
 
 /* MAIN CONTAINER */
@@ -41,23 +68,34 @@ body {
 }
 
     .card:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        border: 1px solid #0071c2;
     }
-
 /* BUTTONS */
 .btn-primary {
-    background-color: #0071c2;
-    border-color: #0071c2;
-    font-weight: 600;
-    border-radius: 0.5rem;
+    background: linear-gradient(180deg, #0071c2, #005fa3);
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
     .btn-primary:hover {
-        background-color: #005fa3;
-        border-color: #005fa3;
+        background: linear-gradient(180deg, #005fa3, #004f8a);
     }
 
+.btn-signin {
+    background-color: #f97316; /* vibrant orange */
+    color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-signin:hover {
+        background-color: #ea580c; /* slightly darker orange on hover */
+    }
 .btn-success {
     background-color: #008009;
     border-color: #008009;
@@ -77,15 +115,14 @@ h1, h2, h3, h4 {
 footer {
     background-color: #003580;
     color: #ffffff;
-    font-size: 0.9rem;.navbar-nav .btn {
-    margin-left: 1rem;
-}
+    font-size: 0.9rem;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
 }
 
 .dropdown-menu {
-    border-radius: 0.75rem;
-    border: none;
-    min-width: 200px;
+    animation: fadeIn 0.25s ease-out;
+    transform-origin: top right;
 }
 
 .dropdown-item {
@@ -99,4 +136,41 @@ footer {
 
 .navbar-nav .btn {
     margin-left: 1rem;
+}
+
+.btn {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+    .btn:hover {
+        transform: scale(1.02);
+    }
+
+.nav-link {
+    color: #ffffff !important;
+}
+
+@media (max-width: 576px) {
+    .navbar-nav .nav-link {
+        margin: 0.5rem 0;
+    }
+}
+.nav-link, .dropdown-item, .btn {
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
