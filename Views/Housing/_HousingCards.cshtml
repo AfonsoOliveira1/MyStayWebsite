@@ -1,0 +1,120 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<section class="hotel-card-mini">
+  <div class="image-wrapper">
+    <img src="https://images.homify.com/v1448129217/p/photo/image/1135013/7.jpg">
+  </div>
+
+  <div class="content-mini">
+    <div class="info-top">
+      <h2>*Nome*<span class="stars-mini">*Avaliação*</span></h2>
+      <p class="loc-mini">*localização*</p>
+    </div>
+
+    <div class="footer-mini">
+      <div class="price-box">
+        <span class="old-p">€</span>
+        <span class="new-p">€ Preço novo</span>
+        <p class="tax-mini">*Possivel Taxa*</p>
+      </div>
+      <button class="btn-mini">Ver</button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hotel-card-mini {
+    max-width: 500px; 
+    margin: 20px auto;
+    background: #003580;
+    border-radius: 12px;
+    display: flex;
+    height: 160px;
+    overflow: hidden;
+    color: #fff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  .image-wrapper {
+    flex: 0 0 210px;
+  }
+
+  .image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .content-mini {
+    flex: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .info-top h2 {
+    font-size: 1.15rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stars-mini {
+    color: #febb02;
+    font-size: 0.85rem;
+  }
+
+  .loc-mini {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin: 5px 0;
+  }
+
+  .footer-mini {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .old-p {
+    font-size: 0.8rem;
+    text-decoration: line-through;
+    color: #ff9b9b;
+    display: block;
+  }
+
+  .new-p {
+    font-size: 1.6rem;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .tax-mini {
+    font-size: 0.7rem;
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+
+  .btn-mini {
+    background: #006ce4;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-mini:hover {
+    background: #0056b3;
+  }
+</style>
