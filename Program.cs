@@ -1,12 +1,12 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews().AddNewtonsoftJson(); // Para JSON
 
-// Configurar HttpClient para API
-builder.Services.AddHttpClient("BookingAPI", client =>
+
+builder.Services.AddHttpClient("Booking.API", client => 
 {
     client.BaseAddress = new Uri("https://localhost:7117/"); 
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
 var app = builder.Build();

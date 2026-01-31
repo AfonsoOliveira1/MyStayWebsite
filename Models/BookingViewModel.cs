@@ -11,13 +11,14 @@
         public string ItemName { get; set; } = "";
 
         // Datas 
-        public DateTime? BookingDate { get; set; }           // Data da reserva
-        public DateTime? CheckInDate { get; set; }           // Apenas para alojamento
-        public DateTime? CheckOutDate { get; set; }          // Apenas para alojamento
-        public DateTime? FlightDepartureDate { get; set; }   // Apenas para voo
-        public DateTime? FlightArrivalDate { get; set; }     // Apenas para voo
+        public DateTime? BookingDate { get; set; }           
+        public DateTime? CheckInDate { get; set; }           
+        public DateTime? CheckOutDate { get; set; }         
+        public DateTime? FlightDepartureDate { get; set; }   
+        public DateTime? FlightArrivalDate { get; set; }    
+        public decimal TotalPrice { get; set; }
 
-        
+
         public string Status { get; set; } = "Confirmed";
 
         // se está ativo ou n

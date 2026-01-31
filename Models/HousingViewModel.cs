@@ -11,5 +11,6 @@ namespace Booking.web.Models
         public string Description { get; set; } = "";
         public string ImageUrl { get; set; } = "";
         public bool IsAvailable { get; set; } = true;
+        public string CityName { get; set; } = "";
     }
 }

@@ -1,24 +1,20 @@
 ﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
-@{
-    ViewData["Title"] = "Available Housing";
-}
-
-<h2 class="text-3xl font-bold mb-4 text-blue-400">Available Housing</h2>
-
-<div class="row row-cols-1 row-cols-md-3 g-4">
-    @foreach (var housing in Model)
-    {
-        <div class="col">
-            <div class="card h-100">
-                <img src="@housing.ImageUrl" class="card-img-top" alt="@housing.Name" style="height:200px; object-fit:cover;">
-                <div class="card-body">
-                    <h5 class="card-title">@housing.Name</h5>
-                    <p class="card-text">@housing.Description</p>
-                    <p class="fw-bold">Location: @housing.Location</p>
-                    <p class="fw-bold">Price/Night: $@housing.PricePerNight</p>
-                    <a href="/Housing/Reserve/@housing.Id" class="btn btn-primary w-100">Reserve</a>
+<div class="container mt-4">
+    <h2>Stays in your destination</h2>
+    <div class="row">
+        @foreach (var house in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@house.Name</h5>
+                        <p class="card-text text-muted">@house.Location</p>
+                        <p class="card-text">@house.Description</p>
+                        <h6 class="text-primary">@house.PricePerNight.ToString("C") / night</h6>
+                        <a asp-action="Reserve" asp-route-id="@house.Id" class="btn btn-outline-primary mt-2">Book Now</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>

@@ -1,6 +1,7 @@
 ﻿using Booking.web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
+using System.Security.Claims;
 
 namespace Booking.Web.Controllers
 {
@@ -17,11 +18,17 @@ namespace Booking.Web.Controllers
         // GET: Bookings/Index
         public async Task<IActionResult> Index()
         {
+            // buscar o ID do user
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId)) return RedirectToAction("Login", "Account");
+
             var client = _clientFactory.CreateClient("Booking.API");
-            var bookings = await client.GetFromJsonAsync<List<BookingViewModel>>($"api/bookings/user/{_dummyUserId}");
+            // passar ID aapi
+            var bookings = await client.GetFromJsonAsync<List<BookingViewModel>>($"api/bookings/user/{userId}");
+
             return View(bookings);
         }
-
         // POST: Bookings/Cancel/5
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -3,7 +3,7 @@
     ViewData["Title"] = "Reserve Flight Seat";
 }
 
-<h2 class="text-3xl font-bold mb-4 text-blue-400">Reserve Seat for @Model.Origin → @Model.Destination</h2>
+<h2 class="text-3xl font-bold mb-4 text-blue-400">Reserve Seat for @Model.OriginCity → @Model.DestinationCity</h2>
 
 <div class="card p-4">
     <form asp-action="Reserve" method="post">
@@ -13,9 +13,9 @@
             @for (int row = 1; row <= 5; row++)
             {
                 <div class="d-flex justify-content-center mb-2">
-                    @foreach (var col in new[] { 'A', 'B', 'C', 'D', 'E', 'F' })
+                   @*  @foreach (var col in new[] { 'A', 'B', 'C', 'D', 'E', 'F' })
                     {
-                        var seat = Model.Seats.FirstOrDefault(s => s.SeatNumber == $"{row}{col}");
+                        var seat = Model.AirlineId.FirstOrDefault(s => s.SeatNumber == $"{row}{col}");
                         bool booked = seat != null && seat.IsBooked;
 
                         <button type="submit" name="SeatId" value="@seat?.Id"
@@ -23,7 +23,7 @@
                                 @(booked ? "disabled" : "")>
                             @($"{row}{col}")
                         </button>
-                    }
+                    } *@
                 </div>
             }
         </div>
