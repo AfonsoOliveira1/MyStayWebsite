@@ -14,7 +14,7 @@ namespace Booking.web.Models
 
             [Required]
             [DataType(DataType.Password)]
-            public string Password { get; set; }
+            public string Passwordhash { get; set; }
 
             [Required]
             public string Role { get; set; } // Customer ou Company
