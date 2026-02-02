@@ -1,0 +1,48 @@
+﻿@model Booking.web.Models.VerifyCodeModel
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+
+        <div class="card mt-5">
+            <div class="card-body p-4">
+
+                <h3 class="text-center mb-4">Verify your email</h3>
+
+                <p class="text-muted text-center mb-4">
+                    Enter the 6‑digit code we sent to your email.
+                </p>
+
+                <form asp-action="VerifyCode" method="post" novalidate>
+
+                    <div class="mb-3">
+                        <label asp-for="Code" class="form-label">Verification Code</label>
+                        <input asp-for="Code"
+                               class="form-control text-center"
+                               maxlength="6"
+                               placeholder="______"
+                               style="font-size: 1.5rem; letter-spacing: 10px;" />
+                        <span asp-validation-for="Code" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Confirm
+                        </button>
+                    </div>
+
+                </form>
+
+                <hr class="my-4" />
+
+                <p class="text-center text-muted mb-0">
+                    Didn’t receive the code?
+                    <a asp-action="ResendCode" class="fw-semibold">
+                        Resend
+                    </a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
