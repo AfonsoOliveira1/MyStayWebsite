@@ -1,26 +1,25 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model Booking.web.Models.HousingViewModel
+
 <section class="hotel-card-mini">
   <div class="image-wrapper">
-    <img src="https://images.homify.com/v1448129217/p/photo/image/1135013/7.jpg">
+        @* Se tiveres uma URL de imagem na BD, usa @Model.ImageUrl, senão mantemos a estática por agora *@
+    <img src="https://images.homify.com/v1448129217/p/photo/image/1135013/7.jpg" alt="@Model.Name">
   </div>
 
   <div class="content-mini">
     <div class="info-top">
-      <h2>*Nome*<span class="stars-mini">*Avaliação*</span></h2>
-      <p class="loc-mini">*localização*</p>
+      <h2>@Model.Name <span class="stars-mini">★★★★</span></h2>
+      <p class="loc-mini">@Model.Location</p>
     </div>
 
     <div class="footer-mini">
       <div class="price-box">
-        <span class="old-p">€ Preço antigo</span>
-        <span class="new-p">€ Preço novo</span>
-        <p class="tax-mini">*Possivel Taxa*</p>
+        <span class="old-p">@((Model.PricePerNight * 1.2m).ToString("C"))</span>
+        <span class="new-p">@Model.PricePerNight.ToString("C")</span>
+        <p class="tax-mini">+ taxas e impostos</p>
       </div>
-      <button class="btn-mini">Ver</button>
+
+      <a asp-action="Reserve" asp-route-id="@Model.Id" class="btn-mini" style="text-decoration: none; text-align: center;">Reservar</a>
     </div>
   </div>
 </section>

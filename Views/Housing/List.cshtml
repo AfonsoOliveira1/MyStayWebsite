@@ -1,20 +1,14 @@
 ﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
+
 <div class="container mt-4">
     <h2>Stays in your destination</h2>
     <div class="row">
         @foreach (var house in Model)
         {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">@house.Name</h5>
-                        <p class="card-text text-muted">@house.Location</p>
-                        <p class="card-text">@house.Description</p>
-                        <h6 class="text-primary">@house.PricePerNight.ToString("C") / night</h6>
-                        <a asp-action="Reserve" asp-route-id="@house.Id" class="btn btn-outline-primary mt-2">Reservar</a>
-                    </div>
+                <div class="col-md-6 mb-4"> @* Mudei para col-md-6 porque os teus cards são mais largos *@
+                @* CHAMADA DA PARTIAL VIEW *@
+                    <partial name="_HousingCards" model="house" />
                 </div>
-            </div>
         }
     </div>
 </div>
