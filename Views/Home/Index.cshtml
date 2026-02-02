@@ -1,8 +1,41 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model HomeViewModel
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container">
+    <h2 class="fw-bold mb-4">Stays Recomendadas</h2>
+    <div class="row g-4">
+        @foreach (var stay in Model.TopStays)
+        {
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 hotel-card">
+                    <img src="@stay.ImageUrl" class="card-img-top rounded-3" alt="@stay.Name">
+                    <div class="card-body px-0">
+                        <h5 class="card-title fw-bold">@stay.Name</h5>
+                        <p class="text-muted mb-1">@stay.Location</p>
+                        <p class="fw-bold text-primary">Desde @stay.PricePerNight.ToString("C") / noite</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <h2 class="fw-bold my-5">Voos Disponíveis</h2>
+    <div class="row g-4">
+        @foreach (var flight in Model.TopFlights)
+        {
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-3 flight-card">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold">@flight.OriginId &rarr; @flight.DestinationId</h6>
+                            <small class="text-muted">Partida: @flight.DepartureTime.ToString("dd/MM/yyyy HH:mm")</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold fs-5 text-dark">@flight.Price.ToString("C")</div>
+                            <a href="/Booking/Flight/@flight.Id" class="btn btn-sm btn-primary">Reservar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
