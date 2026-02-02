@@ -24,39 +24,37 @@ namespace Booking.web.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var client = _clientFactory.CreateClient("Booking.API");
-
-   
             var response = await client.PostAsJsonAsync("api/users/login", model);
 
             if (response.IsSuccessStatusCode)
             {
-                // resposta que contém o Token e os dados do User
                 var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponseDTO>();
 
-                if (loginResponse != null)
+                if (loginResponse != null && loginResponse.User != null)
                 {
-                   
                     var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
-                        new Claim(ClaimTypes.Email, loginResponse.User.Email),
-                        new Claim(ClaimTypes.Role, loginResponse.User.Role),
-                        new Claim("JWToken", loginResponse.Token) // Guardamos o token para as APIs
-                    };
+            {
+                // Agora o compilador já reconhece o .Id porque usamos UserViewModel
+                new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
+                new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
+                new Claim(ClaimTypes.Email, loginResponse.User.Email),
+                new Claim(ClaimTypes.Role, loginResponse.User.Role),
+                new Claim("JWToken", loginResponse.Token)
+            };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                     await HttpContext.SignInAsync(
-    CookieAuthenticationDefaults.AuthenticationScheme, 
-    new ClaimsPrincipal(claimsIdentity)
-);
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity)
+                    );
 
                     TempData["Message"] = "Welcome back!";
                     return RedirectToAction("Index", "Home");
                 }
             }
 
-            ModelState.AddModelError("", "Invalid email or password.");
+            ModelState.AddModelError("", "Email ou password incorretos.");
             return View(model);
         }
 

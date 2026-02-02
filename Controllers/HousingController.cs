@@ -1,7 +1,8 @@
 ﻿using Booking.web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
-using System.Security.Claims; // ADICIONA ISTO
+using System.Security.Claims;
+using System.Net.Http.Headers;
 
 namespace Booking.Web.Controllers
 {
@@ -17,31 +18,32 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> List()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            // CORREÇÃO: api/housings (plural)
             var housings = await client.GetFromJsonAsync<List<HousingViewModel>>("api/housings");
             return View(housings);
         }
 
         public async Task<IActionResult> Reserve(int id)
         {
-            // VAI BUSCAR O ID REAL DO USER LOGADO
+            // Agora o NameIdentifier já não virá nulo
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login", "Account");
 
             var client = _clientFactory.CreateClient("Booking.API");
-            // CORREÇÃO: api/housings (plural)
-            var housing = await client.GetFromJsonAsync<HousingViewModel>($"api/housings/{id}");
 
+            // BUSCA O TOKEN DO COOKIE E ENVIA PARA A API
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var housing = await client.GetFromJsonAsync<HousingViewModel>($"api/housings/{id}");
             if (housing == null) return NotFound();
 
             var model = new HousingBookingViewModel
             {
                 HousingId = housing.Id,
-                CustomerId = int.Parse(userIdStr), 
+                CustomerId = int.Parse(userIdStr),
                 HousingName = housing.Name,
                 PricePerNight = housing.PricePerNight
             };
-
             return View(model);
         }
 
@@ -52,7 +54,11 @@ namespace Booking.Web.Controllers
             if (!ModelState.IsValid) return View(booking);
 
             var client = _clientFactory.CreateClient("Booking.API");
-            // CORREÇÃO: Verifica se na API o endpoint de reserva também é plural ou singular
+
+            // ENVIA O TOKEN TAMBÉM NO POST
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var response = await client.PostAsJsonAsync("api/housingbooking", booking);
 
             if (response.IsSuccessStatusCode)
