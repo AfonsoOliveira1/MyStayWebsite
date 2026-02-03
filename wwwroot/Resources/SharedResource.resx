@@ -135,6 +135,9 @@
   <data name="Footer" xml:space="preserve">
     <value>2026 MyStay-Serviços globais de marcações. Todos os direitos reservados</value>
   </data>
+  <data name="RecomendedStays" xml:space="preserve">
+    <value>Estadias recomendadas</value>
+  </data>
   <data name="StaysDestinations" xml:space="preserve">
     <value>Estadias no seu destino</value>
   </data>
