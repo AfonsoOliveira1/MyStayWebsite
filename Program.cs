@@ -1,9 +1,17 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+/////////////////////////////////////////////////////////////////////////////////////////
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-
-builder.Services.AddControllersWithViews().AddNewtonsoftJson();
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization()
+    .AddNewtonsoftJson();
+/////////////////////////////////////////////////////////////////////////////////////////
+//builder.Services.AddControllersWithViews().AddNewtonsoftJson(); duplicado
 
 
 // Isto cria a identtidade do useer
@@ -26,7 +34,20 @@ builder.Services.AddHttpClient("Booking.API", client =>
 });
 
 var app = builder.Build();
+///////////////////////////////////////////////////////////////////
+var supportedCultures = new[]
+{
+    new CultureInfo("pt-PT"),
+    new CultureInfo("en-US")
+};
 
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("pt-PT"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+};
+///////////////////////////////////////////////////////////////////
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -38,7 +59,8 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseRouting();
-app.UseAuthentication();
+app.UseRequestLocalization(localizationOptions);
+//app.UseAuthentication(); está em comentario pois está duplicado "pq que n apagar?" pode dar errado sem tlv
 app.UseAuthorization();
 
 app.MapControllerRoute(
