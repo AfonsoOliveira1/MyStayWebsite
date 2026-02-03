@@ -1,34 +1,84 @@
 ﻿@model IEnumerable<Booking.web.Models.FlightViewModel>
 
-<div class="container mt-4">
-    <h2>Voos Disponíveis</h2>
-    <div class="mb-3">
-        <a asp-action="Create" class="btn btn-success">Adicionar Novo Voo</a>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Voos Disponíveis</h2>
+            <p class="text-muted">Encontre as melhores rotas para a sua próxima viagem.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-success rounded-pill px-4 shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i>Adicionar Voo
+        </a>
     </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Origem</th>
-                <th>Destino</th>
-                <th>Preço</th>
-                <th>Estado</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.OriginCity</td>
-                    <td>@item.DestinationCity</td>
-                    <td>@item.Price.ToString("C")</td>
-                    <td>@item.ApprovalStatus</td>
-                    <td>
-                        <a asp-action="Reserve" asp-route-id="@item.Id" class="btn btn-primary btn-sm">Reservar</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm">@TempData["Success"]</div>
+    }
+
+    <div class="row">
+        @foreach (var flight in Model)
+        {
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 flight-hover">
+                    <div class="row g-0 h-100">
+                        <div class="col-md-8 p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-primary-soft text-primary rounded-pill px-3 py-2">Direto</span>
+                                <span class="ms-3 text-muted small"><i class="bi bi-hash me-1"></i>@flight.Id</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h4 class="fw-bold mb-0">@flight.OriginCity</h4>
+                                    <p class="text-muted small">@flight.DepartureTime.ToString("dd MMM, HH:mm")</p>
+                                </div>
+                                <div class="px-3 text-center">
+                                    <i class="bi bi-airplane-fill text-primary fs-4"></i>
+                                    <div class="border-top mt-2" style="width: 40px; border-style: dashed !important;"></div>
+                                </div>
+                                <div class="text-end">
+                                    <h4 class="fw-bold mb-0">@flight.DestinationCity</h4>
+                                    <p class="text-muted small">@flight.DepartureTime.AddHours(2).ToString("HH:mm")</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 bg-light d-flex flex-column justify-content-center align-items-center p-4 border-start">
+                            <h3 class="fw-bold text-primary mb-3">@flight.Price.ToString("C")</h3>
+                            <a asp-action="Reserve" asp-route-id="@flight.Id" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm">
+                                Reservar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+
+<style>
+    .bg-primary-soft {
+        background-color: #eef2f7;
+    }
+
+    .text-primary {
+        color: #003580 !important;
+    }
+
+    .btn-primary {
+        background-color: #003580;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #00265c;
+        }
+
+    .flight-hover {
+        transition: transform 0.2s;
+    }
+
+        .flight-hover:hover {
+            transform: translateY(-5px);
+        }
+</style>

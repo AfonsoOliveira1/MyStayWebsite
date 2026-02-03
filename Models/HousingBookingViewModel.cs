@@ -14,7 +14,7 @@ namespace Booking.web.Models
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
 
-        public decimal TotalPrice                       // Calcula automaticamente
+        public decimal TotalPrice                    
         {
             get
             {

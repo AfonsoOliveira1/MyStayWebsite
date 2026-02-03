@@ -18,10 +18,9 @@
         public DateTime? FlightArrivalDate { get; set; }    
         public decimal TotalPrice { get; set; }
 
-
         public string Status { get; set; } = "Confirmed";
 
-        // se está ativo ou n
+        // se esta ativo ou n
         public bool IsActive { get; set; } = true;
     }
 }

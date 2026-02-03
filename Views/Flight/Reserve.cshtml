@@ -1,31 +1,55 @@
 ﻿@model Booking.web.Models.FlightViewModel
-@{
-    ViewData["Title"] = "Reserve Flight Seat";
-}
 
-<h2 class="text-3xl font-bold mb-4 text-blue-400">Reserve Seat for @Model.OriginCity → @Model.DestinationCity</h2>
-
-<div class="card p-4">
-    <form asp-action="Reserve" method="post">
-        <input type="hidden" asp-for="Id" />
-
-        <div class="d-grid gap-2">
-            @for (int row = 1; row <= 5; row++)
-            {
-                <div class="d-flex justify-content-center mb-2">
-                   @*  @foreach (var col in new[] { 'A', 'B', 'C', 'D', 'E', 'F' })
-                    {
-                        var seat = Model.AirlineId.FirstOrDefault(s => s.SeatNumber == $"{row}{col}");
-                        bool booked = seat != null && seat.IsBooked;
-
-                        <button type="submit" name="SeatId" value="@seat?.Id"
-                                class="btn @(booked ? "btn-danger" : "btn-success") me-1"
-                                @(booked ? "disabled" : "")>
-                            @($"{row}{col}")
-                        </button>
-                    } *@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="bg-primary p-5 text-white text-center">
+                    <i class="bi bi-airplane fs-1 mb-3"></i>
+                    <h3 class="fw-bold">Confirmar Reserva</h3>
+                    <p class="opacity-75 mb-0">@Model.OriginCity para @Model.DestinationCity</p>
                 </div>
-            }
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex justify-content-between mb-4 pb-4 border-bottom">
+                        <div>
+                            <p class="text-muted small mb-1">DATA DA VIAGEM</p>
+                            <h5 class="fw-bold">@Model.DepartureTime.ToString("dd/MM/yyyy")</h5>
+                        </div>
+                        <div class="text-end">
+                            <p class="text-muted small mb-1">HORA DE EMBARQUE</p>
+                            <h5 class="fw-bold">@Model.DepartureTime.ToString("HH:mm")</h5>
+                        </div>
+                    </div>
+
+                    <form asp-action="Reserve" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="Id" value="@Model.Id" />
+
+                        <label class="form-label fw-bold mb-3">Selecione o seu Lugar</label>
+                        <select name="SeatId" class="form-select form-select-lg mb-4" required>
+                            <option value="">-- Escolher Assento --</option>
+                            <option value="1">Lugar 04A (Janela)</option>
+                            <option value="2">Lugar 04B (Corredor)</option>
+                        </select>
+
+                        <div class="bg-light p-4 rounded-3 mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0">Preço Total</span>
+                                <span class="h3 fw-bold text-primary mb-0">@Model.Price.ToString("C")</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-pill fw-bold shadow">
+                            Confirmar Reserva <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+                    <div class="text-center mt-4">
+                        <a asp-action="List" class="text-muted text-decoration-none small">
+                            <i class="bi bi-x-circle me-1"></i> Cancelar e voltar à lista
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>

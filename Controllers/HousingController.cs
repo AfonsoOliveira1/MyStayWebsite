@@ -42,7 +42,9 @@ namespace Booking.Web.Controllers
                 HousingId = housing.Id,
                 CustomerId = int.Parse(userIdStr),
                 HousingName = housing.Name,
-                PricePerNight = housing.PricePerNight
+                PricePerNight = housing.PricePerNight,
+                CheckInDate = DateTime.Now, // Data de hoje
+                CheckOutDate = DateTime.Now.AddDays(1) // Amanhã
             };
             return View(model);
         }
