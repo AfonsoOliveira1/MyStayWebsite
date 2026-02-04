@@ -17,6 +17,7 @@ body {
     height: auto;
     color: #ffffff !important;
 }
+
     .navbar-brand img {
         height: 120px;
         width: auto;
@@ -96,6 +97,7 @@ body {
     .btn-signin:hover {
         background-color: #ea580c; /* slightly darker orange on hover */
     }
+
 .btn-success {
     background-color: #008009;
     border-color: #008009;
@@ -155,22 +157,11 @@ footer {
         margin: 0.5rem 0;
     }
 }
+
 .nav-link, .dropdown-item, .btn {
     cursor: pointer;
 }
 
 .dropdown-menu {
     animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }

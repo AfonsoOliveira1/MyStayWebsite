@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Http.Json;
 using System.Net.Mail;
+using System.Reflection;
 using System.Security.Claims;
 
 namespace Booking.web.Controllers
@@ -69,8 +70,8 @@ namespace Booking.web.Controllers
 
             var client = _clientFactory.CreateClient("Booking.API");
 
-            
-            var response = await client.PostAsJsonAsync("api/users", model);
+
+            var response = await client.PostAsJsonAsync("api/users/register", model);
 
             if (response.IsSuccessStatusCode)
             {
@@ -87,23 +88,22 @@ namespace Booking.web.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
-        [HttpGet]
-        public IActionResult VerifyCode(string Email)
+        public void Email2FA(string toEmail)
         {
             string code = new Random().Next(100000, 999999).ToString();
 
             TempData["VerificationCode"] = code;
-            TempData["Email"] = Email;
+            TempData["Email"] = toEmail;
 
             MailMessage mail = new MailMessage();
             mail.From = new MailAddress("mystaystaff@gmail.com");
-            mail.To.Add(Email);
+            mail.To.Add(toEmail);
             mail.Subject = "MyStay Verification Code (2FA)";
             mail.Body = $"Automated Email from MyStay,\nYour verification code is: {code}";
 
             //ENVIO REAL
             SmtpClient smtp;
-            string domain = Email.Split('@')[1].ToLower();
+            string domain = toEmail.Split('@')[1].ToLower();
             try
             {
                 if (domain.Contains("gmail.com"))
@@ -141,35 +141,88 @@ namespace Booking.web.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Failed to send email: " + ex.Message);
-                return View(new VerifyCodeModel());
+            }
+        }
+        public bool Verify2FA(VerifyCodeModel model)
+        {
+            string correctCode = TempData["VerificationCode"]?.ToString();
+
+            if (correctCode == null)
+            {
+                ModelState.AddModelError("", "Verification expired. Request a new code.");
+                return false;
             }
 
+            if (model.Code != correctCode)
+            {
+                ModelState.AddModelError("", "Invalid Code");
+                return false;
+            }
+            return true;
+        }
+        [HttpGet]
+        public IActionResult VerifyCode(string Email)
+        {
+            Email2FA(Email);
             return View(new VerifyCodeModel());
         }
 
         [HttpPost]
         public IActionResult VerifyCode(VerifyCodeModel model)
         {
-            if (!ModelState.IsValid)
+            if (Verify2FA(model) == false)
                 return View(model);
-
-            string correctCode = TempData["VerificationCode"]?.ToString();
-
-            if (correctCode == null)
-            {
-                ModelState.AddModelError("", "Verification expired. Request a new code.");
-                return View(model);
-            }
-
-            if (model.Code != correctCode)
-            {
-                ModelState.AddModelError("", "Invalid Code");
-                return View(model);
-            }
-
-            return RedirectToAction("Profile");
+            else
+                return RedirectToAction("Profile");
         }
 
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            var user = new ProfileViewModel
+            {
+                Name = User.Identity.Name ?? "Unknown",
+                Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "Unknown",
+                Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown",
+            };
+            return View(user);
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> ProfileEdit(ProfileViewModel profile)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Profile");
+            }
+
+            if (profile.NewPassword != profile.ConfirmPassword)
+            {
+                ModelState.AddModelError("", "New password and confirmation do not match.");
+                return View("Profile");
+            }
+
+            if (profile.Name != User.Identity.Name ||
+               profile.NewPassword != null ||
+               profile.Role != User.FindFirst(ClaimTypes.Role)?.Value)
+            {
+                //se alguma mudança acontecer envia email de confirmação para o antigo email para confirmar as mudanças
+                Email2FA(User.FindFirst(ClaimTypes.Email)?.Value);
+                if (Verify2FA(new VerifyCodeModel { Code = Request.Form["Code"] }) == false)
+                {
+                    return View("Profile");
+                }
+                else
+                {
+                    /*
+                     * falta implementar a chamada à API para atualizar os dados do user!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    var client = _clientFactory.CreateClient("Booking.API");
+                    var response = await client.PostAsJsonAsync($"api/users/approve/{}");
+                    */
+                }
+            }
+
+            return RedirectToAction("Profile");//clico no butao e nao mudou nada, volta ao perfil sem mudanças
+        }
     }
 }

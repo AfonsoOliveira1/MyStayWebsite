@@ -1,21 +1,137 @@
 ﻿@model Booking.web.Models.HousingBookingViewModel
-<div class="container mt-4">
-    <h2>Reserve @Model.HousingName</h2>
-    <form asp-action="Reserve" method="post">
-        <input type="hidden" asp-for="HousingId" />
-        <input type="hidden" asp-for="CustomerId" />
-        <input type="hidden" asp-for="PricePerNight" />
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label>Check-in</label>
-                <input asp-for="CheckInDate" type="date" class="form-control" />
-            </div>
-            <div class="col-md-6 mb-3">
-                <label>Check-out</label>
-                <input asp-for="CheckOutDate" type="date" class="form-control" />
+<style>
+    .bg-mystay-blue {
+        background-color: #003580 !important;
+    }
+
+    .btn-mystay {
+        background-color: #003580;
+        color: white;
+        border: none;
+    }
+
+        .btn-mystay:hover {
+            background-color: #00265c;
+            color: white;
+        }
+
+    .text-mystay-blue {
+        color: #003580;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-5 bg-mystay-blue text-white p-5 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-house-door-fill fs-3 me-2 text-warning"></i>
+                                <span class="text-uppercase fw-bold small">Alojamento</span>
+                            </div>
+                            <h2 class="fw-bold mb-4">@Model.HousingName</h2>
+
+                            <ul class="list-unstyled">
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="bi bi-tag me-3 opacity-75"></i>
+                                    <span><strong>@Model.PricePerNight.ToString("C")</strong> / noite</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="bi bi-shield-check me-3 opacity-75"></i>
+                                    <span>Confirmação Instantânea</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-5 pt-4 border-top border-white border-opacity-25">
+                            <p class="small mb-1 opacity-75">Total Estimado</p>
+                            <h3 class="fw-bold mb-0" id="displayTotal">@Model.TotalPrice.ToString("C")</h3>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7 bg-white p-5">
+                        <h4 class="fw-bold text-mystay-blue mb-4">Selecione as Datas</h4>
+
+                        <form asp-action="ConfirmReservation" method="post">
+                            <input type="hidden" asp-for="HousingId" />
+                            <input type="hidden" asp-for="CustomerId" />
+                            <input type="hidden" asp-for="HousingName" />
+                            <input type="hidden" asp-for="PricePerNight" id="pricePerNightValue" />
+
+                            <div class="row g-3">
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-semibold text-muted">Data de Check-in</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event"></i></span>
+                                        <input asp-for="CheckInDate" type="date" class="form-control form-control-lg border-start-0 bg-light"
+                                               id="checkin" min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mb-4">
+                                    <label class="form-label fw-semibold text-muted">Data de Check-out</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-check"></i></span>
+                                        <input asp-for="CheckOutDate" type="date" class="form-control form-control-lg border-start-0 bg-light"
+                                               id="checkout" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-mystay btn-lg w-100 fw-bold py-3 shadow-sm mb-3">
+                                        Confirmar Reserva <i class="bi bi-arrow-right ms-2"></i>
+                                    </button>
+
+                                    <div class="text-center">
+                                        <a href="/Housing/List" class="text-decoration-none text-muted small">
+                                            <i class="bi bi-x-circle me-1"></i> Cancelar e voltar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-success">Confirm Reservation</button>
-    </form>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        const checkinInput = document.getElementById('checkin');
+        const checkoutInput = document.getElementById('checkout');
+        const displayTotal = document.getElementById('displayTotal');
+        const price = parseFloat("@Model.PricePerNight".replace(',', '.'));
+
+        function updateUI() {
+            const start = new Date(checkinInput.value);
+            const end = new Date(checkoutInput.value);
+
+            if (start && end && end > start) {
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const total = diffDays * price;
+
+                displayTotal.innerText = total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+            } else {
+                displayTotal.innerText = (0).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+            }
+        }
+
+        checkinInput.addEventListener('change', () => {
+            const nextDay = new Date(checkinInput.value);
+            nextDay.setDate(nextDay.getDate() + 1);
+            checkoutInput.min = nextDay.toISOString().split('T')[0];
+            updateUI();
+        });
+
+        checkoutInput.addEventListener('change', updateUI);
+
+        
+        updateUI();
+    </script>
+}
