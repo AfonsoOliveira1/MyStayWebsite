@@ -6,10 +6,16 @@
             <h2 class="fw-bold text-dark mb-0">Voos Disponíveis</h2>
             <p class="text-muted">Encontre as melhores rotas para a sua próxima viagem.</p>
         </div>
-        <a asp-action="Create" class="btn btn-success rounded-pill px-4 shadow-sm">
-            <i class="bi bi-plus-lg me-2"></i>Adicionar Voo
-        </a>
+
+        @if (User.Identity.IsAuthenticated && User.IsInRole("ADMIN"))
+        {
+            <a asp-action="Create" class="btn btn-success rounded-pill px-4 shadow-sm">
+                <i class="bi bi-plus-lg me-2"></i>Adicionar Voo
+            </a>
+        }
+      
     </div>
+
 
     @if (TempData["Success"] != null)
     {

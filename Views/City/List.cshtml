@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Booking.web.Models.CityViewModel>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Gestão de Destinos</h2>
+            <p class="text-muted">Lista de cidades disponíveis para origens e destinos de voos.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-success rounded-pill px-4 shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i>Nova Cidade
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm">@TempData["Success"]</div>
+    }
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <table class="table table-hover mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="px-4 py-3">ID</th>
+                    <th class="px-4 py-3">Nome da Cidade</th>
+                    <th class="px-4 py-3 text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var city in Model)
+                {
+                    <tr>
+                        <td class="px-4 py-3 text-muted">#@city.Id</td>
+                        <td class="px-4 py-3 fw-bold">@city.Name</td>
+                        <td class="px-4 py-3 text-end">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                <i class="bi bi-trash me-1"></i>Apagar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>  

@@ -1,0 +1,53 @@
+﻿@model CityViewModel
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white p-4">
+                    <h3 class="mb-0"><i class="bi bi-geo-alt-fill me-2"></i>Adicionar Nova Cidade</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Nome da Cidade</label>
+                                <input asp-for="Name" class="form-control form-control-lg" placeholder="Ex: Lisboa" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">País</label>
+                                <select asp-for="CountryId" class="form-select form-select-lg bg-light border-0 shadow-sm" asp-items="ViewBag.Countries">
+                                    <option value="">-- Selecione o País --</option>
+                                </select>
+                                <span asp-validation-for="CountryId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ID do Estado/Região</label>
+                                <input asp-for="StateId" type="number" class="form-control" placeholder="Opcional" />
+                            </div>
+
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Fuso Horário (Timezone)</label>
+                                <input asp-for="Timezone" class="form-control" placeholder="Ex: GMT+0, Europe/Lisbon" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">É Capital?</label>
+                                <select asp-for="IsCapital" class="form-select">
+                                    <option value="0">Não</option>
+                                    <option value="1">Sim</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-action="List" class="btn btn-light px-4">Voltar</a>
+                            <button type="submit" class="btn btn-primary px-5 fw-bold">Guardar Cidade</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
