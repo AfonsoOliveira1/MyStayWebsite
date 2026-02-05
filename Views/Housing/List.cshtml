@@ -1,12 +1,11 @@
 ﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
 
 <div class="container mt-4">
-    <h2>Stays in your destination</h2>
+    <h2>@Localizer["StaysDestinations"]</h2>
     <div class="row">
         @foreach (var house in Model)
         {
-                <div class="col-md-6 mb-4"> @* Mudei para col-md-6 porque os teus cards são mais largos *@
-                @* CHAMADA DA PARTIAL VIEW *@
+                <div class="col-md-6 mb-4">
                     <partial name="_HousingCards" model="house" />
                 </div>
         }

@@ -1,18 +1,23 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
+using Booking.web; // Certifique-se que o namespace do SharedResource está correto
 
 var builder = WebApplication.CreateBuilder(args);
 
-//  Localização e Controllers
+// 1. Configuração de Localização
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
-    .AddDataAnnotationsLocalization()
+    .AddDataAnnotationsLocalization(options => {
+        // Força o uso da classe SharedResource para traduções de validação/modelos
+        options.DataAnnotationLocalizerProvider = (type, factory) =>
+            factory.Create(typeof(SharedResource));
+    })
     .AddNewtonsoftJson();
 
-// Configuração de Autenticação 
+// 2. Configuração de Autenticação 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -22,10 +27,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.Cookie.SameSite = SameSiteMode.Lax;
-        
     });
 
-// Configuração do HttpClient
+// 3. Configuração do HttpClient
 builder.Services.AddHttpClient("Booking.API", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7117/");
@@ -34,11 +38,12 @@ builder.Services.AddHttpClient("Booking.API", client =>
 
 var app = builder.Build();
 
-//  Configuração de idiomas
+// 4. Configuração detalhada de idiomas
 var supportedCultures = new[]
 {
     new CultureInfo("pt-PT"),
-    new CultureInfo("en-US")
+    new CultureInfo("en-US"),
+    new CultureInfo("en") // Adicionado 'en' genérico para compatibilidade
 };
 
 var localizationOptions = new RequestLocalizationOptions
@@ -48,7 +53,10 @@ var localizationOptions = new RequestLocalizationOptions
     SupportedUICultures = supportedCultures
 };
 
-//  Pipeline de Execução
+// Permite mudar o idioma via QueryString: ?culture=en-US
+localizationOptions.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
+
+// 5. Pipeline de Execução
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -56,9 +64,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(); // Serve arquivos da wwwroot
 app.UseRouting();
 
+// O UseRequestLocalization deve vir DEPOIS de UseRouting e ANTES de UseAuthorization
 app.UseRequestLocalization(localizationOptions);
 
 app.UseAuthentication();

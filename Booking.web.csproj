@@ -7,12 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Resources\SharedResource.en.resx" />
+    <Content Include="Resources\SharedResource.resx" />
     <Content Include="SharedResource.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="wwwroot\Resources\SharedResource.en.resx" />
-    <EmbeddedResource Include="wwwroot\Resources\SharedResource.resx" />
   </ItemGroup>
 
   <ItemGroup>
