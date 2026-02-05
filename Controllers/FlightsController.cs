@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 
 namespace Booking.Web.Controllers
 {
-    [Authorize(Roles = "ADMIN,AirLine")]
+    [Authorize(Roles = "ADMIN,AIRLINE")]
     public class FlightController : Controller
     {
         private readonly IHttpClientFactory _clientFactory;
@@ -96,6 +96,23 @@ namespace Booking.Web.Controllers
 
             await LoadFlightViewBags();
             return View(model);
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> PendingApprovals()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+
+           
+            var response = await client.GetAsync("api/Flights/pending");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var flights = await response.Content.ReadFromJsonAsync<List<FlightViewModel>>();
+                return View(flights);
+            }
+
+            return View(new List<FlightViewModel>());
         }
     }
 }
