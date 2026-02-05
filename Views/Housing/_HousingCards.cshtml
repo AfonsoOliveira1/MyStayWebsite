@@ -16,10 +16,10 @@
       <div class="price-box">
         <span class="old-p">@((Model.PricePerNight * 1.2m).ToString("C"))</span>
         <span class="new-p">@Model.PricePerNight.ToString("C")</span>
-        <p class="tax-mini">+ taxas e impostos</p>
+        <p class="tax-mini">@Localizer["Taxes"]</p>
       </div>
 
-      <a asp-action="Reserve" asp-route-id="@Model.Id" class="btn-mini" style="text-decoration: none; text-align: center;">Reservar</a>
+      <a asp-action="Reserve" asp-route-id="@Model.Id" class="btn-mini" style="text-decoration: none; text-align: center;">@Localizer["Reserve"]</a>
     </div>
   </div>
 </section>

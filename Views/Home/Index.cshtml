@@ -18,7 +18,7 @@
         }
     </div>
 
-    <h2 class="fw-bold my-5">Voos Disponíveis</h2>
+    <h2 class="fw-bold my-5">@Localizer["AvailableFlights"]</h2>
     <div class="row g-4">
         @foreach (var flight in Model.TopFlights)
         {
@@ -31,7 +31,7 @@
                         </div>
                         <div class="text-end">
                             <div class="fw-bold fs-5 text-dark">@flight.Price.ToString("C")</div>
-                            <a href="/Booking/Flight/@flight.Id" class="btn btn-sm btn-primary">Reservar</a>
+                                <a href="/Booking/Flight/@flight.Id" class="btn btn-sm btn-primary">@Localizer["Reserve"]</a>
                         </div>
                     </div>
                 </div>

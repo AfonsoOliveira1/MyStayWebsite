@@ -120,6 +120,9 @@
   <data name="AddFlight" xml:space="preserve">
     <value>Add new flight</value>
   </data>
+  <data name="AdminHeader" xml:space="preserve">
+    <value>Admin tools</value>
+  </data>
   <data name="AIassistant" xml:space="preserve">
     <value>MyStay assistant</value>
   </data>
@@ -129,19 +132,55 @@
   <data name="AvailableFlights" xml:space="preserve">
     <value>Available flights</value>
   </data>
+  <data name="AvailableStays" xml:space="preserve">
+    <value>Available stays</value>
+  </data>
+  <data name="CancelAndLeave" xml:space="preserve">
+    <value>Cancel and leave</value>
+  </data>
+  <data name="Confirmation" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
   <data name="FlightsHeader" xml:space="preserve">
     <value>Flights</value>
   </data>
   <data name="Footer" xml:space="preserve">
     <value>2026 MyStay-Global Booking Services. All rights reserved.</value>
   </data>
+  <data name="MyBookingsHeader" xml:space="preserve">
+    <value>My bookings</value>
+  </data>
+  <data name="Night" xml:space="preserve">
+    <value>Night</value>
+  </data>
+  <data name="PickDate" xml:space="preserve">
+    <value>Select the dates</value>
+  </data>
+  <data name="ProfileSettings" xml:space="preserve">
+    <value>Profile settings</value>
+  </data>
   <data name="RecomendedStays" xml:space="preserve">
     <value>RecomendedStays</value>
+  </data>
+  <data name="Reserve" xml:space="preserve">
+    <value>Reserve</value>
+  </data>
+  <data name="Routes" xml:space="preserve">
+    <value>Find the best routes for your next flight</value>
+  </data>
+  <data name="SignOutHeader" xml:space="preserve">
+    <value>Sign Out</value>
+  </data>
+  <data name="Stay" xml:space="preserve">
+    <value>Estadias</value>
   </data>
   <data name="StaysDestinations" xml:space="preserve">
     <value>Stays in your destination</value>
   </data>
   <data name="StaysHeader" xml:space="preserve">
     <value>Stays</value>
+  </data>
+  <data name="Taxes" xml:space="preserve">
+    <value>+taxes</value>
   </data>
 </root>
