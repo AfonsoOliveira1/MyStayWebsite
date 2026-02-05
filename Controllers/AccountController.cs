@@ -205,7 +205,7 @@ namespace Booking.web.Controllers
             var client = _clientFactory.CreateClient("Booking.API");
             var response = await client.PutAsJsonAsync("api/users/update", profile);
 
-            TempData["Sucess"] = "Profile updated successfully!";
+            TempData["Sucess"] = "Profile updated successfully!.";
             return View("Profile", profile);
         }
     }
