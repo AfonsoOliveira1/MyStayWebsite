@@ -118,69 +118,69 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AddFlight" xml:space="preserve">
-    <value>Adicionar novo voo</value>
+    <value>Add new flight</value>
   </data>
   <data name="AdminHeader" xml:space="preserve">
-    <value>Ferramentas de administrador</value>
+    <value>Admin tools</value>
   </data>
   <data name="AIassistant" xml:space="preserve">
-    <value>Assistente MyStay</value>
+    <value>MyStay assistant</value>
   </data>
   <data name="AIheader" xml:space="preserve">
-    <value>Chat de IA</value>
+    <value>AI Chat</value>
   </data>
   <data name="AvailableFlights" xml:space="preserve">
-    <value>Voos disponíveis</value>
+    <value>Available flights</value>
   </data>
   <data name="AvailableStays" xml:space="preserve">
-    <value>Alojamentos disponiveis</value>
+    <value>Available stays</value>
   </data>
   <data name="CancelAndLeave" xml:space="preserve">
-    <value>Cancelar e voltar</value>
+    <value>Cancel and leave</value>
   </data>
   <data name="Confirmation" xml:space="preserve">
-    <value>Confirmação</value>
+    <value>Confirmation</value>
   </data>
   <data name="FlightsHeader" xml:space="preserve">
-    <value>Voos</value>
+    <value>Flights</value>
   </data>
   <data name="Footer" xml:space="preserve">
-    <value>2026 MyStay-Serviços globais de marcações. Todos os direitos reservados</value>
+    <value>2026 MyStay-Global Booking Services. All rights reserved.</value>
   </data>
   <data name="MyBookingsHeader" xml:space="preserve">
-    <value>Minhas reservas</value>
+    <value>My bookings</value>
   </data>
   <data name="Night" xml:space="preserve">
-    <value>Noite</value>
+    <value>Night</value>
   </data>
   <data name="PickDate" xml:space="preserve">
-    <value>Selecione as datas</value>
+    <value>Select the dates</value>
   </data>
   <data name="ProfileSettings" xml:space="preserve">
-    <value>Configuração de perfil</value>
+    <value>Profile settings</value>
   </data>
   <data name="RecomendedStays" xml:space="preserve">
-    <value>Estadias recomendadas</value>
+    <value>RecomendedStays</value>
   </data>
   <data name="Reserve" xml:space="preserve">
-    <value>Reservar</value>
+    <value>Reserve</value>
   </data>
   <data name="Routes" xml:space="preserve">
-    <value>Encontre as melhores rotas para a sua próxima viagem.</value>
+    <value>Find the best routes for your next flight</value>
   </data>
   <data name="SignOutHeader" xml:space="preserve">
-    <value>Sair</value>
+    <value>Sign Out</value>
   </data>
   <data name="Stay" xml:space="preserve">
-    <value>Estadia</value>
+    <value>Stay</value>
   </data>
   <data name="StaysDestinations" xml:space="preserve">
-    <value>Estadias no seu destino</value>
+    <value>Stays in your destination</value>
   </data>
   <data name="StaysHeader" xml:space="preserve">
-    <value>Estadias</value>
+    <value>Stays</value>
   </data>
   <data name="Taxes" xml:space="preserve">
-    <value>+ taxas</value>
+    <value>+taxes</value>
   </data>
 </root>

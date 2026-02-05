@@ -84,6 +84,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow">
+
         <div class="container">
             <a class="navbar-brand" href="/">
                 <img src="~/images/MyStayInBlue-removebg-preview.png" alt="MyStay">
@@ -167,6 +168,29 @@
                 </ul>
             </div>
         </div>
+        <ul class="navbar-nav align-items-center">
+    <li class="nav-item dropdown me-3">
+        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    @{
+                        var currentCulture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+                        var displayLang = currentCulture.StartsWith("pt") ? "PT" : "EN";
+                        var displayFlag = currentCulture.StartsWith("pt") ? "🇵🇹" : "🇺🇸";
+                    }
+            <span class="me-1">@displayFlag</span> @displayLang
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="langDropdown">
+            <li>
+                <a class="dropdown-item d-flex align-items-center" href="?culture=pt-PT">
+                    <span class="me-2">🇵🇹</span> Português
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item d-flex align-items-center" href="?culture=en-US">
+                    <span class="me-2">🇺🇸</span> English
+                </a>
+            </li>
+        </ul>
+    </li>
     </nav>
 
     <main class="container page-container">
