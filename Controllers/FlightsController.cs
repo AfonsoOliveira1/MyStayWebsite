@@ -68,7 +68,7 @@ namespace Booking.Web.Controllers
                 await LoadFlightViewBags();
                 return View(model);
             }
-
+            
             var client = _clientFactory.CreateClient("Booking.API");
 
             
@@ -114,5 +114,7 @@ namespace Booking.Web.Controllers
 
             return View(new List<FlightViewModel>());
         }
+
+        
     }
 }
