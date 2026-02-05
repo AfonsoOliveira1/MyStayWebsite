@@ -3,14 +3,14 @@
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-dark mb-0">Voos Disponíveis</h2>
-            <p class="text-muted">Encontre as melhores rotas para a sua próxima viagem.</p>
+            <h2 class="fw-bold text-dark mb-0">@Localizer["AvailableFlights"]</h2>
+            <p class="text-muted">@Localizer["Routes"]</p>
         </div>
 
         @if (User.Identity.IsAuthenticated && User.IsInRole("ADMIN"))
         {
             <a asp-action="Create" class="btn btn-success rounded-pill px-4 shadow-sm">
-                <i class="bi bi-plus-lg me-2"></i>Adicionar Voo
+                    <i class="bi bi-plus-lg me-2"></i>@Localizer["AddFlight"]
             </a>
         }
       

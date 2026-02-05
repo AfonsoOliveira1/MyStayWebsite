@@ -30,30 +30,30 @@
                         <div>
                             <div class="d-flex align-items-center mb-3">
                                 <i class="bi bi-house-door-fill fs-3 me-2 text-warning"></i>
-                                <span class="text-uppercase fw-bold small">Alojamento</span>
+                                <span class="text-uppercase fw-bold small">@Localizer["Stay"]</span>
                             </div>
                             <h2 class="fw-bold mb-4">@Model.HousingName</h2>
 
                             <ul class="list-unstyled">
                                 <li class="mb-3 d-flex align-items-center">
                                     <i class="bi bi-tag me-3 opacity-75"></i>
-                                    <span><strong>@Model.PricePerNight.ToString("C")</strong> / noite</span>
+                                    <span><strong>@Model.PricePerNight.ToString("C")</strong> /@Localizer["Night"]</span>
                                 </li>
                                 <li class="mb-3 d-flex align-items-center">
                                     <i class="bi bi-shield-check me-3 opacity-75"></i>
-                                    <span>Confirmação Instantânea</span>
+                                    <span>@Localizer["Confirmation"]</span>
                                 </li>
                             </ul>
                         </div>
 
                         <div class="mt-5 pt-4 border-top border-white border-opacity-25">
-                            <p class="small mb-1 opacity-75">Total Estimado</p>
+                            <p class="small mb-1 opacity-75">Total</p>
                             <h3 class="fw-bold mb-0" id="displayTotal">@Model.TotalPrice.ToString("C")</h3>
                         </div>
                     </div>
 
                     <div class="col-md-7 bg-white p-5">
-                        <h4 class="fw-bold text-mystay-blue mb-4">Selecione as Datas</h4>
+                        <h4 class="fw-bold text-mystay-blue mb-4">@Localizer["PickDates"]</h4>
 
                         <form asp-action="ConfirmReservation" method="post">
                             <input type="hidden" asp-for="HousingId" />
@@ -63,7 +63,7 @@
 
                             <div class="row g-3">
                                 <div class="col-12 mb-3">
-                                    <label class="form-label fw-semibold text-muted">Data de Check-in</label>
+                                    <label class="form-label fw-semibold text-muted">Check-in</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event"></i></span>
                                         <input asp-for="CheckInDate" type="date" class="form-control form-control-lg border-start-0 bg-light"
@@ -72,7 +72,7 @@
                                 </div>
 
                                 <div class="col-12 mb-4">
-                                    <label class="form-label fw-semibold text-muted">Data de Check-out</label>
+                                    <label class="form-label fw-semibold text-muted">Check-out</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-check"></i></span>
                                         <input asp-for="CheckOutDate" type="date" class="form-control form-control-lg border-start-0 bg-light"
@@ -82,12 +82,12 @@
 
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-mystay btn-lg w-100 fw-bold py-3 shadow-sm mb-3">
-                                        Confirmar Reserva <i class="bi bi-arrow-right ms-2"></i>
+                                        @Localizer["Reserve"] <i class="bi bi-arrow-right ms-2"></i>
                                     </button>
 
                                     <div class="text-center">
                                         <a href="/Housing/List" class="text-decoration-none text-muted small">
-                                            <i class="bi bi-x-circle me-1"></i> Cancelar e voltar
+                                            <i class="bi bi-x-circle me-1"></i> @Localizer["CancelAndLeave"]
                                         </a>
                                     </div>
                                 </div>
