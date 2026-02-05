@@ -14,8 +14,8 @@
 
     <div class="footer-mini">
       <div class="price-box">
-        <span class="old-p">@((Model.PricePerNight * 1.2m).ToString("C"))</span>
-        <span class="new-p">@Model.PricePerNight.ToString("C")</span>
+        <span class="old-p">@((Model.PricePerNight * 1.2m).ToString("C", new System.Globalization.CultureInfo("pt-PT")))</span>
+        <span class="new-p">@Model.PricePerNight.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
         <p class="tax-mini">@Localizer["Taxes"]</p>
       </div>
 

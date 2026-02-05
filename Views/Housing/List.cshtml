@@ -1,13 +1,67 @@
 ﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
+<style>
+    .search-container {
+        display: flex;
+        gap: 20px;
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 0 15px;
+        color: #333;
+    }
 
-<div class="container mt-4">
-    <h2>@Localizer["StaysDestinations"]</h2>
-    <div class="row">
-        @foreach (var house in Model)
-        {
-                <div class="col-md-6 mb-4">
-                    <partial name="_HousingCards" model="house" />
-                </div>
-        }
-    </div>
+    .filters-sidebar { flex: 0 0 280px; }
+
+    .filter-section {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        background: #f8f8f8;
+    }
+
+    .results-list { flex: 1; }
+
+    .cards-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+</style>
+
+<div class="search-container">
+    <aside class="filters-sidebar">
+
+        <div class="filter-section">
+            <h3>Filtrar por:</h3>
+            <div class="filter-group">
+                <label>O seu orçamento (por noite)</label>
+                <div class="price-range-placeholder">€ 0 - € 500+</div>
+            </div>
+
+            <div class="filter-group">
+                <label>Filtros populares</label>
+                <ul class="list-unstyled">
+                    <li><input type="checkbox"> Hotéis</li>
+                    <li><input type="checkbox"> Apartamentos</li>
+                </ul>
+            </div>
+        </div>
+    </aside>
+
+    <main class="results-list">
+        <header class="results-header">
+            <h1>@Localizer["AvailableStays"]</h1>
+            <div class="sort-bar mb-3">
+                <button class="btn dropdown-toggle">
+                    Ordenar por: As nossas principais escolhas
+                </button>
+            </div>
+        </header>
+
+        <div class="cards-container">
+            @foreach (var item in Model)
+            {
+                @await Html.PartialAsync("_HousingCards", item)
+            }
+        </div>
+    </main>
 </div>
