@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-house-gear text-primary"></i> Casas Pendentes de Aprovação</h2>
+        
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nome da Propriedade</th>
+                        <th>Cidade</th>
+                        <th>Preço/Noite</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <i class="bi bi-check2-circle fs-2"></i><br>
+                                Não existem alojamentos pendentes neste momento.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var house in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(house.ImageUrl))
+                                {
+                                    <img src="@house.ImageUrl" alt="Housing" class="rounded" style="width: 60px; height: 45px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <div class="bg-secondary text-white rounded text-center" style="width: 60px; height: 45px; line-height: 45px;">
+                                        <i class="bi bi-camera"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <strong>@house.Name</strong><br>
+                                <small class="text-muted">ID: #@house.Id</small>
+                            </td>
+                            <td>@house.CityName</td>
+                            <td>@house.PricePerNight.ToString("C")</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <form asp-action="Approve" asp-controller="Housing" method="post">
+                                        <input type="hidden" name="id" value="@house.Id" />
+                                        <button type="submit" class="btn btn-outline-success btn-sm">
+                                            <i class="bi bi-check-circle"></i> Aprovar
+                                        </button>
+                                    </form>
+                                    <form asp-action="Reject" asp-controller="Housing" method="post">
+                                        <input type="hidden" name="id" value="@house.Id" />
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-x-circle"></i> Rejeitar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,8 +1,9 @@
 ﻿using Booking.web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Net.Http.Headers;
 
 namespace Booking.Web.Controllers
 {
@@ -68,6 +69,21 @@ namespace Booking.Web.Controllers
 
             ModelState.AddModelError("", "Não foi possível reservar o alojamento.");
             return View(booking);
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> PendingApprovals()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+
+            var response = await client.GetAsync("api/Housings/pending");
+            if (response.IsSuccessStatusCode)
+            {
+                var housings = await response.Content.ReadFromJsonAsync<List<HousingViewModel>>();
+                return View(housings);
+            }
+
+            return View(new List<HousingViewModel>());
         }
     }
 }
