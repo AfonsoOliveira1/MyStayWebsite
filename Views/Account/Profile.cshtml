@@ -1,4 +1,4 @@
-﻿@model ProfileViewModel
+﻿@model UserUpdateDto
 
 <style>
     .profile-wrapper {
@@ -133,13 +133,17 @@
             </div>
         </div>
 
-@*         @if (TempData["Success"] != null)
+        @if (!ViewData.ModelState.IsValid)
         {
-            <div class="success">@TempData["Success"]</div>
-        } *@
+            <div class="alert alert-danger">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p>@error.ErrorMessage</p>
+                }
+            </div>
+        }
 
         <form asp-action="ProfileEdit" method="post" enctype="multipart/form-data" class="profile-form-grid">
-
             <div class="form-floating">
                 <input asp-for="Name" class="form-control" placeholder="Name" />
                 <label for="Name">Name</label>
@@ -152,25 +156,60 @@
 
             <div class="form-floating">
                 <select asp-for="Role" class="form-select">
-                    <option>User</option>
-                    <option>Admin</option>
+                    <option>Customer</option>
+                    <option>Company</option>
                 </select>
                 <label for="Role">Role</label>
             </div>
 
             <div class="form-floating">
-                <input asp-for="NewPassword" type="password" class="form-control" placeholder="NewPassword" />
-                <label for="NewPassword">New Password</label>
+                <select asp-for="CompanyType" class="form-select">
+                    <option>None</option>
+                    <option>Housing</option>
+                </select>
+                <label for="CompanyType">CompanyType</label>
             </div>
 
             <div class="form-floating">
-                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="ConfirmPassword" />
-                <label for="ConfirmPassword">Confirm Password</label>
+                <input id="newpass" name="newpass" type="password" class="form-control" placeholder="NewPassword" />
+                <label for="newpass">New Password</label>
+            </div>
+
+            <div class="form-floating">
+                <input id="confirmpass" name="confirmpass" type="password" class="form-control" placeholder="ConfirmPassword" />
+                <label for="confirmpass">Confirm Password</label>
             </div>
 
             <div class="form-actions">
                 <button type="submit" class="btn-save">Save Changes</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div class="profile-wrapper">
+    <div class="profile-card">
+        <h2 class="mb-4 text-center">Two-Factor Authentication</h2>
+
+        @if (1 == 1)
+        {
+            <div class="alert alert-success">
+                Two-factor authentication is currently <strong>enabled</strong>.
+            </div>
+
+            <form asp-action="Disable2FA" method="post">
+                <button type="submit" class="btn btn-danger w-100">Disable 2FA</button>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                Two-factor authentication is currently <strong>disabled</strong>.
+            </div>
+
+            <form asp-action="Enable2FA" method="post">
+                <button type="submit" class="btn btn-primary w-100">Enable 2FA</button>
+            </form>
+        }
     </div>
 </div>
