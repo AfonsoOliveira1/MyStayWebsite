@@ -1,12 +1,13 @@
-﻿using Booking.web.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Mail;
 using System.Reflection;
 using System.Security.Claims;
+using Booking.web.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Booking.web.Controllers
 {
@@ -36,14 +37,14 @@ namespace Booking.web.Controllers
                 if (loginResponse != null && loginResponse.User != null)
                 {
                     var claims = new List<Claim>
-            {
-                // Agora o compilador já reconhece o .Id porque usamos UserViewModel
-                new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
-                new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
-                new Claim(ClaimTypes.Email, loginResponse.User.Email),
-                new Claim(ClaimTypes.Role, loginResponse.User.Role),
-                new Claim("JWToken", loginResponse.Token)
-            };
+                    {
+                        // Agora o compilador já reconhece o .Id porque usamos UserViewModel
+                        new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
+                        new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
+                        new Claim(ClaimTypes.Email, loginResponse.User.Email),
+                        new Claim(ClaimTypes.Role, loginResponse.User.Role),
+                        new Claim("JWToken", loginResponse.Token)
+                    };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -177,36 +178,68 @@ namespace Booking.web.Controllers
         }
 
         [HttpGet]
+        public IActionResult ResendCode(string Email)
+        {
+            Email2FA(Email);
+            return View(new VerifyCodeModel());
+        }
+
+
+        [HttpGet]
         public IActionResult Profile()
         {
-            var user = new ProfileViewModel
+            var user = new UserUpdateDto
             {
+                Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
                 Name = User.Identity.Name ?? "Unknown",
-                Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "Unknown",
-                Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown",
+                Email = User.FindFirst(ClaimTypes.Email)?.Value,
+                Role = User.FindFirst(ClaimTypes.Role)?.Value,
+                CompanyType = User.FindFirst("CompanyType")?.Value ?? "None"
             };
             return View(user);
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProfileEdit(ProfileViewModel profile)
+        public async Task<IActionResult> ProfileEdit(UserUpdateDto profile, string ?newpass, string ?confirmpass)
         {
-            if (!ModelState.IsValid)
+            var user = new UserUpdateDto
             {
-                return View("Profile");
+                Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+                Name = User.Identity.Name ?? "Unknown",
+                Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "Unknown",
+                Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown",
+                CompanyType = User.FindFirst("CompanyType")?.Value // Pode ser null para clientes
+            };
+
+            if(profile.Role == "Company" && profile.CompanyType == "None" || 
+               profile.Role == "Customer" && profile.CompanyType == "Housing")
+            {
+                ModelState.AddModelError("", "Company type is required for company users or can not be a customer with companytype housing.");
+                return View("Profile", user);
             }
 
-            if (profile.NewPassword != profile.ConfirmPassword)
+            if (newpass != confirmpass)
             {
                 ModelState.AddModelError("", "New password and confirmation do not match.");
-                return View("Profile", profile);
+                return View("Profile", user);
             }
+            else { profile.Password = newpass; } //api da hash
 
+            profile.Id = user.Id;
+
+            var token = User.FindFirst("JWToken")?.Value;
             var client = _clientFactory.CreateClient("Booking.API");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await client.PutAsJsonAsync("api/users/update", profile);
 
-            TempData["Sucess"] = "Profile updated successfully!";
-            return View("Profile", profile);
+            if(newpass != null)
+            {
+                return RedirectToAction("Logout");
+            }
+            else
+            {
+                return View("Profile", profile);
+            }
         }
     }
 }
