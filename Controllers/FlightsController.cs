@@ -17,21 +17,31 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
-     
+  
         private async Task LoadFlightViewBags()
         {
             var client = _clientFactory.CreateClient("Booking.API");
 
-           
+            // adicionar o Token para conseguir ler as cidades da API
+            var token = await HttpContext.GetTokenAsync("access_token")
+                        ?? User.FindFirst("JWToken")?.Value;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            //  buscar as cidades
             var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities")
                          ?? new List<CityViewModel>();
 
- 
-            ViewBag.OriginId = new SelectList(cities, "Id", "Name");
-            ViewBag.DestinationId = new SelectList(cities, "Id", "Name");
-            
-            
-            //  SO PARA TESTE!!
+
+            var cityList = new SelectList(cities, "Id", "Name");
+
+            ViewBag.OriginId = cityList;
+            ViewBag.DestinationId = cityList;
+
             var airlines = new List<SelectListItem>
             {
                 new SelectListItem { Value = "1", Text = "TAP Air Portugal" },
@@ -41,7 +51,7 @@ namespace Booking.Web.Controllers
             ViewBag.AirlineId = new SelectList(airlines, "Value", "Text");
         }
 
-        [AllowAnonymous] 
+        [AllowAnonymous]
         public async Task<IActionResult> List()
         {
             var client = _clientFactory.CreateClient("Booking.API");
@@ -51,7 +61,6 @@ namespace Booking.Web.Controllers
             return View(flights);
         }
 
-      
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -68,10 +77,10 @@ namespace Booking.Web.Controllers
                 await LoadFlightViewBags();
                 return View(model);
             }
-            
+
             var client = _clientFactory.CreateClient("Booking.API");
 
-            
+            // Cálculo automático de chegada (ex: +2h) para evitar NULL na BD
             model.ArrivalTime = model.DepartureTime.AddHours(2);
 
             var token = await HttpContext.GetTokenAsync("access_token")
@@ -103,7 +112,10 @@ namespace Booking.Web.Controllers
         {
             var client = _clientFactory.CreateClient("Booking.API");
 
-           
+            // Adiciona token para a lista de pendentes
+            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var response = await client.GetAsync("api/Flights/pending");
 
             if (response.IsSuccessStatusCode)
@@ -114,7 +126,27 @@ namespace Booking.Web.Controllers
 
             return View(new List<FlightViewModel>());
         }
-
         
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.PostAsync($"api/Flights/{id}/approve", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Voo aprovado com sucesso!";
+            }
+            else
+            {
+                TempData["Error"] = "Erro ao aprovar o voo.";
+            }
+
+            return RedirectToAction("PendingApprovals");
+        }
     }
 }
