@@ -12,7 +12,7 @@
                     Enter the 6‑digit code we sent to your email.
                 </p>
 
-                <form asp-action="VerifyCode" method="post" novalidate>
+                <form asp-action="ConfirmEmailCode" method="post" novalidate>
 
                     <div class="mb-3">
                         <label asp-for="Code" class="form-label">Verification Code</label>
@@ -36,7 +36,7 @@
 
                 <p class="text-center text-muted mb-0">
                     Didn’t receive the code?
-                    <a asp-action="ResendCode" class="fw-semibold">
+                    <a asp-action="ResendCode" asp-route-register="@ViewBag.RegisterModel" class="fw-semibold">
                         Resend
                     </a>
                 </p>

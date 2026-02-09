@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace Booking.web.Models
 {
-    public class VerifyCodeModel
+    public class VerifyCodeDTO
     {
-        [Required]
-        [StringLength(6, MinimumLength = 6, ErrorMessage = "O código deve ter 6 dígitos.")]
+        public string Email { get; set; }
         public string Code { get; set; }
     }
 

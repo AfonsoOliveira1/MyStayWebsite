@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Mail;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Claims;
 using Booking.web.Models;
@@ -70,8 +71,6 @@ namespace Booking.web.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var client = _clientFactory.CreateClient("Booking.API");
-
-
             var response = await client.PostAsJsonAsync("api/users/register", model);
 
             if (response.IsSuccessStatusCode)
@@ -84,27 +83,46 @@ namespace Booking.web.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult ConfirmEmailCode(RegisterModel model)
+        {
+            string code = new Random().Next(100000, 999999).ToString();
+
+            TempData["VerificationCode"] = code;
+
+            ViewBag.RegisterModel = model;
+            MailMessage mail = new MailMessage();
+            mail.To.Add(model.Email);
+            mail.From = new MailAddress("mystaystaff@gmail.com");
+            mail.Subject = "Confirm Your Email - MyStay 2FA Verification Code";
+            mail.Body = $"Automated Email from MyStay,\r\nYour verification code is: {code}";
+            Email2FA(mail);
+            return View(new VerifyCodeDTO());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmEmailCode(VerifyCodeDTO model, RegisterModel register)
+        {
+            //tive que meter async pq o post register retorna um Task<IActionResult>
+            if (Verify2FA(model) == false)
+                return View(model);
+            else
+                return await Register(register);
+        }
+
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
-        public void Email2FA(string toEmail)
+
+        public void Email2FA(MailMessage mail)
         {
-            string code = new Random().Next(100000, 999999).ToString();
-
-            TempData["VerificationCode"] = code;
-            TempData["Email"] = toEmail;
-
-            MailMessage mail = new MailMessage();
-            mail.From = new MailAddress("mystaystaff@gmail.com");
-            mail.To.Add(toEmail);
-            mail.Subject = "MyStay Verification Code (2FA)";
-            mail.Body = $"Automated Email from MyStay,\nYour verification code is: {code}";
+            TempData["Email"] = mail.To.ToString();
 
             //ENVIO REAL
             SmtpClient smtp;
-            string domain = toEmail.Split('@')[1].ToLower();
+            string domain = mail.To.ToString().Split('@')[1].ToLower();
             try
             {
                 if (domain.Contains("gmail.com"))
@@ -144,7 +162,7 @@ namespace Booking.web.Controllers
                 ModelState.AddModelError("", "Failed to send email: " + ex.Message);
             }
         }
-        public bool Verify2FA(VerifyCodeModel model)
+        public bool Verify2FA(VerifyCodeDTO model)
         {
             string correctCode = TempData["VerificationCode"]?.ToString();
 
@@ -162,26 +180,54 @@ namespace Booking.web.Controllers
             return true;
         }
         [HttpGet]
-        public IActionResult VerifyCode(string Email)
+        public async Task<IActionResult> VerifyCode(VerifyCodeDTO model, string subject, string body)
         {
-            Email2FA(Email);
-            return View(new VerifyCodeModel());
+            if (!ModelState.IsValid) return View(model);
+
+            var client = _clientFactory.CreateClient("Booking.API");
+            var response = await client.PostAsJsonAsync("api/Emmail/send-code", model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Registration successful! Please login.";
+                return RedirectToAction("Login");
+            }
+
+            ModelState.AddModelError("", "Registration failed. Try a different email.");
+            return View(model);
         }
 
         [HttpPost]
-        public IActionResult VerifyCode(VerifyCodeModel model)
+        public async Task<IActionResult> VerifyCode(VerifyCodeDTO model)
         {
-            if (Verify2FA(model) == false)
-                return View(model);
-            else
-                return RedirectToAction("Profile");
+            if (!ModelState.IsValid) return View(model);
+
+            var client = _clientFactory.CreateClient("Booking.API");
+            var response = await client.PostAsJsonAsync("api/Emmail/send-code", model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Registration successful! Please login.";
+                return RedirectToAction("Login");
+            }
+
+            ModelState.AddModelError("", "Registration failed. Try a different email.");
+            return View(model);
         }
 
         [HttpGet]
-        public IActionResult ResendCode(string Email)
+        public IActionResult ResendCode(string Email)//mudar isto
         {
-            Email2FA(Email);
-            return View(new VerifyCodeModel());
+            string code = new Random().Next(100000, 999999).ToString();
+
+            TempData["VerificationCode"] = code;
+
+            MailMessage mail = new MailMessage();
+            mail.To.Add(User.FindFirst(ClaimTypes.Email)?.Value);
+            mail.From = new MailAddress("mystaystaff@gmail.com");
+            mail.Subject = "MyStay 2FA Verification Code";
+            mail.Body = $"Automated Email from MyStay,\r\nYour verification code is: {code}";
+            return View(new VerifyCodeDTO());
         }
 
 
