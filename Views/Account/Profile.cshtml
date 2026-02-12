@@ -1,126 +1,5 @@
 ﻿@model UserUpdateDto
 
-<style>
-    .profile-wrapper {
-        display: flex;
-        justify-content: center;
-        padding: 40px 20px;
-    }
-
-    .profile-card {
-        width: 100%;
-        max-width: 900px;
-        background: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15);
-        padding: 40px;
-        animation: fadeIn 0.4s ease-in-out;
-        grid-column: span 2;
-    }
-
-    .profile-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 30px;
-        gap: 24px;
-    }
-
-    .profile-header-text {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .profile-photo-icon {
-        width: 150px;
-        height: 150px;
-        font-size: 80px;
-        border: 4px solid;
-        border-color: yellow;
-        border-radius: 50%;
-        background-color: #e0e7ff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        color: #1e3a8a;
-        margin-right: 24px;
-    }
-
-    .profile-header-text .user-name {
-        margin: 0;
-        font-size: 1.25rem;
-        color: #1e40af;
-    }
-
-    .profile-header-text .profile-title {
-        margin: 0;
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #1e3a8a;
-    }
-
-    .profile-form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-        .form-group label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #1e40af;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 14px 12px;
-            border: 1px solid #c7d2fe;
-            border-radius: 8px;
-            background: #f8fafc;
-            font-size: 1rem;
-        }
-
-
-
-    .btn-save {
-        grid-column: span 2;
-        padding: 14px;
-        background: linear-gradient(180deg, #2563eb, #1d4ed8);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 17px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.2s ease, background 0.2s ease;
-    }
-
-        .btn-save:hover {
-            background: linear-gradient(180deg, #1d4ed8, #1e40af);
-            transform: scale(1.02);
-        }
-
-
-    @@keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
 <div class="profile-wrapper">
     <div class="profile-card">
         <div class="profile-header">
@@ -143,31 +22,24 @@
             </div>
         }
 
-        <form asp-action="ProfileEdit" method="post" enctype="multipart/form-data" class="profile-form-grid">
+        <form asp-action="ProfileEdit" method="post" class="profile-form-grid">
             <div class="form-floating">
                 <input asp-for="Name" class="form-control" placeholder="Name" />
                 <label for="Name">Name</label>
             </div>
 
             <div class="form-floating">
-                <input asp-for="Email" class="form-control" placeholder="Email" />
-                <label for="Email">Email</label>
+                <input asp-for="Email" class="form-control" placeholder="Email" readonly />
+                <label for="Email">Email (Não editável)</label>
             </div>
 
             <div class="form-floating">
                 <select asp-for="Role" class="form-select">
-                    <option>Customer</option>
-                    <option>Company</option>
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="COMPANY">Company/Airline</option>
+                    <option value="ADMIN">Admin</option>
                 </select>
                 <label for="Role">Role</label>
-            </div>
-
-            <div class="form-floating">
-                <select asp-for="CompanyType" class="form-select">
-                    <option>None</option>
-                    <option>Housing</option>
-                </select>
-                <label for="CompanyType">CompanyType</label>
             </div>
 
             <div class="form-floating">
@@ -190,26 +62,8 @@
 <div class="profile-wrapper">
     <div class="profile-card">
         <h2 class="mb-4 text-center">Two-Factor Authentication</h2>
-
-        @if (1 == 1)
-        {
-            <div class="alert alert-success">
-                Two-factor authentication is currently <strong>enabled</strong>.
-            </div>
-
-            <form asp-action="Disable2FA" method="post">
-                <button type="submit" class="btn btn-danger w-100">Disable 2FA</button>
-            </form>
-        }
-        else
-        {
-            <div class="alert alert-warning">
-                Two-factor authentication is currently <strong>disabled</strong>.
-            </div>
-
-            <form asp-action="Enable2FA" method="post">
-                <button type="submit" class="btn btn-primary w-100">Enable 2FA</button>
-            </form>
-        }
+        <div class="alert alert-warning">
+            A funcionalidade de 2FA será configurada em breve.
+        </div>
     </div>
 </div>

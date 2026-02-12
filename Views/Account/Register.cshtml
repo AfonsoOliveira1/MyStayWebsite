@@ -2,36 +2,26 @@
 
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
-
         <div class="card mt-5">
             <div class="card-body p-4">
-
                 <h3 class="text-center mb-4">Create your account</h3>
 
-                <form asp-action="ConfirmEmailCode" method="get" novalidate>
-
+                <form asp-action="Register" method="post" novalidate>
                     <div class="mb-3">
                         <label asp-for="Name" class="form-label">Full name</label>
-                        <input asp-for="Name"
-                               class="form-control"
-                               placeholder="Enter your full name" />
+                        <input asp-for="Name" class="form-control" placeholder="Enter your full name" />
                         <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Email" class="form-label">Email address</label>
-                        <input asp-for="Email"
-                               class="form-control"
-                               placeholder="Enter your email" />
+                        <input asp-for="Email" class="form-control" placeholder="Enter your email" />
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Passwordhash" class="form-label">Password</label>
-                        <input asp-for="Passwordhash"
-                               type="password"
-                               class="form-control"
-                               placeholder="Create a password" />
+                        <input asp-for="Passwordhash" type="password" class="form-control" placeholder="Create a password" />
                         <span asp-validation-for="Passwordhash" class="text-danger small"></span>
                     </div>
 
@@ -39,33 +29,23 @@
                         <label asp-for="Role" class="form-label">Account type</label>
                         <select asp-for="Role" class="form-select">
                             <option value="">Select account type</option>
+                            <option value="CUSTOMER">Customer</option>
+                            <option value="COMPANY">Company (Airlines / Hotels)</option>
                             <option value="ADMIN">Admin</option>
-                            <option value="COSTUMER">Customer</option>
-                            <option value="COMPANY">House Renter</option>
-                            <option value="COMPANY">Air Line</option>
                         </select>
                         <span asp-validation-for="Role" class="text-danger small"></span>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            Create account
-                        </button>
+                        <button type="submit" class="btn btn-primary btn-lg">Create account</button>
                     </div>
-
                 </form>
 
                 <hr class="my-4" />
-
                 <p class="text-center text-muted mb-0">
-                    Already have an account?
-                    <a href="/Account/Login" class="fw-semibold">
-                        Sign in
-                    </a>
+                    Already have an account? <a href="/Account/Login" class="fw-semibold">Sign in</a>
                 </p>
-
             </div>
         </div>
-
     </div>
-</div>
+</div>x
