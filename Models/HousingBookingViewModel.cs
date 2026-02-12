@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Booking.web.Models
 {
@@ -9,9 +10,12 @@ namespace Booking.web.Models
         public int CustomerId { get; set; }
 
         public string HousingName { get; set; } = "";    
-        public decimal PricePerNight { get; set; }    
+        public decimal PricePerNight { get; set; }
 
+        [DataType(DataType.Date)]
         public DateTime CheckInDate { get; set; }
+
+        [DataType(DataType.Date)]
         public DateTime CheckOutDate { get; set; }
 
         public decimal TotalPrice                    
