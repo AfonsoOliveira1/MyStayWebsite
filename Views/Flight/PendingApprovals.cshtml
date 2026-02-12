@@ -1,59 +1,33 @@
-﻿@model IEnumerable<Booking.web.Models.FlightViewModel>
+﻿@model IEnumerable<FlightViewModel>
 
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-shield-check text-primary"></i> Aprovações Pendentes</h2>
-        
-    </div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Origem</th>
+            <th>Destino</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var flight in Model)
+        {
+            <tr>
+                <td>@flight.Id</td>
+                <td>@flight.OriginId</td>
+                <td>@flight.DestinationId</td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <form asp-action="Approve" asp-route-id="@flight.Id" method="post">
+                            <button type="submit" class="btn btn-success btn-sm">Aprovar</button>
+                        </form>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Origem</th>
-                        <th>Destino</th>
-                        <th>Partida</th>
-                        <th>Preço</th>
-                        <th class="text-center">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!Model.Any())
-                    {
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">Não há voos pendentes de aprovação.</td>
-                        </tr>
-                    }
-                    @foreach (var flight in Model)
-                    {
-                        <tr>
-                            <td>@flight.Id</td>
-                            <td><strong>@flight.OriginCity</strong></td>
-                            <td><strong>@flight.DestinationCity</strong></td>
-                            <td>@flight.DepartureTime.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@flight.Price.ToString("C")</td>
-                            <td class="text-center">
-                                <div class="btn-group" role="group">
-                                    <form asp-action="Approve" asp-controller="Flight" method="post" class="d-inline">
-                                        <input type="hidden" name="id" value="@flight.Id" />
-                                        <button type="submit" class="btn btn-success btn-sm me-2">
-                                            <i class="bi bi-check-lg"></i> Aprovar
-                                        </button>
-                                    </form>
-                                    <form asp-action="Reject" asp-controller="Flight" method="post" class="d-inline">
-                                        <input type="hidden" name="id" value="@flight.Id" />
-                                        <button type="submit" class="btn btn-danger btn-sm">
-                                            <i class="bi bi-x-lg"></i> Rejeitar
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                        <form asp-action="Reject" asp-route-id="@flight.Id" method="post">
+                            <button type="submit" class="btn btn-danger btn-sm">Rejeitar</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

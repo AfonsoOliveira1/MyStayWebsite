@@ -95,5 +95,49 @@ namespace Booking.Web.Controllers
 
             return View(new List<HousingViewModel>());
         }
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.PostAsync("api/Housings/" + id + "/approve", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Alojamento aprovado com sucesso!";
+            }
+            else
+            {
+                TempData["Error"] = "Erro ao comunicar com a API para aprovação.";
+            }
+
+            return RedirectToAction("PendingApprovals");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> Reject(int id)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.PostAsync("api/Housings/" + id + "/reject", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Alojamento rejeitado.";
+            }
+            else
+            {
+                TempData["Error"] = "Erro ao comunicar com a API para rejeição.";
+            }
+
+            return RedirectToAction("PendingApprovals");
+        }
     }
 }

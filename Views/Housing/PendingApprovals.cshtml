@@ -51,14 +51,13 @@
                             <td>@house.PricePerNight.ToString("C")</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <form asp-action="Approve" asp-controller="Housing" method="post">
-                                        <input type="hidden" name="id" value="@house.Id" />
+                                    <form asp-action="Approve" asp-controller="Housing" asp-route-id="@house.Id" method="post">
                                         <button type="submit" class="btn btn-outline-success btn-sm">
                                             <i class="bi bi-check-circle"></i> Aprovar
                                         </button>
                                     </form>
-                                    <form asp-action="Reject" asp-controller="Housing" method="post">
-                                        <input type="hidden" name="id" value="@house.Id" />
+
+                                    <form asp-action="Reject" asp-controller="Housing" asp-route-id="@house.Id" method="post">
                                         <button type="submit" class="btn btn-outline-danger btn-sm">
                                             <i class="bi bi-x-circle"></i> Rejeitar
                                         </button>

@@ -122,20 +122,35 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> Approve(int id)
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
+            var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            
+           
             var response = await client.PostAsync("api/Flights/" + id + "/approve", null);
 
             if (response.IsSuccessStatusCode)
-            {
-                TempData["Success"] = "Voo " + id + " aprovado com sucesso!";
-            }
+                TempData["Success"] = "Voo " + id + " aprovado!";
             else
-            {
-                TempData["Error"] = "Erro ao aprovar o voo " + id + ".";
-            }
+                TempData["Error"] = "Erro ao aprovar o voo.";
+
+            return RedirectToAction("PendingApprovals");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> Reject(int id)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+           
+            var response = await client.PostAsync("api/Flights/" + id + "/reject", null);
+
+            if (response.IsSuccessStatusCode)
+                TempData["Success"] = "Voo " + id + " rejeitado.";
+            else
+                TempData["Error"] = "Erro ao rejeitar o voo.";
 
             return RedirectToAction("PendingApprovals");
         }
