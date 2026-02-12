@@ -28,22 +28,22 @@ namespace Booking.Web.Controllers
             
             var responseFlight = await client.GetAsync("api/FlightBookings/passenger/" + userId);
 
-            IEnumerable<FlightBookingViewModel> flightBookings = new List<FlightBookingViewModel>();
+            IEnumerable<FlightBookingReadDto> flightBookings = new List<FlightBookingReadDto>();
             if (responseFlight.IsSuccessStatusCode)
             {
                 flightBookings = await responseFlight.Content
-                    .ReadFromJsonAsync<IEnumerable<FlightBookingViewModel>>() ?? new List<FlightBookingViewModel>();
+                    .ReadFromJsonAsync<IEnumerable<FlightBookingReadDto>>() ?? new List<FlightBookingReadDto>();
             }
 
             //casas
             
             var responseHouse = await client.GetAsync("api/HousingBookings/user/" + userId);
 
-            IEnumerable<HousingBookingViewModel> housingBookings = new List<HousingBookingViewModel>();
+            IEnumerable<HousingBookingReadDto> housingBookings = new List<HousingBookingReadDto>();
             if (responseHouse.IsSuccessStatusCode)
             {
                 housingBookings = await responseHouse.Content
-                    .ReadFromJsonAsync<IEnumerable<HousingBookingViewModel>>() ?? new List<HousingBookingViewModel>();
+                    .ReadFromJsonAsync<IEnumerable<HousingBookingReadDto>>() ?? new List<HousingBookingReadDto>();
             }
 
           

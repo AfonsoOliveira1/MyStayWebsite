@@ -1,35 +1,33 @@
-﻿@* <!--
-@model IEnumerable<Booking.web.Models.UserBookingHistory>
-   <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f7fa;
-            margin: 0;
-            padding: 0;
-        }
+﻿@* @model Booking.web.Models.UserBookingHistory
 
-        /* Layout wrapper */
-        .page-wrapper {
-            display: flex;
-            margin-top: 80px; /* espaço para a navbar */
-        }
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fa;
+        margin: 0;
+        padding: 0;
+    }
 
-        /* Sidebar */
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            padding: 20px;
-            border-right: 1px solid #ddd;
-        }
+    .page-wrapper {
+        display: flex;
+        margin-top: 80px;
+    }
+
+    .sidebar {
+        width: 240px;
+        background: #ffffff;
+        padding: 20px;
+        border-right: 1px solid #ddd;
+    }
 
         .sidebar h2 {
             margin-bottom: 20px;
             font-size: 18px;
         }
 
-        .filter-group {
-            margin-bottom: 20px;
-        }
+    .filter-group {
+        margin-bottom: 20px;
+    }
 
         .filter-group label {
             display: block;
@@ -37,88 +35,111 @@
             font-weight: bold;
         }
 
-        .btn-filter {
-            width: 100%;
-            padding: 10px;
-            background: #0078ff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-        }
+    .btn-filter {
+        width: 100%;
+        padding: 10px;
+        background: #0078ff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+    }
 
-        /* Main content */
-        .content {
-            flex: 1;
-            padding: 30px;
-        }
+    .content {
+        flex: 1;
+        padding: 30px;
+    }
 
-        .booking-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
+    .booking-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
 
-        .badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
-            color: white;
-        }
+    .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: bold;
+        color: white;
+    }
 
-        .flight { background: #0078ff; }
-        .housing { background: #28a745; }
+    .flight {
+        background: #0078ff;
+    }
 
-        .status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
-        }
+    .housing {
+        background: #28a745;
+    }
 
-        .confirmed { background: #d4edda; color: #155724; }
-        .cancelled { background: #f8d7da; color: #721c24; }
+    .status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: bold;
+    }
 
-        .card-title {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+    .confirmed {
+        background: #d4edda;
+        color: #155724;
+    }
 
-        .dates {
-            margin-bottom: 10px;
-            color: #555;
-        }
+    .cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
 
-        .price {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-        }
+    .card-title {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 
-        .card-footer button {
-            padding: 8px 14px;
-            margin-right: 10px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+    .dates {
+        margin-bottom: 10px;
+        color: #555;
+    }
 
-        .btn-details { background: #0078ff; color: white; }
-        .btn-invoice { background: #6c757d; color: white; }
-        .btn-cancel { background: #dc3545; color: white; }
-    </style>
+    .price {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .card-footer button {
+        padding: 8px 14px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .btn-details {
+        background: #0078ff;
+        color: white;
+    }
+
+    .btn-invoice {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-cancel {
+        background: #dc3545;
+        color: white;
+    }
+</style>
+
 <div class="page-wrapper">
 
     <!-- Sidebar -->
@@ -144,66 +165,68 @@
     <!-- Main Content -->
     <div class="content">
 
-        @foreach (var booking in Model)
+        <!-- ===================== -->
+        <!-- SECTION: FLIGHT CARDS -->
+        <!-- ===================== -->
+        @if (Model.Flights != null)
         {
-            <div class="booking-card">
+            foreach (var f in Model.Flights)
+            {
+                <div class="booking-card">
 
-                <!-- HEADER -->
-                <div class="card-header">
-                    <span class="badge @(booking.Type == "Flight" ? "flight" : "housing")">
-                        @(booking.Type == "Flight" ? "✈️ Flight" : "🏨 Housing")
-                    </span>
+                    <div class="card-header">
+                        <span class="badge flight">✈️ Flight</span>
+                        <span class="status confirmed">@f.</span>
+                    </div>
 
-                    <span class="status @(booking.Status == "Confirmed" ? "confirmed" : "cancelled")">
-                        @booking.Status
-                    </span>
+                    <div class="card-title">@f.OriginCity → @f.DestinationCity</div>
+
+                    <div class="dates">
+                        <strong>Departure:</strong> @f.DepartureTime.ToString("dd MMM yyyy") <br />
+                        <strong>Arrival:</strong> @f.ArrivalTime.ToString("dd MMM yyyy") <br />
+                    </div>
+
+                    <div class="price">€@f.Price</div>
+
+                    <div class="card-footer">
+                        <button class="btn-details">Ver detalhes</button>
+                        <button class="btn-invoice">Fatura</button>
+                    </div>
+
                 </div>
+            }
+        }
 
-                <!-- TÍTULO -->
-                <div class="card-title">@booking.ItemName</div>
+        <!-- ======================= -->
+        <!-- SECTION: HOUSING CARDS -->
+        <!-- ======================= -->
+        @if (Model.Housings != null)
+        {
+            foreach (var h in Model.Housings)
+            {
+                <div class="booking-card">
 
-                <!-- DATAS -->
-                <div class="dates">
+                    <div class="card-header">
+                        <span class="badge housing">🏨 Housing</span>
+                        <span class="status confirmed">@h.Status</span>
+                    </div>
 
-                    @if (booking.Type == "Flight")
-                    {
-                        <strong>Departure:</strong> @booking.DepartureDate?.ToString("dd MMM yyyy") <br />
-                        <strong>Arrival:</strong> @booking.ArrivalDate?.ToString("dd MMM yyyy") <br />
-                    }
-                    else
-                    {
-                        <strong>Check-in:</strong> @booking.CheckInDate?.ToString("dd MMM yyyy") <br />
-                        <strong>Check-out:</strong> @booking.CheckOutDate?.ToString("dd MMM yyyy") <br />
-                    }
+                    <div class="card-title">@h.HousingName</div>
 
-                    <strong>Booking date:</strong> @booking.BookingDate.ToString("dd MMM yyyy") <br />
+                    <div class="dates">
+                        <strong>Check-in:</strong> @h.CheckInDate.ToString("dd MMM yyyy") <br />
+                        <strong>Check-out:</strong> @h.CheckOutDate.ToString("dd MMM yyyy") <br />
+                    </div>
 
-                    @if (booking.Type == "Flight")
-                    {
-                        <strong>Seat:</strong> @booking.SeatNumber <br />
-                        <strong>Passenger:</strong> @booking.PassengerName <br />
-                    }
-                    else
-                    {
-                        <strong>Customer:</strong> @booking.CustomerName <br />
-                    }
+                    <div class="price">€@h.TotalPrice</div>
+
+                    <div class="card-footer">
+                        <button class="btn-details">Ver detalhes</button>
+                        <button class="btn-invoice">Fatura</button>
+                    </div>
+
                 </div>
-
-                <!-- PREÇO -->
-                <div class="price">€@booking.TotalPrice</div>
-
-                <!-- FOOTER -->
-                <div class="card-footer">
-                    <button class="btn-details">Ver detalhes</button>
-                    <button class="btn-invoice">Fatura</button>
-
-                    @if (booking.Status == "Confirmed")
-                    {
-                        <button class="btn-cancel">Cancelar</button>
-                    }
-                </div>
-
-            </div>
+            }
         }
 
     </div>
