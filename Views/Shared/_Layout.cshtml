@@ -151,14 +151,14 @@
                                 <span class="badge badge-role">@role</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                                    <li><a class="dropdown-item" href="/Bookings/Index"><i class="bi bi-calendar-check me-2"></i> @Localizer["MyBookingsHeader"]</a></li>
+                                    <li><a class="dropdown-item" href="/Bookings/Index"><i class="bi bi-calendar-check me-2"></i> @Localizer["MyBookings"]</a></li>
                                 <li>
                                     <a class="dropdown-item" href="/Account/VerifyCode?email=@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value">
                                             <i class="bi bi-person-gear me-2"></i> @Localizer["ProfileSettings"]
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="/Account/Logout"><i class="bi bi-box-arrow-right me-2"></i> @Localizer["SignOutHeader"]</a></li>
+                                    <li><a class="dropdown-item text-danger" href="/Account/Logout"><i class="bi bi-box-arrow-right me-2"></i> @Localizer["SignOut"]</a></li>
                             </ul>
                         </li>
                     }

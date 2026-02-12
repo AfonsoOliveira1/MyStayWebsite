@@ -132,8 +132,14 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
+  <data name="CodeNotReceived" xml:space="preserve">
+    <value>Código não recebido?</value>
+  </data>
   <data name="Confirm" xml:space="preserve">
     <value>Confirmar</value>
+  </data>
+  <data name="EmailVerificationMessage" xml:space="preserve">
+    <value>Escreve o código de 6 dígitos que nós te mandámos</value>
   </data>
   <data name="FlightsHeader" xml:space="preserve">
     <value>Voos</value>
@@ -167,6 +173,9 @@
   </data>
   <data name="Register" xml:space="preserve">
     <value>Registrar-te</value>
+  </data>
+  <data name="ResendCode" xml:space="preserve">
+    <value>Reenviar</value>
   </data>
   <data name="Reserve" xml:space="preserve">
     <value>Reservar</value>
@@ -209,5 +218,8 @@
   </data>
   <data name="StaysHeader" xml:space="preserve">
     <value>Estadias</value>
+  </data>
+  <data name="VerificationCode" xml:space="preserve">
+    <value>Código de verificação</value>
   </data>
 </root>
