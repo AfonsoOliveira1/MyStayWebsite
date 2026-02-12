@@ -1,0 +1,267 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<Style>
+    :root {
+  --b-blue: #003580;
+  --b-light-blue: #006ce4;
+  --b-bg: #f5f7fa;
+  --seat-green: #2ecc71;
+  --seat-gray: #e1e4e8;
+  --seat-selected: #febb02;
+}
+
+.booking-plane-container {
+  max-width: 500px;
+  margin: 20px auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+.plane-header {
+  background: var(--b-blue);
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+.plane-header h3 { margin: 0; font-size: 1.1rem; }
+.plane-header p { margin: 5px 0 0; font-size: 0.8rem; opacity: 0.8; }
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 15px;
+  font-size: 0.75rem;
+  background: var(--b-bg);
+}
+
+.leg-item { display: flex; align-items: center; gap: 5px; }
+
+.cabin { padding: 25px; }
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  margin-bottom: 8px;
+}
+
+.row-num {
+  font-size: 0.7rem;
+  color: #777;
+  width: 20px;
+  text-align: center;
+}
+
+.col-group { display: flex; gap: 4px; }
+.col-group.center { gap: 4px; }
+
+.seat {
+  width: 32px;
+  height: 36px;
+  border: 1px solid #ccc;
+  border-radius: 4px 4px 10px 10px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.seat.available { border-color: var(--b-light-blue); color: var(--b-light-blue); }
+.seat.occupied { background: var(--seat-gray); border-color: #ccc; color: #999; }
+.seat.selected { background: var(--seat-selected); border-color: #e67e22; color: #000; }
+
+
+.plane-footer {
+  padding: 15px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.confirm-btn {
+  background: var(--b-light-blue);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.price-tag {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #000;
+}
+</Style>
+<div class="booking-plane-container">
+  <header class="plane-header">
+    <h3>@Localizer["Sits"]</h3>
+    <p>OriginDestination</p>
+  </header>
+
+  <div class="plane-map-body">
+    <div class="legend">
+      <div class="leg-item"><span class="seat available"></span> @Localizer["Free"]</div>
+      <div class="leg-item"><span class="seat selected"></span> @Localizer["Selected"]</div>
+      <div class="leg-item"><span class="seat occupied"></span> @Localizer["Occupied"]</div>
+    </div>
+
+    <div class="cabin">
+      <div class="row letters">
+        <div class="col-group"><span>A</span><span>B</span><span>C</span></div>
+        <div class="row-num"></div>
+        <div class="col-group"><span>D</span><span>E</span><span>F</span></div>
+      </div>
+
+      <div class="row">
+        <div class="col-group">
+          <button class="seat available">A</button>
+          <button class="seat available">B</button>
+          <button class="seat available">C</button>
+        </div>
+        <div class="row-num">1</div>
+        <div class="col-group">
+          <button class="seat available">D</button>
+          <button class="seat available">E</button>
+          <button class="seat available">F</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-group">
+          <button class="seat available">A</button>
+          <button class="seat available">B</button>
+          <button class="seat available">C</button>
+        </div>
+        <div class="row-num">2</div>
+        <div class="col-group">
+          <button class="seat available">D</button>
+          <button class="seat available">E</button>
+          <button class="seat available">F</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-group">
+          <button class="seat available">A</button>
+          <button class="seat available">B</button>
+          <button class="seat available">C</button>
+        </div>
+        <div class="row-num">3</div>
+        <div class="col-group">
+          <button class="seat available">D</button>
+          <button class="seat available">E</button>
+          <button class="seat available">F</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-group">
+          <button class="seat available">A</button>
+          <button class="seat available">B</button>
+          <button class="seat available">C</button>
+        </div>
+        <div class="row-num">4</div>
+        <div class="col-group">
+          <button class="seat available">D</button>
+          <button class="seat available">E</button>
+          <button class="seat available">F</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-group">
+          <button class="seat available">A</button>
+          <button class="seat available">B</button>
+          <button class="seat available">C</button>
+        </div>
+        <div class="row-num">5</div>
+        <div class="col-group">
+          <button class="seat available">D</button>
+          <button class="seat available">E</button>
+          <button class="seat available">F</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-group">
+          <button class="seat available">A</button>
+          <button class="seat available">B</button>
+          <button class="seat available">C</button>
+        </div>
+        <div class="row-num">6</div>
+        <div class="col-group">
+          <button class="seat available">D</button>
+          <button class="seat available">E</button>
+          <button class="seat available">F</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-group">
+          <button class="seat available">A</button>
+          <button class="seat available">B</button>
+          <button class="seat available">C</button>
+        </div>
+        <div class="row-num">7</div>
+        <div class="col-group">
+          <button class="seat available">D</button>
+          <button class="seat available">E</button>
+          <button class="seat available">F</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-group">
+          <button class="seat available">A</button>
+          <button class="seat available">B</button>
+          <button class="seat available">C</button>
+        </div>
+        <div class="row-num">8</div>
+        <div class="col-group">
+          <button class="seat available">D</button>
+          <button class="seat available">E</button>
+          <button class="seat available">F</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-group">
+          <button class="seat available">A</button>
+          <button class="seat available">B</button>
+          <button class="seat available">C</button>
+        </div>
+        <div class="row-num">9</div>
+        <div class="col-group">
+          <button class="seat available">D</button>
+          <button class="seat available">E</button>
+          <button class="seat available">F</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="plane-footer">
+    <div class="selection-summary">
+      <span class="price-tag">pricepersit</span>
+    </div>
+    <button class="confirm-btn">@Localizer["Confirm"]</button>
+  </footer>
+</div>

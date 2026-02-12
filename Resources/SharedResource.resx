@@ -132,14 +132,23 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirmar</value>
+  </data>
   <data name="FlightsHeader" xml:space="preserve">
     <value>Voos</value>
   </data>
   <data name="Footer" xml:space="preserve">
     <value>2026 MyStay-Serviços globais de marcações. Todos os direitos reservados</value>
   </data>
+  <data name="Free" xml:space="preserve">
+    <value>Livre</value>
+  </data>
   <data name="MyBookings" xml:space="preserve">
     <value>Minhas reservas</value>
+  </data>
+  <data name="Occupied" xml:space="preserve">
+    <value>Ocupado</value>
   </data>
   <data name="People" xml:space="preserve">
     <value>Pessoa</value>
@@ -162,11 +171,17 @@
   <data name="Reserve" xml:space="preserve">
     <value>Reservar</value>
   </data>
+  <data name="Selected" xml:space="preserve">
+    <value>Selecionado</value>
+  </data>
   <data name="SignIn" xml:space="preserve">
     <value>Entrar</value>
   </data>
   <data name="SignOut" xml:space="preserve">
     <value>Sair</value>
+  </data>
+  <data name="Sits" xml:space="preserve">
+    <value>Escolha os seus lugares</value>
   </data>
   <data name="StayDatadescription" xml:space="preserve">
     <value>Descrição</value>
