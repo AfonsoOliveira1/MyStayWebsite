@@ -28,10 +28,11 @@
                     <div class="mb-4">
                         <label asp-for="Role" class="form-label">Account type</label>
                         <select asp-for="Role" class="form-select">
-                            <option value="">Select account type</option>
-                            <option value="CUSTOMER">Customer</option>
-                            <option value="COMPANY">Company (Airlines / Hotels)</option>
                             <option value="ADMIN">Admin</option>
+                            <option value="">Select account type</option>
+                            <option value="CUSTOMER">Passenger / Guest</option>
+                            <option value="AIRLINE">Airline Company</option>
+                            <option value="RENTER">House / Hotel Renter</option>
                         </select>
                         <span asp-validation-for="Role" class="text-danger small"></span>
                     </div>
