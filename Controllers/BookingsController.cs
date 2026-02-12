@@ -21,6 +21,8 @@ namespace Booking.Web.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null) return RedirectToAction("Login", "Account");
 
+
+
             int userId = int.Parse(userIdClaim.Value);
             var client = _clientFactory.CreateClient("Booking.API");
 
