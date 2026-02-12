@@ -16,26 +16,30 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
+        
         public async Task<IActionResult> List()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var housings = await client.GetFromJsonAsync<List<HousingViewModel>>("api/housings");
+            
+            var housings = await client.GetFromJsonAsync<List<HousingViewModel>>("api/Housings")
+                           ?? new List<HousingViewModel>();
             return View(housings);
         }
 
+       
         public async Task<IActionResult> Reserve(int id)
         {
-            // Agora o NameIdentifier já não virá nulo
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login", "Account");
 
             var client = _clientFactory.CreateClient("Booking.API");
 
-            // BUSCA O TOKEN DO COOKIE E ENVIA PARA A API
+            
             var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var housing = await client.GetFromJsonAsync<HousingViewModel>($"api/housings/{id}");
+            
+            var housing = await client.GetFromJsonAsync<HousingViewModel>("api/Housings/" + id);
             if (housing == null) return NotFound();
 
             var model = new HousingBookingViewModel
@@ -44,8 +48,8 @@ namespace Booking.Web.Controllers
                 CustomerId = int.Parse(userIdStr),
                 HousingName = housing.Name,
                 PricePerNight = housing.PricePerNight,
-                CheckInDate = DateTime.Now, // Data de hoje
-                CheckOutDate = DateTime.Now.AddDays(1) // Amanhã
+                CheckInDate = DateTime.Now,
+                CheckOutDate = DateTime.Now.AddDays(1)
             };
             return View(model);
         }
@@ -58,16 +62,19 @@ namespace Booking.Web.Controllers
 
             var client = _clientFactory.CreateClient("Booking.API");
 
-            // ENVIA O TOKEN TAMBÉM NO POST
             var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.PostAsJsonAsync("api/housingbooking", booking);
+            
+            var response = await client.PostAsJsonAsync("api/HousingBookings", booking);
 
             if (response.IsSuccessStatusCode)
-                return RedirectToAction(nameof(List));
+            {
+                TempData["Message"] = "Reserva efetuada com sucesso!";
+                return RedirectToAction("Index", "Bookings");
+            }
 
-            ModelState.AddModelError("", "Não foi possível reservar o alojamento.");
+            ModelState.AddModelError("", "Não foi possível reservar o alojamento " + booking.HousingName + ".");
             return View(booking);
         }
 
@@ -75,6 +82,9 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> PendingApprovals()
         {
             var client = _clientFactory.CreateClient("Booking.API");
+
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await client.GetAsync("api/Housings/pending");
             if (response.IsSuccessStatusCode)

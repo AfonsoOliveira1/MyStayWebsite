@@ -6,8 +6,6 @@ namespace Booking.web.Controllers
 {
     public class HomeController : Controller
     {
-
-
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<HomeController> _logger;
 
@@ -17,21 +15,8 @@ namespace Booking.web.Controllers
             _logger = logger;
         }
 
-    
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
         public async Task<IActionResult> Index()
         {
-           
             var model = new HomeViewModel
             {
                 TopFlights = new List<FlightViewModel>(),
@@ -42,27 +27,40 @@ namespace Booking.web.Controllers
             {
                 var client = _clientFactory.CreateClient("Booking.API");
 
-                //   Voos da base de dados
+                // procurar voos
                 var flightsResponse = await client.GetAsync("api/Flights");
                 if (flightsResponse.IsSuccessStatusCode)
                 {
-                    model.TopFlights = await flightsResponse.Content.ReadFromJsonAsync<List<FlightViewModel>>() ?? new();
+                    model.TopFlights = await flightsResponse.Content.ReadFromJsonAsync<List<FlightViewModel>>()
+                                       ?? new List<FlightViewModel>();
                 }
 
-                //  Estadias base de dados
+                // procurar housing
                 var staysResponse = await client.GetAsync("api/Housing");
                 if (staysResponse.IsSuccessStatusCode)
                 {
-                    model.TopStays = await staysResponse.Content.ReadFromJsonAsync<List<HousingViewModel>>() ?? new();
+                    model.TopStays = await staysResponse.Content.ReadFromJsonAsync<List<HousingViewModel>>()
+                                     ?? new List<HousingViewModel>();
                 }
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Não foi possível carregar os dados da API.";
+                _logger.LogError("Erro ao ligar à API no Index: " + ex.Message);
+                ViewBag.Error = "De momento, não conseguimos carregar as ofertas. Tente mais tarde.";
             }
 
-            
             return View(model);
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

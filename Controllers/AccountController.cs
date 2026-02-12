@@ -1,9 +1,4 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Net.Mail;
-using System.Net.Sockets;
-using System.Reflection;
+﻿using System.Net.Http.Headers;
 using System.Security.Claims;
 using Booking.web.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -39,7 +34,6 @@ namespace Booking.web.Controllers
                 {
                     var claims = new List<Claim>
                     {
-                        // Agora o compilador já reconhece o .Id porque usamos UserViewModel
                         new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
                         new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
                         new Claim(ClaimTypes.Email, loginResponse.User.Email),
@@ -54,7 +48,7 @@ namespace Booking.web.Controllers
                         new ClaimsPrincipal(claimsIdentity)
                     );
 
-                    TempData["Message"] = "Welcome back!";
+                    TempData["Message"] = "Bem-vindo de volta!";
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -75,23 +69,11 @@ namespace Booking.web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Message"] = "Registration successful! Please login.";
+                TempData["Message"] = "Registo efetuado! Por favor faça login.";
                 return RedirectToAction("Login");
             }
 
-            ModelState.AddModelError("", "Registration failed. Try a different email.");
-            return View(model);
-        }
-
-        [HttpGet]
-        public IActionResult ConfirmEmailCode(RegisterModel model)
-        {
-            return View(new VerifyCodeDTO());
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ConfirmEmailCode(VerifyCodeDTO model, RegisterModel register)
-        {
+            ModelState.AddModelError("", "Falha no registo. Tente um email diferente.");
             return View(model);
         }
 
@@ -102,96 +84,59 @@ namespace Booking.web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> VerifyCode(string Email)
-        {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PostAsJsonAsync("api/Email/send-code", new VerifyCodeDTO{ Email = Email});
-
-            if(!response.IsSuccessStatusCode)
-                ModelState.AddModelError("", "Registration failed. Try a different email.");
-            return View(new VerifyCodeDTO { Email = Email});
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> VerifyCode(VerifyCodeDTO model)
-        {
-            if (!ModelState.IsValid) return View(model);
-
-            var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PostAsJsonAsync("api/Email/verify-code", model);
-
-            if(!response.IsSuccessStatusCode)
-                ModelState.AddModelError("", "Registration failed. Try a different email.");
-            return RedirectToAction("Profile");
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ResendCode(string Email) 
-        {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PostAsJsonAsync("api/Email/send-code", new VerifyCodeDTO { Email = Email });
-
-            if (!response.IsSuccessStatusCode)
-                ModelState.AddModelError("", "Registration failed. Try a different email.");
-            return View(new VerifyCodeDTO { Email = Email });
-        }
-
-
-        [HttpGet]
         public IActionResult Profile()
         {
+           
             var user = new UserUpdateDto
             {
-                Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-                Name = User.Identity.Name ?? "Unknown",
-                Email = User.FindFirst(ClaimTypes.Email)?.Value,
-                Role = User.FindFirst(ClaimTypes.Role)?.Value,
-                CompanyType = User.FindFirst("CompanyType")?.Value ?? "None"
+                Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"),
+                Name = User.Identity?.Name ?? "Utilizador",
+                Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "",
+                Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Customer"
             };
             return View(user);
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProfileEdit(UserUpdateDto profile, string ?newpass, string ?confirmpass)
+        public async Task<IActionResult> ProfileEdit(UserUpdateDto profile, string? newpass, string? confirmpass)
         {
-            var user = new UserUpdateDto
+           
+            if (!string.IsNullOrEmpty(newpass))
             {
-                Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-                Name = User.Identity.Name ?? "Unknown",
-                Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "Unknown",
-                Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Unknown",
-                CompanyType = User.FindFirst("CompanyType")?.Value // Pode ser null para clientes
-            };
-
-            if(profile.Role == "Company" && profile.CompanyType == "None" || 
-               profile.Role == "Customer" && profile.CompanyType == "Housing")
-            {
-                ModelState.AddModelError("", "Company type is required for company users or can not be a customer with companytype housing.");
-                return View("Profile", user);
+                if (newpass != confirmpass)
+                {
+                    ModelState.AddModelError("", "A nova password e a confirmação não coincidem.");
+                    return View("Profile", profile);
+                }
+                profile.Password = newpass;
             }
 
-            if (newpass != confirmpass)
-            {
-                ModelState.AddModelError("", "New password and confirmation do not match.");
-                return View("Profile", user);
-            }
-            else { profile.Password = newpass; } //api da hash
+            // obter o id do user
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login");
 
-            profile.Id = user.Id;
+            profile.Id = int.Parse(userIdStr);
 
+            // tokn JWT
             var token = User.FindFirst("JWToken")?.Value;
             var client = _clientFactory.CreateClient("Booking.API");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var response = await client.PutAsJsonAsync("api/users/update", profile);
 
-            if(newpass != null)
+            if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Logout");
+               
+                if (!string.IsNullOrEmpty(newpass))
+                {
+                    return RedirectToAction("Logout");
+                }
+                TempData["Message"] = "Perfil atualizado com sucesso!";
+                return RedirectToAction("Profile");
             }
-            else
-            {
-                return View("Profile", profile);
-            }
+
+            ModelState.AddModelError("", "Erro ao atualizar o perfil na API.");
+            return View("Profile", profile);
         }
     }
 }

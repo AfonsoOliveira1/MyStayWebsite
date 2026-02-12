@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace Booking.Web.Controllers
 {
-    [Authorize(Roles = "ADMIN")] 
+    [Authorize(Roles = "ADMIN")]
     public class CityController : Controller
     {
         private readonly IHttpClientFactory _clientFactory;
@@ -21,7 +22,6 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> Create()
         {
             await PopulateCountriesDropdown();
-
             return View();
         }
 
@@ -31,62 +31,69 @@ namespace Booking.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateCountriesDropdown(); 
+                await PopulateCountriesDropdown();
                 return View(model);
             }
 
             var client = _clientFactory.CreateClient("Booking.API");
 
-          
-            var token = await HttpContext.GetTokenAsync("access_token")
-                        ?? User.FindFirst("JWToken")?.Value;
+           
+            var token = User.FindFirst("JWToken")?.Value;
 
             if (!string.IsNullOrEmpty(token))
             {
                 client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                    new AuthenticationHeaderValue("Bearer", token);
             }
 
+            
             var response = await client.PostAsJsonAsync("api/Cities", model);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Cidade adicionada com sucesso!";
-                return RedirectToAction("Create", "Flight");
+                TempData["Success"] = "Cidade " + model.Name + " adicionada com sucesso!";
+                return RedirectToAction("List"); //para lista de cidades
             }
 
-            ModelState.AddModelError("", "Erro ao guardar a cidade na API.");
+            ModelState.AddModelError("", "Erro ao guardar a cidade na API. Status: " + response.StatusCode);
+            await PopulateCountriesDropdown();
             return View(model);
         }
 
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> List()
         {
             var client = _clientFactory.CreateClient("Booking.API");
 
-            // Anexar token para segurança
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
+            var token = User.FindFirst("JWToken")?.Value;
             if (!string.IsNullOrEmpty(token))
             {
                 client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                    new AuthenticationHeaderValue("Bearer", token);
             }
 
+            
             var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities")
                          ?? new List<CityViewModel>();
 
             return View(cities);
         }
-        // Método para carregar países 
+
         private async Task PopulateCountriesDropdown()
         {
             var client = _clientFactory.CreateClient("Booking.API");
 
-            
-            var countries = await client.GetFromJsonAsync<List<CountryViewModel>>("api/Countries")
-                            ?? new List<CountryViewModel>();
+            try
+            {
+                var countries = await client.GetFromJsonAsync<List<CountryViewModel>>("api/Countries")
+                                ?? new List<CountryViewModel>();
 
-            ViewBag.Countries = new SelectList(countries, "Id", "Name");
+                ViewBag.Countries = new SelectList(countries, "Id", "Name");
+            }
+            catch
+            {
+                ViewBag.Countries = new SelectList(Enumerable.Empty<SelectListItem>());
+                ModelState.AddModelError("", "Não foi possível carregar a lista de países da API.");
+            }
         }
     }
 }

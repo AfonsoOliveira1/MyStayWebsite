@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace Booking.Web.Controllers
 {
@@ -17,30 +18,28 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
-  
         private async Task LoadFlightViewBags()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-
-            // adicionar o Token para conseguir ler as cidades da API
-            var token = await HttpContext.GetTokenAsync("access_token")
-                        ?? User.FindFirst("JWToken")?.Value;
+            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
 
             if (!string.IsNullOrEmpty(token))
             {
-                client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
 
-            //  buscar as cidades
-            var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities")
-                         ?? new List<CityViewModel>();
-
-
-            var cityList = new SelectList(cities, "Id", "Name");
-
-            ViewBag.OriginId = cityList;
-            ViewBag.DestinationId = cityList;
+            try
+            {
+                var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities") ?? new List<CityViewModel>();
+                var cityList = new SelectList(cities, "Id", "Name");
+                ViewBag.OriginId = cityList;
+                ViewBag.DestinationId = cityList;
+            }
+            catch
+            {
+                ViewBag.OriginId = new SelectList(new List<SelectListItem>());
+                ViewBag.DestinationId = new SelectList(new List<SelectListItem>());
+            }
 
             var airlines = new List<SelectListItem>
             {
@@ -55,9 +54,7 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> List()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var flights = await client.GetFromJsonAsync<List<FlightViewModel>>("api/Flights")
-                          ?? new List<FlightViewModel>();
-
+            var flights = await client.GetFromJsonAsync<List<FlightViewModel>>("api/Flights") ?? new List<FlightViewModel>();
             return View(flights);
         }
 
@@ -79,17 +76,12 @@ namespace Booking.Web.Controllers
             }
 
             var client = _clientFactory.CreateClient("Booking.API");
-
-            // Cálculo automático de chegada (ex: +2h) para evitar NULL na BD
             model.ArrivalTime = model.DepartureTime.AddHours(2);
 
-            var token = await HttpContext.GetTokenAsync("access_token")
-                        ?? User.FindFirst("JWToken")?.Value;
-
+            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
             if (!string.IsNullOrEmpty(token))
             {
-                client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
 
             var response = await client.PostAsJsonAsync("api/Flights", model);
@@ -101,7 +93,7 @@ namespace Booking.Web.Controllers
             }
 
             var errorMsg = await response.Content.ReadAsStringAsync();
-            ModelState.AddModelError("", $"Erro na API: {errorMsg}");
+            ModelState.AddModelError("", "Erro na API: " + errorMsg);
 
             await LoadFlightViewBags();
             return View(model);
@@ -111,8 +103,6 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> PendingApprovals()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-
-            // Adiciona token para a lista de pendentes
             var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -126,7 +116,7 @@ namespace Booking.Web.Controllers
 
             return View(new List<FlightViewModel>());
         }
-        
+
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Approve(int id)
@@ -135,15 +125,16 @@ namespace Booking.Web.Controllers
             var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.PostAsync($"api/Flights/{id}/approve", null);
+            
+            var response = await client.PostAsync("api/Flights/" + id + "/approve", null);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Voo aprovado com sucesso!";
+                TempData["Success"] = "Voo " + id + " aprovado com sucesso!";
             }
             else
             {
-                TempData["Error"] = "Erro ao aprovar o voo.";
+                TempData["Error"] = "Erro ao aprovar o voo " + id + ".";
             }
 
             return RedirectToAction("PendingApprovals");

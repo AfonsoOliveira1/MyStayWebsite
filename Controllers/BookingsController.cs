@@ -14,49 +14,61 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
-        // GET: Bookings/Index
+        
         public async Task<IActionResult> Index()
         {
-            int userId = int.Parse(User.FindFirst("id").Value);
+           
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return RedirectToAction("Login", "Account");
 
+            int userId = int.Parse(userIdClaim.Value);
             var client = _clientFactory.CreateClient("Booking.API");
 
-            // --- CALL FLIGHT API ---
-            var responseFlight = await client.GetAsync($"api/FlightBookingsController/passenger/{userId}");
+            // voos
+            
+            var responseFlight = await client.GetAsync("api/FlightBookings/passenger/" + userId);
 
             IEnumerable<FlightBookingViewModel> flightBookings = new List<FlightBookingViewModel>();
-
             if (responseFlight.IsSuccessStatusCode)
             {
                 flightBookings = await responseFlight.Content
-                    .ReadFromJsonAsync<IEnumerable<FlightBookingViewModel>>();
+                    .ReadFromJsonAsync<IEnumerable<FlightBookingViewModel>>() ?? new List<FlightBookingViewModel>();
             }
 
-            // --- CALL HOUSING API ---
-            var responseHouse = await client.GetAsync($"api/HousingBookingController/user/{userId}");
+            //casas
+            
+            var responseHouse = await client.GetAsync("api/HousingBookings/user/" + userId);
 
             IEnumerable<HousingBookingViewModel> housingBookings = new List<HousingBookingViewModel>();
-
             if (responseHouse.IsSuccessStatusCode)
             {
                 housingBookings = await responseHouse.Content
-                    .ReadFromJsonAsync<IEnumerable<HousingBookingViewModel>>();
+                    .ReadFromJsonAsync<IEnumerable<HousingBookingViewModel>>() ?? new List<HousingBookingViewModel>();
             }
 
-            // --- BUILD UNIFIED HISTORY ---
-            var history = new UserBookingHistory { Flights = flightBookings, Housings = housingBookings};
+          
+            var history = new UserBookingHistory { Flights = flightBookings, Housings = housingBookings };
 
-            
             return View(history);
         }
 
-        // POST: Bookings/Cancel/5
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int bookingId)
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PutAsync($"api/bookings/cancel/{bookingId}", null);
+           
+            var response = await client.PutAsync("api/HousingBookings/cancel/" + bookingId, null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Reserva " + bookingId + " cancelada com sucesso.";
+            }
+            else
+            {
+                TempData["Error"] = "Erro ao cancelar a reserva " + bookingId + ".";
+            }
 
             return RedirectToAction(nameof(Index));
         }
