@@ -120,9 +120,6 @@
   <data name="AddFlight" xml:space="preserve">
     <value>Adicionar novo voo</value>
   </data>
-  <data name="AdminHeader" xml:space="preserve">
-    <value>Ferramentas de administrador</value>
-  </data>
   <data name="AIassistant" xml:space="preserve">
     <value>Assistente MyStay</value>
   </data>
@@ -132,14 +129,8 @@
   <data name="AvailableFlights" xml:space="preserve">
     <value>Voos disponíveis</value>
   </data>
-  <data name="AvailableStays" xml:space="preserve">
-    <value>Alojamentos disponiveis</value>
-  </data>
-  <data name="CancelAndLeave" xml:space="preserve">
-    <value>Cancelar e voltar</value>
-  </data>
-  <data name="Confirmation" xml:space="preserve">
-    <value>Confirmação</value>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
   </data>
   <data name="FlightsHeader" xml:space="preserve">
     <value>Voos</value>
@@ -147,40 +138,61 @@
   <data name="Footer" xml:space="preserve">
     <value>2026 MyStay-Serviços globais de marcações. Todos os direitos reservados</value>
   </data>
-  <data name="MyBookingsHeader" xml:space="preserve">
+  <data name="MyBookings" xml:space="preserve">
     <value>Minhas reservas</value>
   </data>
-  <data name="Night" xml:space="preserve">
-    <value>Noite</value>
-  </data>
-  <data name="PickDate" xml:space="preserve">
-    <value>Selecione as datas</value>
+  <data name="People" xml:space="preserve">
+    <value>Pessoa</value>
   </data>
   <data name="ProfileSettings" xml:space="preserve">
-    <value>Configuração de perfil</value>
+    <value>Configurações do perfil</value>
+  </data>
+  <data name="PublishStays" xml:space="preserve">
+    <value>Publique a sua estadia</value>
+  </data>
+  <data name="PublishStaysData" xml:space="preserve">
+    <value>Preencha os dados e carregue as fotos da sua propriedade</value>
   </data>
   <data name="RecomendedStays" xml:space="preserve">
     <value>Estadias recomendadas</value>
   </data>
+  <data name="Register" xml:space="preserve">
+    <value>Registrar-te</value>
+  </data>
   <data name="Reserve" xml:space="preserve">
     <value>Reservar</value>
   </data>
-  <data name="Routes" xml:space="preserve">
-    <value>Encontre as melhores rotas para a sua próxima viagem.</value>
+  <data name="SignIn" xml:space="preserve">
+    <value>Entrar</value>
   </data>
-  <data name="SignOutHeader" xml:space="preserve">
+  <data name="SignOut" xml:space="preserve">
     <value>Sair</value>
   </data>
-  <data name="Stay" xml:space="preserve">
-    <value>Estadia</value>
+  <data name="StayDatadescription" xml:space="preserve">
+    <value>Descrição</value>
+  </data>
+  <data name="StayDataMainImage" xml:space="preserve">
+    <value>Imagem principal</value>
+  </data>
+  <data name="StayDataName" xml:space="preserve">
+    <value>Nome:</value>
+  </data>
+  <data name="StayDataPrice" xml:space="preserve">
+    <value>Preço (por noite):</value>
+  </data>
+  <data name="StayDataPublishMoreImages" xml:space="preserve">
+    <value>+ Mais imagens</value>
+  </data>
+  <data name="StayDataQtdPeople" xml:space="preserve">
+    <value>Quantas pessoas</value>
+  </data>
+  <data name="StayDataRooms" xml:space="preserve">
+    <value>Quartos</value>
   </data>
   <data name="StaysDestinations" xml:space="preserve">
     <value>Estadias no seu destino</value>
   </data>
   <data name="StaysHeader" xml:space="preserve">
     <value>Estadias</value>
-  </data>
-  <data name="Taxes" xml:space="preserve">
-    <value>+ taxas</value>
   </data>
 </root>

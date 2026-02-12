@@ -1,0 +1,194 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<style>
+.publish-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.publish-header h1 { color: #003580; margin: 0; }
+.publish-header p { color: #666; margin-top: 5px; }
+
+.main-layout {
+  display: flex;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.image-section { flex: 1.5; }
+
+.image-grid {
+  display: flex;
+  gap: 15px;
+  height: 350px;
+}
+
+.main-img-upload {
+  flex: 2;
+  background: #f0f3f5;
+  border: 2px dashed #003580;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-placeholder { cursor: pointer; text-align: center; }
+.upload-placeholder .icon { font-size: 3rem; display: block; }
+
+.sec-img-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sec-img-upload {
+  flex: 1;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.extra-images-bar {
+  display: flex;
+  margin-top: 15px;
+  gap: 10px;
+  align-items: center;
+}
+
+.extra-previews { display: flex; gap: 5px; flex: 1; }
+.preview-box { width: 50px; height: 50px; background: #eee; border: 1px solid #ddd; border-radius: 4px; }
+
+.add-more label {
+  padding: 10px 15px;
+  background: #003580;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.details-section { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+
+.input-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
+
+.input-group input, .input-group select, .input-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.btn-submit { background: #006ce4; color: white; border: none; padding: 12px 25px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+.btn-cancel { background: transparent; border: none; color: #666; cursor: pointer; }
+</style>
+<div class="publish-container">
+  <header class="publish-header">
+    <h1>@Localizer["PublishStays"]</h1>
+    <p>@Localizer["PublishStaysData"]</p>
+  </header>
+
+  <form class="publish-form">
+    <div class="main-layout">
+      <div class="image-section">
+        <div class="image-grid">
+          <div class="main-img-upload">
+            <input type="file" id="img-main" hidden accept="image/*">
+            <label for="img-main" class="upload-placeholder">
+              <strong>@Localizer["StayDataMainImage"]</strong>
+            </label>
+          </div>
+
+          <div class="sec-img-col">
+            <div class="sec-img-upload">
+              <input type="file" id="img-sec-1" hidden accept="image/*">
+              <label for="img-sec-1">ImgSec</label>
+            </div>
+            <div class="sec-img-upload">
+              <input type="file" id="img-sec-2" hidden accept="image/*">
+              <label for="img-sec-2">ImgSec</label>
+            </div>
+            <div class="sec-img-upload">
+              <input type="file" id="img-sec-3" hidden accept="image/*">
+              <label for="img-sec-3">ImgSec</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="extra-images-bar">
+          <div class="extra-previews">
+            <div class="preview-box"></div>
+            <div class="preview-box"></div>
+            <div class="preview-box"></div>
+            <div class="preview-box"></div>
+          </div>
+          <div class="add-more">
+            <input type="file" id="img-more" hidden multiple>
+            <label for="img-more">@Localizer["StayDataPublishMoreImages"]</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-section">
+        <div class="input-group">
+          <label>@Localizer["StayDataName"]</label>
+          <input type="text" placeholder="Ex: Hotel Magnífico">
+        </div>
+
+        <div class="input-group">
+          <label>@Localizer["StayDataPrice"]</label>
+          <input type="number" placeholder="€ 0.00">
+        </div>
+
+        <div class="input-group">
+          <label>@Localizer["StayDataRooms"]:</label>
+          <input type="number" placeholder="Quantidade">
+        </div>
+
+        <div class="input-group">
+          <label>@Localizer["StayDataQtdPeople"]:</label>
+          <select>
+            <option>1 @Localizer["People"]</option>
+            <option>2 @Localizer["People"]s</option>
+            <option>3-4 @Localizer["People"]s</option>
+            <option>5+</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>@Localizer["StayDatadescription"]:</label>
+          <textarea rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <button type="button" class="btn-cancel">@Localizer["Cancel"]</button>
+      <button type="submit" class="btn-submit">@Localizer["PublishStays"]</button>
+    </div>
+  </form>
+</div>
