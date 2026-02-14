@@ -1,0 +1,53 @@
+﻿@model Booking.web.Models.AirlineViewModel
+
+@{
+    ViewData["Title"] = "Add Airline";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">New Airline</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                       
+                        <div class="mb-3">
+                            <label class="form-label">Airline Name</label>
+                            <input asp-for="AirlineName" class="form-control" placeholder="Ex: TAP Air Portugal" required />
+                            <span asp-validation-for="AirlineName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="contact@airline.com" required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input asp-for="Phone" type="number" class="form-control" placeholder="Ex: 351912345678" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-lg"></i> Create Airline
+                            </button>
+                            <a href="/Flight/Create" class="btn btn-outline-secondary">Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ativa a validação instantânea no browser *@
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -23,7 +23,6 @@
             background-color: var(--light-bg);
         }
 
-        /* NAVBAR CUSTOMIZATION */
         .navbar {
             background-color: var(--primary-blue) !important;
             padding: 0.5rem 0;
@@ -51,7 +50,6 @@
                 color: var(--secondary-gold) !important;
             }
 
-        /* AUTH BUTTONS */
         .btn-auth {
             background-color: white;
             color: var(--primary-blue);
@@ -64,7 +62,7 @@
                 background-color: #e9ecef;
             }
 
-        /* CONTAINER ADJUSTMENTS */
+   
         .navbar .container {
             max-width: 95%;
         }
@@ -113,6 +111,7 @@
                             <ul class="dropdown-menu shadow border-0">
                                 <li><a class="dropdown-item" href="/City/Create"><i class="bi bi-geo-alt me-2"></i>Add New City</a></li>
                                 <li><a class="dropdown-item" href="/Flight/Create"><i class="bi bi-plus-circle me-2"></i>Add New Flight</a></li>
+                                <li><a class="dropdown-item" asp-controller="Airline" asp-action="Create">Add new Airline</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/City/List"><i class="bi bi-list-ul me-2"></i>Manage Cities</a></li>
                                     <li><a class="dropdown-item" asp-controller="Flight" asp-action="PendingApprovals"><i class="bi bi-shield-check"></i> Approve Flights</a></li>

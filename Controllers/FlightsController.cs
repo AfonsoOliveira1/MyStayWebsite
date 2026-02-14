@@ -18,43 +18,12 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
-        private async Task LoadFlightViewBags()
-        {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-
-            try
-            {
-                var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities") ?? new List<CityViewModel>();
-                var cityList = new SelectList(cities, "Id", "Name");
-                ViewBag.OriginId = cityList;
-                ViewBag.DestinationId = cityList;
-            }
-            catch
-            {
-                ViewBag.OriginId = new SelectList(new List<SelectListItem>());
-                ViewBag.DestinationId = new SelectList(new List<SelectListItem>());
-            }
-
-            var airlines = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "1", Text = "TAP Air Portugal" },
-                new SelectListItem { Value = "2", Text = "Ryanair" },
-                new SelectListItem { Value = "3", Text = "Emirates" }
-            };
-            ViewBag.AirlineId = new SelectList(airlines, "Value", "Text");
-        }
-
         [AllowAnonymous]
         public async Task<IActionResult> List()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var flights = await client.GetFromJsonAsync<List<FlightViewModel>>("api/Flights") ?? new List<FlightViewModel>();
+            var flights = await client.GetFromJsonAsync<List<FlightViewModel>>("api/Flights")
+                          ?? new List<FlightViewModel>();
             return View(flights);
         }
 
@@ -76,9 +45,10 @@ namespace Booking.Web.Controllers
             }
 
             var client = _clientFactory.CreateClient("Booking.API");
+            //evitar nulls
             model.ArrivalTime = model.DepartureTime.AddHours(2);
 
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
+            var token = await GetToken();
             if (!string.IsNullOrEmpty(token))
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -93,6 +63,7 @@ namespace Booking.Web.Controllers
             }
 
             var errorMsg = await response.Content.ReadAsStringAsync();
+            
             ModelState.AddModelError("", "Erro na API: " + errorMsg);
 
             await LoadFlightViewBags();
@@ -103,7 +74,7 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> PendingApprovals()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
+            var token = await GetToken();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await client.GetAsync("api/Flights/pending");
@@ -122,14 +93,14 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> Approve(int id)
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
+            var token = await GetToken();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-           
+       
             var response = await client.PostAsync("api/Flights/" + id + "/approve", null);
 
             if (response.IsSuccessStatusCode)
-                TempData["Success"] = "Voo " + id + " aprovado!";
+                TempData["Success"] = "Voo #" + id + " aprovado com sucesso!";
             else
                 TempData["Error"] = "Erro ao aprovar o voo.";
 
@@ -141,18 +112,50 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> Reject(int id)
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
+            var token = await GetToken();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-           
+          
             var response = await client.PostAsync("api/Flights/" + id + "/reject", null);
 
             if (response.IsSuccessStatusCode)
-                TempData["Success"] = "Voo " + id + " rejeitado.";
+                TempData["Success"] = "Voo #" + id + " rejeitado.";
             else
                 TempData["Error"] = "Erro ao rejeitar o voo.";
 
             return RedirectToAction("PendingApprovals");
+        }
+
+        private async Task LoadFlightViewBags()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = await GetToken();
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities") ?? new List<CityViewModel>();
+            var cityList = new SelectList(cities, "Id", "Name");
+            ViewBag.OriginId = cityList;
+            ViewBag.DestinationId = cityList;
+
+            try
+            {
+                var airlines = await client.GetFromJsonAsync<List<AirlineViewModel>>("api/Airlines") ?? new List<AirlineViewModel>();
+                                                             // p key     nome 
+                ViewBag.AirlineId = new SelectList(airlines, "IdAirline", "AirlineName");
+            }
+            catch
+            {
+                ViewBag.AirlineId = new SelectList(new List<SelectListItem>(), "Value", "Text");
+            }
+        }
+
+        private async Task<string> GetToken()
+        {
+            return await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
         }
     }
 }
