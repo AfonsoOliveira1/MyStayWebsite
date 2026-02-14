@@ -1,9 +1,11 @@
 ﻿using System.Net.Http.Headers;
+using System.Reflection;
 using System.Security.Claims;
 using Booking.web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR.Protocol;
 
 namespace Booking.web.Controllers
 {
@@ -84,9 +86,65 @@ namespace Booking.web.Controllers
         }
 
         [HttpGet]
+        public IActionResult ConfirmEmailCode(RegisterModel model)
+        {
+            return View(new VerifyCodeDTO());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmEmailCode(VerifyCodeDTO model, RegisterModel register)
+        {
+            ModelState.AddModelError("", "Falha no registo. Tente um email diferente.");
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> VerifyCode() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyCode(VerifyCodeDTO model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var token = User.FindFirst("JWToken")?.Value;
+            var client = _clientFactory.CreateClient("Booking.API");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response = await client.PostAsJsonAsync("api/Email/verify-code", model);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError("", "Code failed.");
+                return View("VerifyCode", new VerifyCodeDTO { Email = model.Email });
+            }
+            return RedirectToAction("Profile");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResendCode(string Email)
+        {
+            var token = User.FindFirst("JWToken")?.Value;
+            var client = _clientFactory.CreateClient("Booking.API");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response = await client.PostAsJsonAsync("api/Email/send-code", new VerifyCodeDTO { Email = Email });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                //le o conteúdo da resposta de erro
+                var content = await response.Content.ReadAsStringAsync();
+                string message;
+                // desserializa o JSON { "message": "..." }
+                var apiResponse = System.Text.Json.JsonSerializer
+                    .Deserialize<ApiMessage>(content);
+
+                // adiciona o erro ao ModelState
+                ModelState.AddModelError("", apiResponse?.Message ?? "Falha ao enviar código.");
+            }
+            return View("VerifyCode", new VerifyCodeDTO { Email = Email });
+        }
+
+        [HttpGet]
         public IActionResult Profile()
         {
-           
             var user = new UserUpdateDto
             {
                 Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"),

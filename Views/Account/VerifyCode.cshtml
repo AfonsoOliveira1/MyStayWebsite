@@ -3,7 +3,7 @@
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
 
-        <div class="card mt-5">
+        <div class="card mt-5 shadow-sm">
             <div class="card-body p-4">
 
                 <h3 class="text-center mb-4">Verify your email</h3>
@@ -12,7 +12,9 @@
                     Enter the 6‑digit code we sent to your email.
                 </p>
 
-                <form asp-action="VerifyCode" method="post" novalidate>
+                <form asp-action="VerifyCode"
+                      asp-route-email="@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value"
+                      method="post" novalidate>
 
                     <div class="mb-3">
                         <label asp-for="Code" class="form-label">Verification Code</label>
@@ -24,7 +26,7 @@
                         <span asp-validation-for="Code" class="text-danger small"></span>
                     </div>
 
-                    <div class="d-grid">
+                    <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">
                             Confirm
                         </button>
@@ -34,24 +36,31 @@
 
                 <hr class="my-4" />
 
-                <p class="text-center text-muted mb-0">
-                    Didn’t receive the code?
-                    <a asp-action="ResendCode" class="fw-semibold">
-                        Resend
-                    </a>
-                </p>
+                <div class="text-center mb-3">
+                    <span class="text-muted me-2">Didn’t receive the code?</span>
+                    <form asp-action="ResendCode" method="post" class="d-inline">
+                        <input type="hidden" name="Email"
+                               value="@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value" />
+                        <button type="submit"
+                                class="btn p-0 text-primary text-decoration-underline"
+                                style="background: none; border: none;">
+                            Send Code
+                        </button>
+                    </form>
+                </div>
+
             </div>
         </div>
-        <div margin-top="20px"><!--preciso de ajustar a margin-->
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="alert alert-danger">
-                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                    {
-                        <p>@error.ErrorMessage</p>
-                    }
-                </div>
-            }
-        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger mt-3 text-center">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p class="mb-1">@error.ErrorMessage</p>
+                }
+            </div>
+        }
+
     </div>
 </div>
