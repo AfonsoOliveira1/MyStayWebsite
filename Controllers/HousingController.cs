@@ -26,7 +26,16 @@ namespace Booking.Web.Controllers
             return View(housings);
         }
 
-       
+        public async Task<IActionResult> CreateStays()
+        {
+            return View();
+        }
+        [Authorize(Roles = "RENTER")]
+        [HttpPost]
+        public async Task<IActionResult> Create(HousingCreateDto housingDto, IFormFile MainImage, List<IFormFile> SecondaryImages)
+        {
+
+        }
         public async Task<IActionResult> Reserve(int id)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
