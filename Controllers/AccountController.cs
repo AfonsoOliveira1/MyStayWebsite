@@ -135,8 +135,6 @@ namespace Booking.web.Controllers
                 // desserializa o JSON { "message": "..." }
                 var apiResponse = System.Text.Json.JsonSerializer
                     .Deserialize<ApiMessage>(content);
-
-                // adiciona o erro ao ModelState
                 ModelState.AddModelError("", apiResponse?.Message ?? "Falha ao enviar código.");
             }
             return View("VerifyCode", new VerifyCodeDTO { Email = Email });
