@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using System.Text.Json;
 
 namespace Booking.web.Controllers
 {
@@ -70,7 +71,7 @@ namespace Booking.web.Controllers
             var response = await client.PostAsJsonAsync("api/users/register", model);
 
             if (response.IsSuccessStatusCode)
-            {
+            {ActivatorUtilitiesConstructorAttribute 
                 TempData["Message"] = "Registo efetuado! Por favor faça login.";
                 return RedirectToAction("Login");
             }
@@ -86,16 +87,25 @@ namespace Booking.web.Controllers
         }
 
         [HttpGet]
-        public IActionResult ConfirmEmailCode(RegisterModel model)
-        {
-            return View(new VerifyCodeDTO());
-        }
+        public IActionResult ConfirmEmailCode(RegisterModel model) => View();
 
         [HttpPost]
-        public async Task<IActionResult> ConfirmEmailCode(VerifyCodeDTO model, RegisterModel register)
+        public async Task<IActionResult> ConfirmEmailCode(VerifyCodeDTO model)
         {
-            ModelState.AddModelError("", "Falha no registo. Tente um email diferente.");
-            return View(model);
+            if (!ModelState.IsValid) return View(model);
+
+            var token = User.FindFirst("JWToken")?.Value;
+            var client = _clientFactory.CreateClient("Booking.API");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response = await client.PostAsJsonAsync("api/Email/verify-code", model);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError("", "Code failed.");
+                return View("VerifyCode", new VerifyCodeDTO { Email = model.Email });
+            }
+            var registerModelJson = TempData["RegisterModel"] as string;
+            return RedirectToAction("Register", registerModelJson);
         }
 
         [HttpGet]
@@ -133,7 +143,7 @@ namespace Booking.web.Controllers
                 var content = await response.Content.ReadAsStringAsync();
                 string message;
                 // desserializa o JSON { "message": "..." }
-                var apiResponse = System.Text.Json.JsonSerializer
+                var apiResponse = JsonSerializer
                     .Deserialize<ApiMessage>(content);
                 ModelState.AddModelError("", apiResponse?.Message ?? "Falha ao enviar código.");
             }

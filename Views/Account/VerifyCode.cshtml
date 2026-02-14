@@ -1,5 +1,10 @@
 ﻿@model Booking.web.Models.VerifyCodeDTO
-
+@{
+    var actionName = TempData["Action"]?.ToString() ?? "ConfirmEmailCode";
+    var emailValue = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                     ?? TempData["Email"]?.ToString().Trim();
+}
+<p>EmailValue: "@emailValue"</p> <p>TempData Email: "@TempData["Email"]"</p> <p>Claim Email: "@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value"</p>
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
 
@@ -12,8 +17,8 @@
                     Enter the 6‑digit code we sent to your email.
                 </p>
 
-                <form asp-action="VerifyCode"
-                      asp-route-email="@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value"
+                <form asp-action="@actionName"
+                      asp-route-email="@emailValue"
                       method="post" novalidate>
 
                     <div class="mb-3">
@@ -31,7 +36,6 @@
                             Confirm
                         </button>
                     </div>
-
                 </form>
 
                 <hr class="my-4" />
@@ -40,7 +44,7 @@
                     <span class="text-muted me-2">Didn’t receive the code?</span>
                     <form asp-action="ResendCode" method="post" class="d-inline">
                         <input type="hidden" name="Email"
-                               value="@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value" />
+                               value="@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? @TempData["Email"]" />
                         <button type="submit"
                                 class="btn p-0 text-primary text-decoration-underline"
                                 style="background: none; border: none;">

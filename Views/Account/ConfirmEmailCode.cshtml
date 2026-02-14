@@ -1,23 +1,24 @@
 ﻿@model Booking.web.Models.VerifyCodeDTO
 
+
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
 
-        <div class="card mt-5">
+        <div class="card mt-5 shadow-sm">
             <div class="card-body p-4">
 
                 <h3 class="text-center mb-4">Verify your email</h3>
 
                 <p class="text-muted text-center mb-4">
-                    @Localizer["EmailVerificationMessage"]
+                    Enter the 6‑digit code we sent to your email.
                 </p>
 
-                <form asp-action="ConfirmEmailCode" method="post" novalidate>
+                <form asp-action="ConfirmEmailCode"
+                      asp-route-email=""
+                      method="post" novalidate>
 
                     <div class="mb-3">
-                        <label asp-for="Code" class="form-label">
-                            @Localizer["VerificationCode"]
-                            Verification Code</label>
+                        <label asp-for="Code" class="form-label">Verification Code</label>
                         <input asp-for="Code"
                                class="form-control text-center"
                                maxlength="6"
@@ -26,35 +27,40 @@
                         <span asp-validation-for="Code" class="text-danger small"></span>
                     </div>
 
-                    <div class="d-grid">
+                    <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            @Localizer["Confirm"]
+                            Confirm
                         </button>
                     </div>
-
                 </form>
 
                 <hr class="my-4" />
 
-                <p class="text-center text-muted mb-0">
-                    @Localizer["CodeNotReceived"]
-                    Didn’t receive the code?
-                    <a asp-action="ResendCode" asp-route-register="@ViewBag.RegisterModel" class="fw-semibold">
-                        @Localizer["ResendCode"]
-                    </a>
-                </p>
+                <div class="text-center mb-3">
+                    <span class="text-muted me-2">Didn’t receive the code?</span>
+                    <form asp-action="ResendCode" method="post" class="d-inline">
+                        <input type="hidden" name="Email"
+                               value="@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? @TempData["Email"]" />
+                        <button type="submit"
+                                class="btn p-0 text-primary text-decoration-underline"
+                                style="background: none; border: none;">
+                            Send Code
+                        </button>
+                    </form>
+                </div>
+
             </div>
         </div>
-        <div margin-top="20px"><!--preciso de ajustar a margin-->
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="alert alert-danger">
-                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                    {
-                        <p>@error.ErrorMessage</p>
-                    }
-                </div>
-            }
-        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger mt-3 text-center">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p class="mb-1">@error.ErrorMessage</p>
+                }
+            </div>
+        }
+
     </div>
 </div>
