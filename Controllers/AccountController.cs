@@ -87,25 +87,48 @@ namespace Booking.web.Controllers
         }
 
         [HttpGet]
-        public IActionResult ConfirmEmailCode(RegisterModel model) => View();
+        public IActionResult ConfirmEmailCode(RegisterModel model)
+        {
+            TempData["RegisterModel"] = JsonSerializer.Serialize(model);
+            TempData["Email"] = model.Email;
+            TempData.Keep("Email");
+            return View();
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> ResendCodeConfirm(string Email)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var response = await client.PostAsJsonAsync("api/Email/send-code", new VerifyCodeDTO { Email = Email });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                //le o conteúdo da resposta de erro
+                var content = await response.Content.ReadAsStringAsync();
+                string message;
+                // desserializa o JSON { "message": "..." }
+                var apiResponse = JsonSerializer
+                    .Deserialize<ApiMessage>(content);
+                ModelState.AddModelError("", apiResponse?.Message ?? "Falha ao enviar código.");
+            }
+            return View("ConfirmEmailCode", new VerifyCodeDTO { Email = Email });
+        }
         [HttpPost]
         public async Task<IActionResult> ConfirmEmailCode(VerifyCodeDTO model)
         {
             if (!ModelState.IsValid) return View(model);
 
-            var token = User.FindFirst("JWToken")?.Value;
             var client = _clientFactory.CreateClient("Booking.API");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await client.PostAsJsonAsync("api/Email/verify-code", model);
 
             if (!response.IsSuccessStatusCode)
             {
                 ModelState.AddModelError("", "Code failed.");
-                return View("VerifyCode", new VerifyCodeDTO { Email = model.Email });
+                return View("ConfirmEmailCode", new VerifyCodeDTO { Email = model.Email });
             }
             var registerModelJson = TempData["RegisterModel"] as string;
-            return RedirectToAction("Register", registerModelJson);
+            RegisterModel registerModel = JsonSerializer.Deserialize<RegisterModel>(registerModelJson ?? "{}") ?? new RegisterModel();
+            return await Register(registerModel); //Chama o método de registo após a confirmação do código
         }
 
         [HttpGet]
@@ -116,9 +139,7 @@ namespace Booking.web.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var token = User.FindFirst("JWToken")?.Value;
             var client = _clientFactory.CreateClient("Booking.API");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await client.PostAsJsonAsync("api/Email/verify-code", model);
 
             if (!response.IsSuccessStatusCode)
@@ -132,10 +153,8 @@ namespace Booking.web.Controllers
         [HttpPost]
         public async Task<IActionResult> ResendCode(string Email)
         {
-            var token = User.FindFirst("JWToken")?.Value;
             var client = _clientFactory.CreateClient("Booking.API");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            var response = await client.PostAsJsonAsync("api/Email/send-code", new VerifyCodeDTO { Email = Email });
+            var response = await client.PostAsJsonAsync("api/Email/verify-code", new VerifyCodeDTO { Email = Email });
 
             if (!response.IsSuccessStatusCode)
             {
