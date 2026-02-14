@@ -117,14 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddCity" xml:space="preserve">
+    <value>Adicionar cidade</value>
+  </data>
   <data name="AddFlight" xml:space="preserve">
     <value>Adicionar novo voo</value>
+  </data>
+  <data name="AddHousing" xml:space="preserve">
+    <value>Publicar alojamento</value>
+  </data>
+  <data name="AdminHeader" xml:space="preserve">
+    <value>Ferramentas de administrador</value>
   </data>
   <data name="AIassistant" xml:space="preserve">
     <value>Assistente MyStay</value>
   </data>
   <data name="AIheader" xml:space="preserve">
     <value>Chat de IA</value>
+  </data>
+  <data name="ApproveFlights" xml:space="preserve">
+    <value>Aprovar voos</value>
+  </data>
+  <data name="ApproveHousing" xml:space="preserve">
+    <value>Aprovar alojamentos</value>
   </data>
   <data name="AvailableFlights" xml:space="preserve">
     <value>Voos disponíveis</value>
@@ -149,6 +164,12 @@
   </data>
   <data name="Free" xml:space="preserve">
     <value>Livre</value>
+  </data>
+  <data name="ManageAirlines" xml:space="preserve">
+    <value>Gerenciar Companias de voos</value>
+  </data>
+  <data name="ManageCities" xml:space="preserve">
+    <value>Gerenciar cidades</value>
   </data>
   <data name="MyBookings" xml:space="preserve">
     <value>Minhas reservas</value>
