@@ -1,9 +1,9 @@
-﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
+﻿@using System.Text.Encodings.Web
+@model IEnumerable<Booking.web.Models.HousingViewModel>
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-house-gear text-primary"></i> Casas Pendentes de Aprovação</h2>
-        
     </div>
 
     <div class="card shadow-sm border-0">
@@ -12,9 +12,10 @@
                 <thead class="table-light">
                     <tr>
                         <th>Foto</th>
-                        <th>Nome da Propriedade</th>
+                        <th>Propriedade</th>
                         <th>Cidade</th>
                         <th>Preço/Noite</th>
+                        <th>Descrição</th> @* Nova Coluna *@
                         <th class="text-center">Ações</th>
                     </tr>
                 </thead>
@@ -22,7 +23,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">
+                            <td colspan="6" class="text-center py-4 text-muted">
                                 <i class="bi bi-check2-circle fs-2"></i><br>
                                 Não existem alojamentos pendentes neste momento.
                             </td>
@@ -49,6 +50,18 @@
                             </td>
                             <td>@house.CityName</td>
                             <td>@house.PricePerNight.ToString("C")</td>
+
+                            <td style="max-width: 250px;">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <small class="text-truncate d-inline-block" style="max-width: 180px;" id="desc-@house.Id">
+                                        @house.Description
+                                    </small>
+                                    <button class="btn btn-link btn-sm p-0 ms-2" onclick="openEditModal('@house.Id', '@JavaScriptEncoder.Default.Encode(house.Description)')">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+                            </td>
+
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <form asp-action="Approve" asp-controller="Housing" asp-route-id="@house.Id" method="post">
@@ -71,3 +84,49 @@
         </div>
     </div>
 </div>
+
+@* edit descricao *@
+<div class="modal fade" id="editDescModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Descrição</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modalHouseId" />
+                <textarea class="form-control" id="modalDescription" rows="5"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveDescription()">Guardar Alteração</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openEditModal(id, desc) {
+            document.getElementById('modalHouseId').value = id;
+            document.getElementById('modalDescription').value = desc;
+            new bootstrap.Modal(document.getElementById('editDescModal')).show();
+        }
+
+        async function saveDescription() {
+            const id = document.getElementById('modalHouseId').value;
+            const desc = document.getElementById('modalDescription').value;
+
+            const response = await fetch(`/Housing/UpdateDescription?id=${id}&description=${encodeURIComponent(desc)}`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                document.getElementById(`desc-${id}`).innerText = desc;
+                bootstrap.Modal.getInstance(document.getElementById('editDescModal')).hide();
+            } else {
+                alert("Erro ao atualizar descrição.");
+            }
+        }
+    </script>
+}

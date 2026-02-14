@@ -139,5 +139,15 @@ namespace Booking.Web.Controllers
 
             return RedirectToAction("PendingApprovals");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateDescription(int id, string description)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var response = await client.PutAsJsonAsync($"api/Housing/{id}/description", description);
+
+            if (response.IsSuccessStatusCode) return Ok();
+            return BadRequest();
+        }
     }
 }

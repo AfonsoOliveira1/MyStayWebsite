@@ -70,11 +70,11 @@ namespace Booking.web.Controllers
             var client = _clientFactory.CreateClient("Booking.API");
             var response = await client.PostAsJsonAsync("api/users/register", model);
 
-            if (response.IsSuccessStatusCode)
-            {ActivatorUtilitiesConstructorAttribute 
-                TempData["Message"] = "Registo efetuado! Por favor faça login.";
-                return RedirectToAction("Login");
-            }
+            //if (response.IsSuccessStatusCode)
+            //{ActivatorUtilitiesConstructorAttribute 
+            //    TempData["Message"] = "Registo efetuado! Por favor faça login.";
+            //    return RedirectToAction("Login");
+            //}
 
             ModelState.AddModelError("", "Falha no registo. Tente um email diferente.");
             return View(model);
