@@ -10,8 +10,6 @@
 
                 <form asp-action="Create" method="post" class="p-4">
                     @Html.AntiForgeryToken()
-
-                    @* Campo oculto caso a tua API exija o CompanyId *@
                     <input type="hidden" asp-for="CompanyId" value="1" />
 
                     <div class="row g-3">

@@ -1,0 +1,41 @@
+﻿@model RenterViewModel
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 text-primary"><i class="bi bi-pencil-square me-2"></i>Editar Renter</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit">
+                        <input type="hidden" asp-for="IdRenter" />
+
+                        <div class="mb-3">
+                            <label asp-for="RenterName" class="form-label fw-bold">Nome da Empresa</label>
+                            <input asp-for="RenterName" class="form-control" placeholder="Ex: Hertz Portugal" />
+                            <span asp-validation-for="RenterName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-bold">Email de Contacto</label>
+                            <input asp-for="Email" class="form-control" type="email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label fw-bold">Telefone</label>
+                            <input asp-for="Phone" class="form-control" type="number" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="List" class="btn btn-outline-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4">Guardar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

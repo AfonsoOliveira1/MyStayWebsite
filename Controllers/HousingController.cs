@@ -46,7 +46,7 @@ namespace Booking.Web.Controllers
             
             ViewBag.Cities = new SelectList(cities, "Id", "Name");
 
-            return View();
+            return View("Create");
         }
         [Authorize(Roles = "RENTER,ADMIN")]
         [HttpPost]
@@ -205,6 +205,24 @@ namespace Booking.Web.Controllers
 
             if (response.IsSuccessStatusCode) return Ok();
             return BadRequest();
+        }
+
+        [Authorize(Roles = "RENTER")]
+        public async Task<IActionResult> MyHousings()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync("api/Housings/MyHousings");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var housings = await response.Content.ReadFromJsonAsync<List<HousingViewModel>>();
+                return View(housings);
+            }
+
+            return View(new List<HousingViewModel>());
         }
     }
 }

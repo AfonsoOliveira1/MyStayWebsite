@@ -12,9 +12,9 @@
                     Enter the 6‑digit code we sent to your email.
                 </p>
 
-                <form asp-action="ConfirmEmailCode"
-                      asp-route-email="@TempData["Email"]"
-                      method="post" novalidate>
+                <form asp-action="ConfirmEmailCode" method="post" novalidate>
+
+                    <input type="hidden" asp-for="Email" " />
 
                     <div class="mb-3">
                         <label asp-for="Code" class="form-label">Verification Code</label>
@@ -35,11 +35,12 @@
 
                 <hr class="my-4" />
 
+
                 <div class="text-center mb-3">
                     <span class="text-muted me-2">Didn’t receive the code?</span>
                     <form asp-action="ResendCodeConfirm" method="post" class="d-inline">
-                        <input type="hidden" name="Email"
-                               value="@TempData["Email"]"/>
+                       
+                        <input type="hidden" name="Email" value="@TempData["Email"]" />
                         <button type="submit"
                                 class="btn p-0 text-primary text-decoration-underline"
                                 style="background: none; border: none;">

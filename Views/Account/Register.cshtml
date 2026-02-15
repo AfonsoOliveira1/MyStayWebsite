@@ -1,4 +1,6 @@
-﻿@model Booking.web.Models.RegisterModel
+﻿@using System.Text.Json
+@model Booking.web.Models.RegisterModel
+
 
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
@@ -6,35 +8,44 @@
             <div class="card-body p-4">
                 <h3 class="text-center mb-4">Create your account</h3>
 
+               
                 <form asp-action="ConfirmEmailCode" method="get" novalidate>
                     <div class="mb-3">
                         <label asp-for="Name" class="form-label">Full name</label>
                         <input asp-for="Name" class="form-control" placeholder="Enter your full name" />
                         <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
-
                     <div class="mb-3">
                         <label asp-for="Email" class="form-label">Email address</label>
                         <input asp-for="Email" class="form-control" placeholder="Enter your email" />
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
-
                     <div class="mb-3">
                         <label asp-for="Passwordhash" class="form-label">Password</label>
                         <input asp-for="Passwordhash" type="password" class="form-control" placeholder="Create a password" />
                         <span asp-validation-for="Passwordhash" class="text-danger small"></span>
                     </div>
 
-                    <div class="mb-4">
+                    @* Role Principal *@
+                    <div class="mb-3">
                         <label asp-for="Role" class="form-label">Account type</label>
-                        <option value="">Select account type</option>
-                        <select asp-for="Role" class="form-select">
-                            <option value="ADMIN">Admin</option>
+                        <select asp-for="Role" id="roleSelector" class="form-select">
                             <option value="CUSTOMER">Passenger / Guest</option>
-                            <option value="AIRLINE">Airline Company</option>
-                            <option value="RENTER">House / Hotel Renter</option>
+                            <option value="AIRLINE">Airline Employee</option>
+                            <option value="RENTER">Property Manager</option>
                         </select>
                         <span asp-validation-for="Role" class="text-danger small"></span>
+                    </div>
+
+                    @* se n for CUSTOMER *@
+                    <div id="companySelectionSection" style="display:none;" class="mb-4 p-3 bg-light border rounded">
+                        <label class="form-label fw-bold" id="companyLabel">Select Company</label>
+
+                        @* SelectList com JS *@
+                        <select asp-for="SelectedCompanyId" id="companyDropdown" class="form-select">
+                            <option value="">-- Choose your company --</option>
+                        </select>
+                        <span asp-validation-for="SelectedCompanyId" class="text-danger small"></span>
                     </div>
 
                     <div class="d-grid">
@@ -49,4 +60,50 @@
             </div>
         </div>
     </div>
-</div>x
+</div>
+
+@section Scripts {
+    <script>
+        // passr os dados das ViewBags
+        const airlines = @Html.Raw(JsonSerializer.Serialize(ViewBag.Airlines ?? new List<object>()));
+        const renters = @Html.Raw(JsonSerializer.Serialize(ViewBag.Renters ?? new List<object>()));
+
+        const roleSelector = document.getElementById('roleSelector');
+        const companySection = document.getElementById('companySelectionSection');
+        const companyDropdown = document.getElementById('companyDropdown');
+        const companyLabel = document.getElementById('companyLabel');
+
+        roleSelector.addEventListener('change', function() {
+            const role = this.value;
+
+            // limpar dropdown
+            companyDropdown.innerHTML = '<option value="">-- Choose your company --</option>';
+
+            if (role === 'CUSTOMER' || role === 'ADMIN') {
+                companySection.style.display = 'none';
+                companyDropdown.required = false;
+            } else {
+                companySection.style.display = 'block';
+                companyDropdown.required = true;
+
+                let dataToLoad = (role === 'AIRLINE') ? airlines : renters;
+                companyLabel.innerText = (role === 'AIRLINE') ? "Select Airline" : "Select Property Group";
+
+                // preencher o dropdown
+                dataToLoad.forEach(item => {
+                    let opt = document.createElement('option');
+
+                    if (role === 'AIRLINE') {
+                        opt.value = item.IdAirline;
+                        opt.innerHTML = item.AirlineName;
+                    } else {
+                        opt.value = item.IdRenter;
+                        opt.innerHTML = item.RenterName;
+                    }
+
+                    companyDropdown.appendChild(opt);
+                });
+            }
+        });
+    </script>
+}

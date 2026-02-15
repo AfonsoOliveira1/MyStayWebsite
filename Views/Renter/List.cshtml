@@ -1,0 +1,112 @@
+﻿@model IEnumerable<RenterViewModel>
+
+<div class="container py-4">
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle me-2"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-building me-2 text-primary"></i>Gestão de Renters
+            </h2>
+            <p class="text-muted small mb-0">Administre as empresas de aluguer registadas no sistema.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary px-4 shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Novo Renter
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-secondary text-uppercase small fw-bold">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Nome da Empresa</th>
+                        <th>Email</th>
+                        <th>Telefone</th>
+                        <th>Data Registo</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                Nenhum Renter encontrado.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 text-muted">#@item.IdRenter</td>
+                                <td><span class="fw-semibold">@item.RenterName</span></td>
+                                <td><a href="mailto:@item.Email" class="text-decoration-none text-dark">@item.Email</a></td>
+                                <td>@(item.Phone?.ToString() ?? "N/A")</td>
+                                <td>@item.CreatedAt.ToShortDateString()</td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group shadow-sm">
+                                        <a asp-action="Edit" asp-route-id="@item.IdRenter"
+                                           class="btn btn-sm btn-outline-primary" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                       
+                                        <form asp-action="Delete" asp-route-id="@item.IdRenter" method="post"
+                                              id="delete-form-@item.IdRenter" style="display:inline;">
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    onclick="confirmDeletion(@item.IdRenter, '@item.RenterName')" title="Apagar">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDeletion(id, name) {
+            Swal.fire({
+                title: 'Tens a certeza?',
+                text: `Estás prestes a apagar a empresa "${name}". Esta ação pode falhar se houver utilizadores associados.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sim, apagar!',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            })
+        }
+    </script>
+}

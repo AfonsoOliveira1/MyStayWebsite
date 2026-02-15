@@ -60,23 +60,57 @@ namespace Booking.web.Controllers
             return View(model);
         }
 
-        public IActionResult Register() => View();
+        [HttpGet]
+        public async Task<IActionResult> Register()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+
+            // 1. Procurar Airlines
+            var airlineResponse = await client.GetAsync("api/Airlines");
+            var airlines = airlineResponse.IsSuccessStatusCode
+                ? await airlineResponse.Content.ReadFromJsonAsync<List<AirlineViewModel>>()
+                : new List<AirlineViewModel>();
+
+            // 2. Procurar Renters
+            var renterResponse = await client.GetAsync("api/Renters");
+            var renters = renterResponse.IsSuccessStatusCode
+                ? await renterResponse.Content.ReadFromJsonAsync<List<RenterViewModel>>()
+                : new List<RenterViewModel>();
+
+            ViewBag.Airlines = airlines;
+            ViewBag.Renters = renters;
+
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterModel model)
         {
+            // se formulário foi bem preenchido
             if (!ModelState.IsValid) return View(model);
 
             var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PostAsJsonAsync("api/users/register", model);
 
-            //if (response.IsSuccessStatusCode)
-            //{ActivatorUtilitiesConstructorAttribute 
-            //    TempData["Message"] = "Registo efetuado! Por favor faça login.";
-            //    return RedirectToAction("Login");
-            //}
+           
+            var userDto = new UserCreateDto
+            {
+                Name = model.Name,
+                Email = model.Email,
+                Password = model.Passwordhash,
+                Role = model.Role,
+                CompanyType = model.Role,
+                CompanyId = model.SelectedCompanyId
+            };
 
-            ModelState.AddModelError("", "Falha no registo. Tente um email diferente.");
+            var response = await client.PostAsJsonAsync("api/users/register", userDto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Registo efetuado! Por favor faça login.";
+                return RedirectToAction("Login");
+            }
+
+            ModelState.AddModelError("", "Falha no registo. Verifique se o email já está em uso.");
             return View(model);
         }
 
@@ -89,10 +123,21 @@ namespace Booking.web.Controllers
         [HttpGet]
         public IActionResult ConfirmEmailCode(RegisterModel model)
         {
+            if (string.IsNullOrEmpty(model.Email))
+            {
+                return RedirectToAction("Register");
+            }
+
+            // guardar dados
             TempData["RegisterModel"] = JsonSerializer.Serialize(model);
             TempData["Email"] = model.Email;
+
+            // manter dados vivos
+            TempData.Keep("RegisterModel");
             TempData.Keep("Email");
-            return View();
+
+            // passar o email 
+            return View(new VerifyCodeDTO { Email = model.Email });
         }
 
         [HttpPost]
@@ -116,19 +161,62 @@ namespace Booking.web.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmEmailCode(VerifyCodeDTO model)
         {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+            {
+                TempData.Keep("RegisterModel");
+                TempData.Keep("Email");
+                return View(model);
+            }
 
             var client = _clientFactory.CreateClient("Booking.API");
+
+            // Verificar code
             var response = await client.PostAsJsonAsync("api/Email/verify-code", model);
 
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Code failed.");
-                return View("ConfirmEmailCode", new VerifyCodeDTO { Email = model.Email });
+                TempData.Keep("RegisterModel");
+                TempData.Keep("Email");
+                ModelState.AddModelError("", "Código incorreto.");
+                return View(model);
             }
+
+            // recuperar os dados do registo
             var registerModelJson = TempData["RegisterModel"] as string;
-            RegisterModel registerModel = JsonSerializer.Deserialize<RegisterModel>(registerModelJson ?? "{}") ?? new RegisterModel();
-            return await Register(registerModel); //Chama o método de registo após a confirmação do código
+            if (string.IsNullOrEmpty(registerModelJson))
+            {
+                return RedirectToAction("Register");
+            }
+
+            RegisterModel regModel = JsonSerializer.Deserialize<RegisterModel>(registerModelJson);
+
+            // Preparar o DTO para a api
+            var userDto = new
+            {
+                Name = regModel.Name,
+                Email = regModel.Email,
+                Password = regModel.Passwordhash,
+                Role = regModel.Role,
+                CompanyId = regModel.SelectedCompanyId 
+            };
+
+            var registerResponse = await client.PostAsJsonAsync("api/users/register", userDto);
+
+            if (registerResponse.IsSuccessStatusCode)
+            {
+                TempData.Remove("RegisterModel");
+                TempData["Message"] = "Registo efetuado com sucesso!";
+                return RedirectToAction("Login");
+            }
+            else
+            { 
+                var errorDetail = await registerResponse.Content.ReadAsStringAsync();
+                ModelState.AddModelError("", $"Erro da API: {errorDetail}");
+
+                TempData.Keep("RegisterModel");
+                TempData.Keep("Email");
+                return View(model);
+            }
         }
 
         [HttpGet]
