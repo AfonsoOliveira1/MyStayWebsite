@@ -126,6 +126,9 @@
   <data name="AddHousing" xml:space="preserve">
     <value>Publicar alojamento</value>
   </data>
+  <data name="Admin" xml:space="preserve">
+    <value>Administrador</value>
+  </data>
   <data name="AdminHeader" xml:space="preserve">
     <value>Ferramentas de administrador</value>
   </data>
@@ -153,6 +156,9 @@
   <data name="Confirm" xml:space="preserve">
     <value>Confirmar</value>
   </data>
+  <data name="CreateFlights" xml:space="preserve">
+    <value>Criar voos</value>
+  </data>
   <data name="EmailVerificationMessage" xml:space="preserve">
     <value>Escreve o código de 6 dígitos que nós te mandámos</value>
   </data>
@@ -165,6 +171,9 @@
   <data name="Free" xml:space="preserve">
     <value>Livre</value>
   </data>
+  <data name="ManageCompany" xml:space="preserve">
+    <value>Gerir companias</value>
+  </data>
   <data name="ManageAirlines" xml:space="preserve">
     <value>Gerenciar Companias de voos</value>
   </data>
@@ -174,8 +183,20 @@
   <data name="MyBookings" xml:space="preserve">
     <value>Minhas reservas</value>
   </data>
+  <data name="MyFlights" xml:space="preserve">
+    <value>Meus voos</value>
+  </data>
+  <data name="MyStays" xml:space="preserve">
+    <value>Meus Alojamentos</value>
+  </data>
   <data name="Occupied" xml:space="preserve">
     <value>Ocupado</value>
+  </data>
+  <data name="PanelFlights" xml:space="preserve">
+    <value>Painel companhias de voo</value>
+  </data>
+  <data name="PanelRenter" xml:space="preserve">
+    <value>Painel rendas</value>
   </data>
   <data name="People" xml:space="preserve">
     <value>Pessoa</value>
@@ -242,5 +263,50 @@
   </data>
   <data name="VerificationCode" xml:space="preserve">
     <value>Código de verificação</value>
+  </data>
+  <data name="ManageRenters" xml:space="preserve">
+    <value>Gerir proprietários</value>
+  </data>
+  <data name="Definitions " xml:space="preserve">
+    <value>Definições</value>
+  </data>
+  <data name="NewAirline" xml:space="preserve">
+    <value>Nova companhia de voo</value>
+  </data>
+  <data name="CreateAirline" xml:space="preserve">
+    <value>Criar companhias de voo</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Voltar</value>
+  </data>
+  <data name="EditAirline" xml:space="preserve">
+    <value>Editar companhia de voo</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="AirlineName" xml:space="preserve">
+    <value>Nome da companhia de voo</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Telefone</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Ações</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Apagar</value>
+  </data>
+  <data name="NoAirlinesFound" xml:space="preserve">
+    <value>Nenhuma companhia de voo encontrada</value>
+  </data>
+  <data name="VerifyEmail" xml:space="preserve">
+    <value>Verifica o teu Email</value>
+  </data>
+  <data name="SendCode" xml:space="preserve">
+    <value>Mandar codigo</value>
   </data>
 </root>

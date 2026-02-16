@@ -9,7 +9,7 @@
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">New Airline</h4>
+                    <h4 class="mb-0">@Localizer["NewAirline"]</h4>
                 </div>
                 <div class="card-body">
                     <form asp-action="Create" method="post">
@@ -36,9 +36,9 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-check-lg"></i> Create Airline
+                                <i class="bi bi-check-lg"></i> @Localizer["CreateAirline"]
                             </button>
-                            <a href="/Flight/Create" class="btn btn-outline-secondary">Back</a>
+                            <a href="/Flight/Create" class="btn btn-outline-secondary">@Localizer["Back"]</a>
                         </div>
                     </form>
                 </div>
