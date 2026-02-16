@@ -235,31 +235,67 @@ namespace Booking.web.Controllers
                 ModelState.AddModelError("", "Code failed.");
                 return View("VerifyCode", new VerifyCodeDTO { Email = model.Email });
             }
+            
+            var identity = (ClaimsIdentity)User.Identity;
+
+            identity.RemoveClaim(identity.FindFirst("EmailConfirmed"));
+            identity.RemoveClaim(identity.FindFirst("EmailConfirmedAt"));
+
+            identity.AddClaim(new Claim("EmailConfirmed", "true"));
+
+            identity.AddClaim(new Claim("EmailConfirmedAt", DateTime.UtcNow.ToString("o")));
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity)
+            );
+
             return RedirectToAction("Profile");
         }
 
         [HttpPost]
         public async Task<IActionResult> ResendCode(string Email)
         {
+            VerifyCodeDTO model = new VerifyCodeDTO { Email = Email, Subject = "ola", Body = "aaaa"};
             var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PostAsJsonAsync("api/Email/verify-code", new VerifyCodeDTO { Email = Email });
+            var response = await client.PostAsJsonAsync("api/Email/send-code", model);
 
-            if (!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
             {
                 //le o conteúdo da resposta de erro
                 var content = await response.Content.ReadAsStringAsync();
-                string message;
-                // desserializa o JSON { "message": "..." }
-                var apiResponse = JsonSerializer
-                    .Deserialize<ApiMessage>(content);
+                var apiResponse = JsonSerializer.Deserialize<ApiMessage>(
+                    content,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
                 ModelState.AddModelError("", apiResponse?.Message ?? "Falha ao enviar código.");
             }
-            return View("VerifyCode", new VerifyCodeDTO { Email = Email });
+            return View("VerifyCode", model);
         }
 
         [HttpGet]
         public IActionResult Profile()
         {
+            var confirmed = User.Claims.FirstOrDefault(c => c.Type == "EmailConfirmed")?.Value;
+            var confirmedAt = User.Claims.FirstOrDefault(c => c.Type == "EmailConfirmedAt")?.Value;
+
+            if (confirmed != "true" || confirmedAt == null)
+                return RedirectToAction("VerifyCode");
+
+            // validar tempo (5 minutos) converter string para datetime e fica o var time com o valor
+            if (DateTime.TryParse(confirmedAt, out var time))
+            {
+                if (DateTime.UtcNow - time > TimeSpan.FromMinutes(5))
+                {
+                    return RedirectToAction("VerifyCode");
+                }
+            }
+            else
+            {
+                // erro força nova verificação obviamente
+                return RedirectToAction("VerifyCode");
+            }
+
             var user = new UserUpdateDto
             {
                 Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"),
@@ -267,8 +303,10 @@ namespace Booking.web.Controllers
                 Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "",
                 Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Customer"
             };
+
             return View(user);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> ProfileEdit(UserUpdateDto profile, string? newpass, string? confirmpass)
