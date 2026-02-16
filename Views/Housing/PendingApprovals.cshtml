@@ -11,12 +11,12 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Foto</th>
-                        <th>Propriedade</th>
-                        <th>Cidade</th>
-                        <th>Preço/Noite</th>
-                        <th>Descrição</th> @* Nova Coluna *@
-                        <th class="text-center">Ações</th>
+                        <th>@Localizer["Photo"]</th>
+                        <th>@Localizer["Stay"]</th>
+                        <th>@Localizer["City"]</th>
+                        <th>@Localizer["Price"]/@Localizer["Night"]</th>
+                        <th>@Localizer["Description"]</th> @* Nova Coluna *@
+                        <th class="text-center">@Localizer["Actions"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -25,7 +25,7 @@
                         <tr>
                             <td colspan="6" class="text-center py-4 text-muted">
                                 <i class="bi bi-check2-circle fs-2"></i><br>
-                                Não existem alojamentos pendentes neste momento.
+                                @Localizer["NoStays"]
                             </td>
                         </tr>
                     }
@@ -66,13 +66,13 @@
                                 <div class="d-flex justify-content-center gap-2">
                                     <form asp-action="Approve" asp-controller="Housing" asp-route-id="@house.Id" method="post">
                                         <button type="submit" class="btn btn-outline-success btn-sm">
-                                            <i class="bi bi-check-circle"></i> Aprovar
+                                                <i class="bi bi-check-circle"></i> @Localizer["Approve"]
                                         </button>
                                     </form>
 
                                     <form asp-action="Reject" asp-controller="Housing" asp-route-id="@house.Id" method="post">
                                         <button type="submit" class="btn btn-outline-danger btn-sm">
-                                            <i class="bi bi-x-circle"></i> Rejeitar
+                                                <i class="bi bi-x-circle"></i> @Localizer["Reject"]
                                         </button>
                                     </form>
                                 </div>
@@ -90,7 +90,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Editar Descrição</h5>
+                <h5 class="modal-title">@Localizer["Edit"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -98,8 +98,8 @@
                 <textarea class="form-control" id="modalDescription" rows="5"></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="saveDescription()">Guardar Alteração</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                <button type="button" class="btn btn-primary" onclick="saveDescription()">@Localizer["SaveChanges"]</button>
             </div>
         </div>
     </div>

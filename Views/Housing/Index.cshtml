@@ -33,14 +33,10 @@
 
 <div class="search-container">
     <aside class="filters-sidebar">
-        <div class="filter-box map-preview">
-            <button class="btn btn-primary w-100">Mostrar no mapa</button>
-        </div>
-
         <div class="filter-section">
-            <h3>Filtrar por:</h3>
+            <h3>@Localizer["Filter"]</h3>
             <div class="filter-group">
-                <label>O seu orçamento (por noite)</label>
+                <label>@Localizer["Budget"]</label>
                 <div class="price-range-placeholder">€ 0 - € 500+</div>
             </div>
 
@@ -59,7 +55,7 @@
             <h1 class="text-white">@Localizer["AvailableStays"] (@Model.Count())</h1>
             <div class="sort-bar mb-3">
                 <button class="btn btn-outline-light dropdown-toggle">
-                    Ordenar por: As nossas principais escolhas
+                    @Localizer["OrderBy"]:
                 </button>
             </div>
         </header>

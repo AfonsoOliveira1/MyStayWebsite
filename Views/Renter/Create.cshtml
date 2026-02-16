@@ -5,15 +5,15 @@
         <div class="col-md-6">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-4">
-                    <li class="breadcrumb-item"><a asp-action="List">Renters</a></li>
-                    <li class="breadcrumb-item active">Novo Renter</li>
+                    <li class="breadcrumb-item"><a asp-action="List">@Localizer["Renter"]</a></li>
+                    <li class="breadcrumb-item active">@Localizer["NewRenter"]</li>
                 </ol>
             </nav>
 
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3">
                     <h5 class="mb-0 fw-bold text-primary">
-                        <i class="bi bi-plus-circle me-2"></i>Registar Novo Renter
+                        <i class="bi bi-plus-circle me-2"></i>@Localizer["Register"]
                     </h5>
                 </div>
                 <div class="card-body p-4">
@@ -21,19 +21,19 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
                         <div class="mb-3">
-                            <label asp-for="RenterName" class="form-label fw-600">Nome da Empresa</label>
+                            <label asp-for="RenterName" class="form-label fw-600">@Localizer["Name"]</label>
                             <input asp-for="RenterName" class="form-control form-control-lg" placeholder="Ex: Hertz Portugal" required />
                             <span asp-validation-for="RenterName" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label fw-600">Email Corporativo</label>
+                            <label asp-for="Email" class="form-label fw-600">Email</label>
                             <input asp-for="Email" class="form-control" type="email" placeholder="geral@empresa.com" required />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Phone" class="form-label fw-600">Telefone de Contacto</label>
+                            <label asp-for="Phone" class="form-label fw-600">@Localizer["Phone"]</label>
                             <input asp-for="Phone" class="form-control" type="number" placeholder="912345678" />
                             <span asp-validation-for="Phone" class="text-danger small"></span>
                         </div>
@@ -42,10 +42,10 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <a asp-action="List" class="text-decoration-none text-secondary small">
-                                <i class="bi bi-arrow-left"></i> Voltar à lista
+                                <i class="bi bi-arrow-left"></i>@Localizer["Back"]
                             </a>
                             <button type="submit" class="btn btn-primary px-5 shadow-sm">
-                                <i class="bi bi-check2-circle me-1"></i> Criar Empresa
+                                <i class="bi bi-check2-circle me-1"></i> @Localizer["NewEnterprise"]
                             </button>
                         </div>
                     </form>

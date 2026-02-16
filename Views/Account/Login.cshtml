@@ -6,28 +6,28 @@
         <div class="card mt-5">
             <div class="card-body p-4">
 
-                <h3 class="text-center mb-4">Sign in</h3>
+                <h3 class="text-center mb-4">@Localizer["SignIn"]</h3>
 
                 <form asp-action="Login" method="post" novalidate>
 
                     <div class="mb-3">
-                        <label asp-for="Email" class="form-label">Email address</label>
-                        <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                        <label asp-for="Email" class="form-label">@Localizer["EmailAddress"]</label>
+                        <input asp-for="Email" class="form-control"/>
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Passwordhash" class="form-label">Password</label>
+                        <label asp-for="Passwordhash" class="form-label">@Localizer["Password"]</label>
                         <input asp-for="Passwordhash"
                                type="password"
                                class="form-control"
-                               placeholder="Enter your password" />
+                               />
                         <span asp-validation-for="Passwordhash" class="text-danger small"></span>
                     </div>
 
                     <div class="d-grid mt-4">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            Sign in
+                            @Localizer["SignIn"]
                         </button>
                     </div>
 
@@ -37,7 +37,7 @@
 
                 <div class="d-grid">
                     <a href="/Account/Register" class="btn btn-outline-primary btn-lg">
-                        Create an account
+                        @Localizer["CreateAccount"]
                     </a>
                 </div>
 

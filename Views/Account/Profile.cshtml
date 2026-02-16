@@ -8,7 +8,7 @@
             </div>
             <div class="profile-header-text">
                 <h3 class="user-name">@Model.Name</h3>
-                <h2 class="profile-title">Profile Management</h2>
+                <h2 class="profile-title">@Localizer["ProfileManagement"]</h2>
             </div>
         </div>
 
@@ -25,45 +25,36 @@
         <form asp-action="ProfileEdit" method="post" class="profile-form-grid">
             <div class="form-floating">
                 <input asp-for="Name" class="form-control" placeholder="Name" />
-                <label for="Name">Name</label>
+                <label for="Name">@Localizer["Name"]</label>
             </div>
 
             <div class="form-floating">
                 <input asp-for="Email" class="form-control" placeholder="Email" readonly />
-                <label for="Email">Email (Não editável)</label>
+                <label for="Email">Email</label>
             </div>
 
             <div class="form-floating">
                 <select asp-for="Role" class="form-select">
-                    <option value="CUSTOMER">Customer</option>
-                    <option value="COMPANY">Company/Airline</option>
-                    <option value="ADMIN">Admin</option>
+                    <option value="CUSTOMER">@Localizer["Customer"]</option>
+                    <option value="COMPANY">@Localizer["CompanyAirline"]</option>
+                    <option value="ADMIN">@Localizer["Admin"]</option>
                 </select>
                 <label for="Role">Role</label>
             </div>
 
             <div class="form-floating">
-                <input id="newpass" name="newpass" type="password" class="form-control" placeholder="NewPassword" />
-                <label for="newpass">New Password</label>
+                <input id="newpass" name="newpass" type="password" class="form-control" placeholder="@Localizer["NewPassword"]" />
+                <label for="newpass">@Localizer["NewPassword"]</label>
             </div>
 
             <div class="form-floating">
-                <input id="confirmpass" name="confirmpass" type="password" class="form-control" placeholder="ConfirmPassword" />
-                <label for="confirmpass">Confirm Password</label>
+                <input id="confirmpass" name="confirmpass" type="password" class="form-control" placeholder="@Localizer["Confirm"]" />
+                <label for="confirmpass">@Localizer["Confirm"]</label>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-save">Save Changes</button>
+                <button type="submit" class="btn-save">@Localizer["SaveChanges"]</button>
             </div>
         </form>
-    </div>
-</div>
-
-<div class="profile-wrapper">
-    <div class="profile-card">
-        <h2 class="mb-4 text-center">Two-Factor Authentication</h2>
-        <div class="alert alert-warning">
-            A funcionalidade de 2FA será configurada em breve.
-        </div>
     </div>
 </div>

@@ -309,4 +309,175 @@
   <data name="SendCode" xml:space="preserve">
     <value>Send code</value>
   </data>
+  <data name="EmailAddress" xml:space="preserve">
+    <value>Email address</value>
+  </data>
+  <data name="EnterEmail" xml:space="preserve">
+    <value>Type your email address</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="CreateAccount" xml:space="preserve">
+    <value>Create an account</value>
+  </data>
+  <data name="ProfileManagement" xml:space="preserve">
+    <value>Profile management</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="CompanyAirline" xml:space="preserve">
+    <value>Company/Airline</value>
+  </data>
+  <data name="Customer" xml:space="preserve">
+    <value>Customer</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="ClankerTalk" xml:space="preserve">
+    <value>Hi! How can i help in your travel today?</value>
+  </data>
+  <data name="AIplaceholder" xml:space="preserve">
+    <value>Ask about flights or stays...</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>Country</value>
+  </data>
+  <data name="Timezone" xml:space="preserve">
+    <value>Timezone</value>
+  </data>
+  <data name="TimezonePlaceholder" xml:space="preserve">
+    <value>Ex: GMT+0, Europe/Lisbon</value>
+  </data>
+  <data name="CityIdPlaceholder" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="IsCapital" xml:space="preserve">
+    <value>IsCapital</value>
+  </data>
+  <data name="CityList" xml:space="preserve">
+    <value>List of cities available for flight origins and destinations.</value>
+  </data>
+  <data name="AddNew" xml:space="preserve">
+    <value>Add new</value>
+  </data>
+  <data name="SelectOrigin" xml:space="preserve">
+    <value>Select origin date</value>
+  </data>
+  <data name="SelectDestiny" xml:space="preserve">
+    <value>Select destiny date</value>
+  </data>
+  <data name="DataTime" xml:space="preserve">
+    <value>Departure date and time</value>
+  </data>
+  <data name="TicketPrice" xml:space="preserve">
+    <value>Ticket price</value>
+  </data>
+  <data name="Airline" xml:space="preserve">
+    <value>Airline</value>
+  </data>
+  <data name="SelectCompany" xml:space="preserve">
+    <value>Select company</value>
+  </data>
+  <data name="Direct" xml:space="preserve">
+    <value>Direct</value>
+  </data>
+  <data name="Origin" xml:space="preserve">
+    <value>Origin</value>
+  </data>
+  <data name="Destiny" xml:space="preserve">
+    <value>Destiny</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>Approve</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Reject</value>
+  </data>
+  <data name="TravelDate" xml:space="preserve">
+    <value>Travel date</value>
+  </data>
+  <data name="Boarding" xml:space="preserve">
+    <value>Boarding hour</value>
+  </data>
+  <data name="SelectSit" xml:space="preserve">
+    <value>Select your seat</value>
+  </data>
+  <data name="Sit" xml:space="preserve">
+    <value>Sit</value>
+  </data>
+  <data name="Hall" xml:space="preserve">
+    <value>Hall</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Window</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="StayNamePlaceholder" xml:space="preserve">
+    <value>Ex: Apartment Vista Mar</value>
+  </data>
+  <data name="StayImage" xml:space="preserve">
+    <value>Image URL</value>
+  </data>
+  <data name="Preview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="City" xml:space="preserve">
+    <value>City</value>
+  </data>
+  <data name="SelectCity" xml:space="preserve">
+    <value>Select city</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="StayDescriptionPlaceholder" xml:space="preserve">
+    <value>Describe the apartment</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter by:</value>
+  </data>
+  <data name="Budget" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="OrderBy" xml:space="preserve">
+    <value>Order by</value>
+  </data>
+  <data name="Night" xml:space="preserve">
+    <value>Night</value>
+  </data>
+  <data name="NoStays" xml:space="preserve">
+    <value>There are no pending stays until time.</value>
+  </data>
+  <data name="Photo" xml:space="preserve">
+    <value>Photo</value>
+  </data>
+  <data name="Stay" xml:space="preserve">
+    <value>Stay</value>
+  </data>
+  <data name="Renter" xml:space="preserve">
+    <value>Renter</value>
+  </data>
+  <data name="NewRenter" xml:space="preserve">
+    <value>New renter</value>
+  </data>
+  <data name="NewEnterprise" xml:space="preserve">
+    <value>New enterprise</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="NoRenters" xml:space="preserve">
+    <value>No renters found</value>
+  </data>
 </root>

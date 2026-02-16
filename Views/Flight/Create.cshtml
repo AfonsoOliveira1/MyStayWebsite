@@ -6,7 +6,7 @@
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                 <div class="card-header border-0 p-4" style="background-color: #003580;">
                     <h4 class="mb-0 fw-bold text-white">
-                        <i class="bi bi-airplane-engines me-2"></i>Adicionar novo 
+                        <i class="bi bi-airplane-engines me-2"></i>@Localizer["AddNew"]
                     </h4>
                 </div>
                 <div class="card-body p-5 bg-white">
@@ -16,40 +16,40 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-dark">Cidade de Origem</label>
                                 <select asp-for="OriginId" class="form-select form-select-lg bg-light border-0 shadow-sm" asp-items="ViewBag.OriginId">
-                                    <option value="">-- Selecione a Origem --</option>
+                                    <option value="">-- @Localizer["SelectOrigin"] --</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-dark">Cidade de Destino</label>
                                 <select asp-for="DestinationId" class="form-select form-select-lg bg-light border-0 shadow-sm" asp-items="ViewBag.DestinationId">
-                                    <option value="">-- Selecione o Destino --</option>
+                                    <option value="">-- @Localizer["SelectDestiny"] --</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark">Data e Hora de Partida</label>
+                                <label class="form-label fw-bold text-dark">@Localizer["DataTime"]</label>
                                 <input asp-for="DepartureTime" type="datetime-local" class="form-control form-control-lg bg-light border-0 shadow-sm" />
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark">Preço do Bilhete</label>
+                                <label class="form-label fw-bold text-dark">@Localizer["TicketPrice"]</label>
                                 <div class="input-group input-group-lg shadow-sm">
                                     <span class="input-group-text bg-light border-0 text-muted">€</span>
                                     <input asp-for="Price" type="number" step="0.01" class="form-control bg-light border-0" placeholder="0.00" />
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label fw-bold text-dark">Companhia Aérea</label>
+                                <label class="form-label fw-bold text-dark">@Localizer["Airline"]</label>
                                 <select asp-for="AirlineId" class="form-select form-select-lg bg-light border-0 shadow-sm" asp-items="ViewBag.AirlineId">
-                                    <option value="">-- Selecione a Companhia --</option>
+                                    <option value="">-- @Localizer["SelectCompany"] --</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="d-flex gap-3 mt-5">
                             <button type="submit" class="btn btn-lg flex-grow-1 rounded-3 py-3 fw-bold shadow-sm text-white" style="background-color: #003580;">
-                                <i class="bi bi-check2-circle me-2"></i>Guardar Voo
+                                <i class="bi bi-check2-circle me-2"></i>@Localizer["Confirm"]
                             </button>
                             <a asp-action="List" class="btn btn-outline-secondary btn-lg px-4 rounded-3 py-3 border-2">
-                                Cancelar
+                                @Localizer["Cancel"]
                             </a>
                         </div>
                     </form>

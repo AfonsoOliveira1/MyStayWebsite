@@ -6,17 +6,17 @@
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                 <div class="bg-primary p-5 text-white text-center">
                     <i class="bi bi-airplane fs-1 mb-3"></i>
-                    <h3 class="fw-bold">Confirmar Reserva</h3>
+                    <h3 class="fw-bold">@Localizer["Confirm"]</h3>
                     <p class="opacity-75 mb-0">@Model.OriginCity para @Model.DestinationCity</p>
                 </div>
                 <div class="card-body p-4 p-md-5">
                     <div class="d-flex justify-content-between mb-4 pb-4 border-bottom">
                         <div>
-                            <p class="text-muted small mb-1">DATA DA VIAGEM</p>
+                            <p class="text-muted small mb-1">@Localizer["TravelDate"]</p>
                             <h5 class="fw-bold">@Model.DepartureTime.ToString("dd/MM/yyyy")</h5>
                         </div>
                         <div class="text-end">
-                            <p class="text-muted small mb-1">HORA DE EMBARQUE</p>
+                            <p class="text-muted small mb-1">@Localizer["Boarding"]</p>
                             <h5 class="fw-bold">@Model.DepartureTime.ToString("HH:mm")</h5>
                         </div>
                     </div>
@@ -25,27 +25,27 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="Id" value="@Model.Id" />
 
-                        <label class="form-label fw-bold mb-3">Selecione o seu Lugar</label>
+                        <label class="form-label fw-bold mb-3">@Localizer["SelectSit"]</label>
                         <select name="SeatId" class="form-select form-select-lg mb-4" required>
-                            <option value="">-- Escolher Assento --</option>
-                            <option value="1">Lugar 04A (Janela)</option>
-                            <option value="2">Lugar 04B (Corredor)</option>
+                            <option value="">-- @Localizer["SelectSit"] --</option>
+                            <option value="1">@Localizer["Sit"] 04A (@Localizer["Window"])</option>
+                            <option value="2">@Localizer["Sit"] 04B (@Localizer["Hall"])</option>
                         </select>
 
                         <div class="bg-light p-4 rounded-3 mb-4">
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 mb-0">Preço Total</span>
+                                <span class="h5 mb-0">@Localizer["Price"]</span>
                                 <span class="h3 fw-bold text-primary mb-0">@Model.Price.ToString("C")</span>
                             </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-pill fw-bold shadow">
-                            Confirmar Reserva <i class="bi bi-arrow-right ms-2"></i>
+                            @Localizer["Confirm"] <i class="bi bi-arrow-right ms-2"></i>
                         </button>
                     </form>
                     <div class="text-center mt-4">
                         <a asp-action="List" class="text-muted text-decoration-none small">
-                            <i class="bi bi-x-circle me-1"></i> Cancelar e voltar à lista
+                            <i class="bi bi-x-circle me-1"></i>@Localizer["Cancel"]
                         </a>
                     </div>
                 </div>

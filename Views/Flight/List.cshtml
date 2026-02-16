@@ -30,7 +30,7 @@
                     <div class="row g-0 h-100">
                         <div class="col-md-8 p-4">
                             <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-primary-soft text-primary rounded-pill px-3 py-2">Direto</span>
+                                <span class="badge bg-primary-soft text-primary rounded-pill px-3 py-2">@Localizer["Direct"]</span>
                                 <span class="ms-3 text-muted small"><i class="bi bi-hash me-1"></i>@flight.Id</span>
                             </div>
 
@@ -52,7 +52,7 @@
                         <div class="col-md-4 bg-light d-flex flex-column justify-content-center align-items-center p-4 border-start">
                             <h3 class="fw-bold text-primary mb-3">@flight.Price.ToString("C")</h3>
                             <a asp-action="Reserve" asp-route-id="@flight.Id" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm">
-                                Reservar
+                                @Localizer["Reserve"]
                             </a>
                         </div>
                     </div>

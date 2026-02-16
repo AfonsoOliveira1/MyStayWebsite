@@ -4,10 +4,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold text-dark mb-0">Gestão de Destinos</h2>
-            <p class="text-muted">Lista de cidades disponíveis para origens e destinos de voos.</p>
+            <p class="text-muted">@Localizer["CityList"]</p>
         </div>
         <a asp-action="Create" class="btn btn-success rounded-pill px-4 shadow-sm">
-            <i class="bi bi-plus-lg me-2"></i>Nova Cidade
+            <i class="bi bi-plus-lg me-2"></i>@Localizer["AddCity"]
         </a>
     </div>
 
@@ -21,8 +21,8 @@
             <thead class="bg-light">
                 <tr>
                     <th class="px-4 py-3">ID</th>
-                    <th class="px-4 py-3">Nome da Cidade</th>
-                    <th class="px-4 py-3 text-end">Ações</th>
+                    <th class="px-4 py-3">@Localizer["Name"]</th>
+                    <th class="px-4 py-3 text-end">@Localizer["Actions"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,10 +33,10 @@
                         <td class="px-4 py-3 fw-bold">@city.Name</td>
                         <td class="px-4 py-3 text-end">
                             <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
-                                <i class="bi bi-pencil me-1"></i>Editar
+                                    <i class="bi bi-pencil me-1"></i>@Localizer["Edit"]
                             </button>
                             <button class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                <i class="bi bi-trash me-1"></i>Apagar
+                                    <i class="bi bi-trash me-1"></i>@Localizer["Delete"]
                             </button>
                         </td>
                     </tr>
