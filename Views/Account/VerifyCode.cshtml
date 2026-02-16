@@ -6,10 +6,10 @@
         <div class="card mt-5 shadow-sm">
             <div class="card-body p-4">
 
-                <h3 class="text-center mb-4">Verify your email</h3>
+                <h3 class="text-center mb-4">@Localizer["VerifyEmail"]</h3>
 
                 <p class="text-muted text-center mb-4">
-                    Enter the 6‑digit code we sent to your email.
+                    @Localizer["EmailVerificationMessage"]
                 </p>
 
                 <form asp-action="VerifyCode"
@@ -17,7 +17,7 @@
                       method="post" novalidate>
 
                     <div class="mb-3">
-                        <label asp-for="Code" class="form-label">Verification Code</label>
+                        <label asp-for="Code" class="form-label">@Localizer["VerificationCode"]</label>
                         <input asp-for="Code"
                                class="form-control text-center"
                                maxlength="6"
@@ -28,7 +28,7 @@
 
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            Confirm
+                            @Localizer["Confirm"]
                         </button>
                     </div>
                 </form>
@@ -36,14 +36,14 @@
                 <hr class="my-4" />
 
                 <div class="text-center mb-3">
-                    <span class="text-muted me-2">Didn’t receive the code?</span>
+                    <span class="text-muted me-2">@Localizer["CodeNotReceived"]</span>
                     <form asp-action="ResendCode" method="post" class="d-inline">
                         <input type="hidden" name="Email"
                                value="@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value" />
                         <button type="submit"
                                 class="btn p-0 text-primary text-decoration-underline"
                                 style="background: none; border: none;">
-                            Send Code
+                            @Localizer["SendCode"]
                         </button>
                     </form>
                 </div>
