@@ -17,16 +17,40 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
-        
-        public async Task<IActionResult> List()
+        [HttpGet]
+        public async Task<IActionResult> List(decimal? minPrice, decimal? maxPrice, int? cityId)
         {
             var client = _clientFactory.CreateClient("Booking.API");
             
             var housings = await client.GetFromJsonAsync<List<HousingViewModel>>("api/Housings")
                            ?? new List<HousingViewModel>();
+
+            var response = await client.GetAsync("api/Cities");
+
+            IEnumerable<CityViewModel> cities = new List<CityViewModel>();
+
+            if (response.IsSuccessStatusCode)
+            {
+                cities = await response.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>()
+                         ?? new List<CityViewModel>();
+            }
+
+            ViewBag.Cities = new SelectList(cities, "Id", "Name", cityId);
+            //filters
+            if (minPrice.HasValue)
+                housings = housings.Where(h => h.PricePerNight >= minPrice).ToList();
+
+            if (maxPrice.HasValue)
+                housings = housings.Where(h => h.PricePerNight <= maxPrice).ToList();
+
+            if(cityId.HasValue)
+                housings = housings.Where(h => h.CityId == cityId).ToList();
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return PartialView("_HousingCards", housings);
+
             return View(housings);
         }
-
 
         [Authorize(Roles = "RENTER,ADMIN")]
         [HttpGet]
@@ -43,7 +67,6 @@ namespace Booking.Web.Controllers
                          ?? new List<CityViewModel>();
             }
 
-            
             ViewBag.Cities = new SelectList(cities, "Id", "Name");
 
             return View("Create");

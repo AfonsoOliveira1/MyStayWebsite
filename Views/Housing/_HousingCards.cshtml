@@ -1,28 +1,30 @@
-﻿@model Booking.web.Models.HousingViewModel
+﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
 
-<section class="hotel-card-mini">
-  <div class="image-wrapper">
-        
-    <img src=@Model.ImageUrl alt="@Model.Name">
-  </div>
+@foreach (var item in Model)
+{
+    <section class="hotel-card-mini">
+        <div class="image-wrapper">
+            <img src=@item.ImageUrl alt="@item.Name">
+        </div>
 
-  <div class="content-mini">
-    <div class="info-top">
-      <h2>@Model.Name <span class="stars-mini">@Model.HousingRatingViewModel.Score</span></h2>
-      <p class="loc-mini">@Model.Location</p>
-    </div>
+        <div class="content-mini">
+            <div class="info-top">
+                <h2>@item.Name <span class="stars-mini">@item.HousingRatingViewModel.Score</span></h2>
+                <p class="loc-mini">@item.Location</p>
+            </div>
 
-    <div class="footer-mini">
-      <div class="price-box">
-        <span class="old-p">@((Model.PricePerNight * 1.2m).ToString("C", new System.Globalization.CultureInfo("pt-PT")))</span>
-        <span class="new-p">@Model.PricePerNight.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
-        <p class="tax-mini">@Localizer["Taxes"]</p>
-      </div>
+            <div class="footer-mini">
+                <div class="price-box">
+                    <span class="old-p">@((item.PricePerNight * 1.2m).ToString("C", new System.Globalization.CultureInfo("pt-PT")))</span>
+                    <span class="new-p">@item.PricePerNight.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
+                    <p class="tax-mini">@Localizer["Taxes"]</p>
+                </div>
 
-      <a asp-action="Reserve" asp-route-id="@Model.Id" class="btn-mini" style="text-decoration: none; text-align: center;">@Localizer["Reserve"]</a>
-    </div>
-  </div>
-</section>
+                <a asp-action="Reserve" asp-route-id="@item.Id" class="btn-mini" style="text-decoration: none; text-align: center;">@Localizer["Reserve"]</a>
+            </div>
+        </div>
+    </section>
+}
 
 <style>
   .hotel-card-mini {
