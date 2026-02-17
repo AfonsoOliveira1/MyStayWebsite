@@ -1,8 +1,10 @@
-﻿@* @model Booking.web.Models.UserBookingHistory
+﻿@model Booking.web.Models.UserBookingHistory
     
+@*
 NÃO É PARA TRADUZIR, É PARA SER USADO COMO EXEMPLO DE DESIGN DE PÁGINA DE HISTÓRICO DE RESERVAS, 
 COM FILTROS LATERAIS E CARTÕES DE RESERVA NA PARTE PRINCIPAL. OS DADOS SÃO APENAS EXEMPLO, NÃO HÁ NECESSIDADE 
 DE SE PREOCUPAR COM A LÓGICA DE BACKEND, FOCO APENAS NO FRONTEND. 
+*@
 
 <style>
     body {
@@ -61,6 +63,12 @@ DE SE PREOCUPAR COM A LÓGICA DE BACKEND, FOCO APENAS NO FRONTEND.
         padding: 20px;
         margin-bottom: 25px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .cards-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 3 cards por linha mínimo 280px */
+        gap: 20px; /* espaço entre os cards */
     }
 
     .card-header {
@@ -152,88 +160,53 @@ DE SE PREOCUPAR COM A LÓGICA DE BACKEND, FOCO APENAS NO FRONTEND.
 
         <div class="filter-group">
             <label>Tipo</label>
-            <input type="checkbox"> Voos<br>
-            <input type="checkbox"> Alojamentos
+            <input type="checkbox" name="showFlights" @(ViewData["ShowFlights"] as bool? == true ? "checked" : "")> Voos
+            <input type="checkbox" name="showHousings" @(ViewData["ShowHousings"] as bool? == true ? "checked" : "")> Alojamentos
         </div>
 
         <div class="filter-group">
             <label>Estado</label>
-            <input type="checkbox"> Confirmado<br>
-            <input type="checkbox"> Cancelado<br>
-            <input type="checkbox"> Ativo / Inativo
+            <input type="checkbox" name="showConfirmed" @(ViewData["ShowConfirmed"] as bool? == true ? "checked" : "")> Confirmado
+            <input type="checkbox" name="showCancelled" @(ViewData["ShowCancelled"] as bool? == true ? "checked" : "")> Cancelado
+            <input type="checkbox" name="showActive" @(ViewData["ShowActive"] as bool? == true ? "checked" : "")> Ativo / Inativo
         </div>
 
-        <button class="btn-filter">Aplicar filtros</button>
+        <button type="button" id="applyFilters" class="btn-filter">Aplicar</button>
     </div>
 
-    <!-- Main Content -->
-    <div class="content">
-
-        <!-- ===================== -->
-        <!-- SECTION: FLIGHT CARDS -->
-        <!-- ===================== -->
-        @if (Model.Flights != null)
-        {
-            foreach (var f in Model.Flights)
-            {
-                <div class="booking-card">
-
-                    <div class="card-header">
-                        <span class="badge flight">✈️ Flight</span>
-                        <span class="status confirmed">@f.</span>
-                    </div>
-
-                    <div class="card-title">@f.OriginCity → @f.DestinationCity</div>
-
-                    <div class="dates">
-                        <strong>Departure:</strong> @f.DepartureTime.ToString("dd MMM yyyy") <br />
-                        <strong>Arrival:</strong> @f.ArrivalTime.ToString("dd MMM yyyy") <br />
-                    </div>
-
-                    <div class="price">€@f.Price</div>
-
-                    <div class="card-footer">
-                        <button class="btn-details">Ver detalhes</button>
-                        <button class="btn-invoice">Fatura</button>
-                    </div>
-
-                </div>
-            }
-        }
-
-        <!-- ======================= -->
-        <!-- SECTION: HOUSING CARDS -->
-        <!-- ======================= -->
-        @if (Model.Housings != null)
-        {
-            foreach (var h in Model.Housings)
-            {
-                <div class="booking-card">
-
-                    <div class="card-header">
-                        <span class="badge housing">🏨 Housing</span>
-                        <span class="status confirmed">@h.Status</span>
-                    </div>
-
-                    <div class="card-title">@h.HousingName</div>
-
-                    <div class="dates">
-                        <strong>Check-in:</strong> @h.CheckInDate.ToString("dd MMM yyyy") <br />
-                        <strong>Check-out:</strong> @h.CheckOutDate.ToString("dd MMM yyyy") <br />
-                    </div>
-
-                    <div class="price">€@h.TotalPrice</div>
-
-                    <div class="card-footer">
-                        <button class="btn-details">Ver detalhes</button>
-                        <button class="btn-invoice">Fatura</button>
-                    </div>
-
-                </div>
-            }
-        }
-
+    <div id="cardsContainer" class="cards-container">
+        @await Html.PartialAsync("_UserHistoryCards", Model)
     </div>
-
 </div>
- *@
+
+<script>
+    document.getElementById("applyFilters").addEventListener("click", function () {
+        // Filtros de tipo
+        const showFlights = document.getElementById("filterFlights").checked;
+        const showHousings = document.getElementById("filterHousings").checked;
+
+        // Filtros de status
+        const showConfirmed = document.getElementById("filterConfirmed").checked;
+        const showCancelled = document.getElementById("filterCancelled").checked;
+        const showActive = document.getElementById("filterActive").checked;
+
+        document.querySelectorAll(".booking-card").forEach(card => {
+            const isFlight = card.querySelector(".flight") !== null;
+            const isHousing = card.querySelector(".housing") !== null;
+            const status = card.querySelector(".status")?.innerText.toLowerCase() || "";
+
+            let visible = true;
+
+            // Tipo
+            if (isFlight && !showFlights) visible = false;
+            if (isHousing && !showHousings) visible = false;
+
+            // Status
+            if (status.includes("confirmado") && !showConfirmed) visible = false;
+            if (status.includes("cancelado") && !showCancelled) visible = false;
+            if ((status.includes("ativo") || status.includes("inativo")) && !showActive) visible = false;
+
+            card.style.display = visible ? "block" : "none";
+        });
+    });
+</script>
