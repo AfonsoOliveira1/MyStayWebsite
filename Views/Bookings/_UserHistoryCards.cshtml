@@ -1,69 +1,46 @@
 ﻿@model Booking.web.Models.UserBookingHistory
 
-
-<div class="content">
-
-    <!-- ===================== -->
-    <!-- SECTION: FLIGHT CARDS -->
-    <!-- ===================== -->
-    @if (Model.Flights != null)
+@if (Model.Flights != null)
+{
+    foreach (var f in Model.Flights)
     {
-        foreach (var f in Model.Flights)
-        {
-            <div class="booking-card">
-
-                <div class="card-header">
-                    <span class="badge flight">✈️ Flight</span>
-                    <span class="status confirmed">@f.</span>
-                </div>
-
-                <div class="card-title">@f.OriginCityName → @f.DestinationCityName</div>
-
-                <div class="dates">
-                    <strong>Departure:</strong> @f.DepartureTime.ToString("dd MMM yyyy") <br />
-                    <strong>Arrival:</strong> @f.ArrivalTime.ToString("dd MMM yyyy") <br />
-                </div>
-
-                <div class="price">€@f.Price</div>
-
-                <div class="card-footer">
-                    <button class="btn-details">Ver detalhes</button>
-                    <button class="btn-invoice">Fatura</button>
-                </div>
-
+        <div class="booking-card">
+            <div class="card-header">
+                <span class="badge flight">✈️ Flight</span>
+                <span class="status confirmed">@f.Status</span>
             </div>
-        }
+            <div class="card-title">@f.OriginCityName → @f.DestinationCityName</div>
+            <div class="dates">
+                <strong>Partida:</strong> @f.DepartureTime.ToString("dd MMM yyyy HH:mm") <br />
+                <strong>Lugar:</strong> @f.SeatNumber
+            </div>
+            <div class="price">€@f.Price</div>
+            <div class="card-footer">
+                <a asp-action="Receipt" asp-route-id="@f.Id" class="btn-details" style="padding: 8px 14px; text-decoration: none; border-radius: 6px;">Ver Talão</a>
+            </div>
+        </div>
     }
+}
 
-    <!-- ======================= -->
-    <!-- SECTION: HOUSING CARDS -->
-    <!-- ======================= -->
-    @if (Model.Housings != null)
+@if (Model.Housings != null)
+{
+    foreach (var h in Model.Housings)
     {
-        foreach (var h in Model.Housings)
-        {
-            <div class="booking-card">
-
-                <div class="card-header">
-                    <span class="badge housing">🏨 Housing</span>
-                    <span class="status confirmed">@h.Status</span>
-                </div>
-
-                <div class="card-title">@h.HousingName</div>
-
-                <div class="dates">
-                    <strong>Check-in:</strong> @h.CheckInDate.ToString("dd MMM yyyy") <br />
-                    <strong>Check-out:</strong> @h.CheckOutDate.ToString("dd MMM yyyy") <br />
-                </div>
-
-                <div class="price">€@h.TotalPrice</div>
-
-                <div class="card-footer">
-                    <button class="btn-details">Ver detalhes</button>
-                    <button class="btn-invoice">Fatura</button>
-                </div>
-
+        <div class="booking-card">
+            <div class="card-header">
+                <span class="badge housing">🏨 Housing</span>
+                <span class="status confirmed">@h.Status</span>
             </div>
-        }
+            <div class="card-title">@h.HousingName</div>
+            <div class="dates">
+                <strong>Check-in:</strong> @h.CheckInDate.ToString("dd MMM yyyy") <br />
+                <strong>Check-out:</strong> @h.CheckOutDate.ToString("dd MMM yyyy")
+            </div>
+            <div class="price">€@h.TotalPrice</div>
+            <div class="card-footer">
+                <a asp-action="Receipt" asp-route-id="@h.Id" class="btn-details" style="padding: 8px 14px; text-decoration: none; border-radius: 6px;">Ver Talão</a>
+                <button class="btn-invoice">Fatura</button>
+            </div>
+        </div>
     }
-</div>
+}

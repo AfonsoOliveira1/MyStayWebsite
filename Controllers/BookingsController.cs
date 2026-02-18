@@ -1,11 +1,13 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Security.Claims;
-using Booking.web.Models;
+﻿using Booking.web.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 
-namespace Booking.Web.Controllers
+namespace Booking.web.Controllers
 {
+    [Authorize]
     public class BookingsController : Controller
     {
         private readonly IHttpClientFactory _clientFactory;
@@ -15,78 +17,61 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
-
-        public async Task<IActionResult> Index(bool? showFlights,
-            bool? showHousings,
-            bool? showConfirmed,
-            bool? showCancelled,
-            bool? showActive)
+        [HttpGet]
+        [Route("Bookings/Index")]
+        public async Task<IActionResult> MyBookings()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) return RedirectToAction("Login", "Account");
-
-            int userId = int.Parse(userIdClaim.Value);
-
-            var token = User.FindFirst("JWToken")?.Value;
             var client = _clientFactory.CreateClient("Booking.API");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            /* ======= VOOS =======
-            var responseFlight = await client.GetAsync($"api/FlightBookings/passenger/{userId}");
-            IEnumerable<FlightBookingReadDto> flightBookings = new List<FlightBookingReadDto>();
-            if (responseFlight.IsSuccessStatusCode)
-            {
-                flightBookings = await responseFlight.Content
-                    .ReadFromJsonAsync<IEnumerable<FlightBookingReadDto>>() ?? new List<FlightBookingReadDto>();
-            }
-            */
+          
+            var token = await HttpContext.GetTokenAsync("access_token")
+                        ?? User.FindFirst("JWToken")?.Value;
 
-            // ======= ALOJAMENTOS =======
-            var responseHouse = await client.GetAsync($"api/HousingBookings/user/{userId}");
-            IEnumerable<HousingBookingReadDto> housingBookings = new List<HousingBookingReadDto>();
-            if (responseHouse.IsSuccessStatusCode)
+            if (!string.IsNullOrEmpty(token))
             {
-                housingBookings = await responseHouse.Content
-                    .ReadFromJsonAsync<IEnumerable<HousingBookingReadDto>>() ?? new List<HousingBookingReadDto>();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
 
-            // Monta o histórico
-            var history = new UserBookingHistory
+           
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var model = new UserBookingHistory();
+
+           
+            var flightResponse = await client.GetAsync("api/FlightBookings/passenger/" + userId);
+            if (flightResponse.IsSuccessStatusCode)
             {
-                //Flights = flightBookings,
-                Housings = housingBookings
-            };
+                model.Flights = await flightResponse.Content.ReadFromJsonAsync<List<FlightBookingViewModel>>()
+                                 ?? new List<FlightBookingViewModel>();
+            }
 
-            // Passa os filtros de volta para a View
-            ViewData["ShowFlights"] = showFlights;
-            ViewData["ShowHousings"] = showHousings;
-            ViewData["ShowConfirmed"] = showConfirmed;
-            ViewData["ShowCancelled"] = showCancelled;
-            ViewData["ShowActive"] = showActive;
+          
 
-            return View(history);
+            return View(model);
         }
 
 
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Cancel(int bookingId)
+        [HttpGet]
+        public async Task<IActionResult> Receipt(int id)
         {
             var client = _clientFactory.CreateClient("Booking.API");
-           
-            var response = await client.PutAsync("api/HousingBookings/cancel/" + bookingId, null);
+            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+ 
+            var response = await client.GetAsync("api/FlightBookings/details/" + id);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Message"] = "Reserva " + bookingId + " cancelada com sucesso.";
-            }
-            else
-            {
-                TempData["Error"] = "Erro ao cancelar a reserva " + bookingId + ".";
+                var model = await response.Content.ReadFromJsonAsync<FlightBookingViewModel>();
+                return View(model);
             }
 
-            return RedirectToAction(nameof(Index));
+           
+            TempData["Error"] = "Não foi possível carregar o talão.";
+            return RedirectToAction("MyBookings");
         }
     }
 }

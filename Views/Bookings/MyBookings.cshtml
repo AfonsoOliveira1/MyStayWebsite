@@ -1,10 +1,4 @@
 ﻿@model Booking.web.Models.UserBookingHistory
-    
-@*
-NÃO É PARA TRADUZIR, É PARA SER USADO COMO EXEMPLO DE DESIGN DE PÁGINA DE HISTÓRICO DE RESERVAS, 
-COM FILTROS LATERAIS E CARTÕES DE RESERVA NA PARTE PRINCIPAL. OS DADOS SÃO APENAS EXEMPLO, NÃO HÁ NECESSIDADE 
-DE SE PREOCUPAR COM A LÓGICA DE BACKEND, FOCO APENAS NO FRONTEND. 
-*@
 
 <style>
     body {
@@ -160,15 +154,15 @@ DE SE PREOCUPAR COM A LÓGICA DE BACKEND, FOCO APENAS NO FRONTEND.
 
         <div class="filter-group">
             <label>Tipo</label>
-            <input type="checkbox" name="showFlights" @(ViewData["ShowFlights"] as bool? == true ? "checked" : "")> Voos
-            <input type="checkbox" name="showHousings" @(ViewData["ShowHousings"] as bool? == true ? "checked" : "")> Alojamentos
+            <input type="checkbox" id="filterFlights" checked> Voos
+            <input type="checkbox" id="filterHousings" checked> Alojamentos
         </div>
 
         <div class="filter-group">
             <label>Estado</label>
-            <input type="checkbox" name="showConfirmed" @(ViewData["ShowConfirmed"] as bool? == true ? "checked" : "")> Confirmado
-            <input type="checkbox" name="showCancelled" @(ViewData["ShowCancelled"] as bool? == true ? "checked" : "")> Cancelado
-            <input type="checkbox" name="showActive" @(ViewData["ShowActive"] as bool? == true ? "checked" : "")> Ativo / Inativo
+            <input type="checkbox" id="filterConfirmed" checked> Confirmado
+            <input type="checkbox" id="filterCancelled" checked> Cancelado
+            <input type="checkbox" id="filterActive" checked> Ativo / Inativo
         </div>
 
         <button type="button" id="applyFilters" class="btn-filter">Aplicar</button>

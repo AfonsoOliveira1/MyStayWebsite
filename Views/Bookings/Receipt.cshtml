@@ -1,0 +1,80 @@
+﻿@model Booking.web.Models.FlightBookingViewModel
+
+<style>
+    .receipt-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        border: 2px dashed #ccc;
+        background-color: #fff;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    .receipt-header {
+        text-align: center;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .print-btn {
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    @@media print {
+        .print-btn, nav, footer {
+            display: none;
+        }
+
+        .receipt-container {
+            border: none;
+            margin: 0;
+        }
+    }
+</style>
+
+<div class="receipt-container shadow-sm">
+    <div class="receipt-header">
+        <h3>BOARDING PASS</h3>
+        <p>Voo #@Model.Id</p>
+    </div>
+
+    <div class="receipt-row">
+        <span><strong>Origem:</strong></span>
+        <span>@Model.OriginCityName</span>
+    </div>
+    <div class="receipt-row">
+        <span><strong>Destino:</strong></span>
+        <span>@Model.DestinationCityName</span>
+    </div>
+    <hr />
+    <div class="receipt-row">
+        <span><strong>Partida:</strong></span>
+        <span>@Model.DepartureTime.ToString("dd/MM/yyyy HH:mm")</span>
+    </div>
+    <div class="receipt-row">
+        <span><strong>Lugar:</strong></span>
+        <span class="h4">@Model.SeatNumber</span>
+    </div>
+    <div class="receipt-row">
+        <span><strong>Estado:</strong></span>
+        <span>@Model.Status</span>
+    </div>
+    <hr />
+    <div class="receipt-row">
+        <span><strong>Preço Pago:</strong></span>
+        <span>@Model.Price.ToString("F2")€</span>
+    </div>
+
+    <button onclick="window.print()" class="btn btn-dark print-btn">
+        <i class="bi bi-printer"></i> Imprimir Talão
+    </button>
+</div>
