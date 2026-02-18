@@ -1,14 +1,82 @@
 ﻿@model Booking.web.Models.FlightViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+<style>
+   
+    .plane-map {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr) 40px repeat(3, 1fr); /*  lugares, corredor, lugares */
+        gap: 10px;
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 20px;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .seat {
+        width: 40px;
+        height: 45px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+    }
+
+        /* Cores dos Lugares */
+        .seat.available {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        /* Cinza */
+        .seat.occupied {
+            background-color: #ff4d4d;
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        /* Vermelho */
+        .seat.selected {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #004dc0;
+            transform: scale(1.1);
+        }
+
+    .aisle {
+        grid-column: 4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #adb5bd;
+        font-size: 0.7rem;
+    }
+
+    .legend-box {
+        width: 15px;
+        height: 15px;
+        border-radius: 3px;
+        display: inline-block;
+        margin-right: 5px;
+    }
+</style>
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-6">
+        <div class="col-md-10 col-lg-7">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                 <div class="bg-primary p-5 text-white text-center">
                     <i class="bi bi-airplane fs-1 mb-3"></i>
                     <h3 class="fw-bold">@Localizer["Confirm"]</h3>
                     <p class="opacity-75 mb-0">@Model.OriginCity para @Model.DestinationCity</p>
                 </div>
+
                 <div class="card-body p-4 p-md-5">
                     <div class="d-flex justify-content-between mb-4 pb-4 border-bottom">
                         <div>
@@ -21,35 +89,77 @@
                         </div>
                     </div>
 
-                    <form asp-action="Reserve" method="post">
+                    <form asp-action="Reserve" method="post" id="bookingForm">
                         @Html.AntiForgeryToken()
-                        <input type="hidden" name="Id" value="@Model.Id" />
+                        <input type="hidden" name="FlightId" value="@Model.Id" />
+                        <input type="hidden" name="SeatId" id="selectedSeatId" required />
 
-                        <label class="form-label fw-bold mb-3">@Localizer["SelectSit"]</label>
-                        <select name="SeatId" class="form-select form-select-lg mb-4" required>
-                            <option value="">-- @Localizer["SelectSit"] --</option>
-                            <option value="1">@Localizer["Sit"] 04A (@Localizer["Window"])</option>
-                            <option value="2">@Localizer["Sit"] 04B (@Localizer["Hall"])</option>
-                        </select>
+                        <label class="form-label fw-bold mb-3 d-block text-center">@Localizer["SelectSit"]</label>
+
+                        <div class="d-flex justify-content-center gap-3 mb-4 small">
+                            <span><span class="legend-box bg-light border"></span> @Localizer["Available"]</span>
+                            <span><span class="legend-box" style="background-color: #ff4d4d;"></span> @Localizer["Occupied"]</span>
+                            <span><span class="legend-box bg-primary"></span> @Localizer["Selected"]</span>
+                        </div>
+
+                        <div class="plane-map mb-5">
+                            @for (int row = 1; row <= 5; row++)
+                            {
+                                @foreach (var col in new[] { "A", "B", "C", "aisle", "D", "E", "F" })
+                                {
+                                    if (col == "aisle")
+                                    {
+                                        <div class="aisle">@row</div>
+                                    }
+                                    else
+                                    {
+                                        
+                                        string seatId = $"{row}{col}";
+                                        bool isOccupied = (seatId == "1A" || seatId == "2C");
+
+                                        <div class="seat @(isOccupied ? "occupied" : "available")"
+                                             data-seat="@seatId"
+                                             onclick="selectSeat(this, '@seatId', @(isOccupied ? "true" : "false"))">
+                                            @col
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
 
                         <div class="bg-light p-4 rounded-3 mb-4">
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 mb-0">@Localizer["Price"]</span>
+                                <div>
+                                    <span class="h5 mb-0">@Localizer["Price"]</span>
+                                    <p class="text-muted small mb-0" id="seatDisplay">@Localizer["NoSeatSelected"]</p>
+                                </div>
                                 <span class="h3 fw-bold text-primary mb-0">@Model.Price.ToString("C")</span>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-pill fw-bold shadow">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-pill fw-bold shadow" id="btnConfirm" disabled>
                             @Localizer["Confirm"] <i class="bi bi-arrow-right ms-2"></i>
                         </button>
                     </form>
-                    <div class="text-center mt-4">
-                        <a asp-action="List" class="text-muted text-decoration-none small">
-                            <i class="bi bi-x-circle me-1"></i>@Localizer["Cancel"]
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function selectSeat(element, seatId, isOccupied) {
+        if (isOccupied) return;
+
+        // tirar selecao anterior
+        document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+
+        // add nova selecao
+        element.classList.add('selected');
+
+        // atualizar
+        document.getElementById('selectedSeatId').value = seatId;
+        document.getElementById('seatDisplay').innerText = "@Localizer["Sit"]: " + seatId;
+        document.getElementById('btnConfirm').disabled = false;
+    }
+</script>

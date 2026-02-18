@@ -1,33 +1,43 @@
-﻿@model IEnumerable<FlightViewModel>
+﻿@model IEnumerable<Booking.web.Models.FlightViewModel>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>@Localizer["Origin"]</th>
-            <th>@Localizer["Destiny"]</th>
-            <th>@Localizer["Actions"]</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var flight in Model)
-        {
+<div class="container mt-4">
+    <h2><i class="bi bi-shield-check"></i> @Localizer["PendingApprovals"]</h2>
+
+    <table class="table table-hover mt-3 shadow-sm bg-white rounded">
+        <thead class="table-dark">
             <tr>
-                <td>@flight.Id</td>
-                <td>@flight.OriginId</td>
-                <td>@flight.DestinationId</td>
-                <td>
-                    <div class="d-flex gap-2">
-                        <form asp-action="Approve" asp-route-id="@flight.Id" method="post">
-                            <button type="submit" class="btn btn-success btn-sm">@Localizer["Approve"]</button>
+                <th>ID</th>
+                <th>@Localizer["Origin"]</th>
+                <th>@Localizer["Destiny"]</th>
+                <th>@Localizer["Price"]</th>
+                <th class="text-center">@Localizer["Actions"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="align-middle">@item.Id</td>
+                    <td class="align-middle">@item.OriginCity</td>
+                    <td class="align-middle">@item.DestinationCity</td>
+                    <td class="align-middle fw-bold text-primary">@item.Price.ToString("C")</td>
+                    <td class="text-center align-middle">
+                        <form asp-action="Approve" asp-route-id="@item.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-success btn-sm shadow-sm">
+                                <i class="bi bi-check-lg"></i> @Localizer["Approve"]
+                            </button>
                         </form>
 
-                        <form asp-action="Reject" asp-route-id="@flight.Id" method="post">
-                            <button type="submit" class="btn btn-danger btn-sm">@Localizer["Reject"]</button>
+                        <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                @Localizer["Reject"]
+                            </button>
                         </form>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
