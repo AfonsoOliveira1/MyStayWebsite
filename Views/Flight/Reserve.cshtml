@@ -3,10 +3,9 @@
 @inject IViewLocalizer Localizer
 
 <style>
-   
     .plane-map {
         display: grid;
-        grid-template-columns: repeat(3, 1fr) 40px repeat(3, 1fr); /*  lugares, corredor, lugares */
+        grid-template-columns: repeat(3, 1fr) 40px repeat(3, 1fr);
         gap: 10px;
         background: #f8f9fa;
         padding: 20px;
@@ -29,19 +28,18 @@
         border: 2px solid transparent;
     }
 
-        /* Cores dos Lugares */
         .seat.available {
             background-color: #e9ecef;
             color: #495057;
         }
-        /* Cinza */
+
         .seat.occupied {
             background-color: #ff4d4d;
             color: white;
             cursor: not-allowed;
             opacity: 0.8;
         }
-        /* Vermelho */
+
         .seat.selected {
             background-color: #0d6efd;
             color: white;
@@ -103,7 +101,7 @@
                         </div>
 
                         <div class="plane-map mb-5">
-                            @for (int row = 1; row <= 5; row++)
+                            @for (int row = 1; row <= 9; row++)
                             {
                                 @foreach (var col in new[] { "A", "B", "C", "aisle", "D", "E", "F" })
                                 {
@@ -113,13 +111,17 @@
                                     }
                                     else
                                     {
-                                        
-                                        string seatId = $"{row}{col}";
-                                        bool isOccupied = (seatId == "1A" || seatId == "2C");
+                                        string currentSeatId = row.ToString() + col;
+                                        var seatsList = ViewBag.Seats as IEnumerable<Booking.web.Models.SeatViewModel>;
+
+                                        var seatData = seatsList?.FirstOrDefault(s =>
+                                        string.Equals(s.SeatNumber, currentSeatId, StringComparison.OrdinalIgnoreCase));
+
+                                        bool isOccupied = seatData?.IsBooked ?? false;
 
                                         <div class="seat @(isOccupied ? "occupied" : "available")"
-                                             data-seat="@seatId"
-                                             onclick="selectSeat(this, '@seatId', @(isOccupied ? "true" : "false"))">
+                                             data-seat="@currentSeatId"
+                                             onclick="selectSeat(this, '@currentSeatId', @(isOccupied ? "true" : "false"))">
                                             @col
                                         </div>
                                     }
@@ -133,7 +135,8 @@
                                     <span class="h5 mb-0">@Localizer["Price"]</span>
                                     <p class="text-muted small mb-0" id="seatDisplay">@Localizer["NoSeatSelected"]</p>
                                 </div>
-                                <span class="h3 fw-bold text-primary mb-0">@Model.Price.ToString("C")</span>
+
+                                <span class="h3 fw-bold text-primary mb-0" id="totalPriceDisplay">0.00 €</span>
                             </div>
                         </div>
 
@@ -148,18 +151,40 @@
 </div>
 
 <script>
+    let selectedSeats = [];
+
     function selectSeat(element, seatId, isOccupied) {
         if (isOccupied) return;
 
-        // tirar selecao anterior
-        document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+        const index = selectedSeats.indexOf(seatId);
 
-        // add nova selecao
-        element.classList.add('selected');
+        if (index > -1) {
+            selectedSeats.splice(index, 1);
+            element.classList.remove('selected');
+        } else {
+            selectedSeats.push(seatId);
+            element.classList.add('selected');
+        }
 
-        // atualizar
-        document.getElementById('selectedSeatId').value = seatId;
-        document.getElementById('seatDisplay').innerText = "@Localizer["Sit"]: " + seatId;
-        document.getElementById('btnConfirm').disabled = false;
+      
+        const precoUnitario = parseFloat("@Model.Price".replace(',', '.'));
+        const total = (precoUnitario * selectedSeats.length).toFixed(2);
+
+        document.getElementById('totalPriceDisplay').innerText = total + " €";
+
+        const input = document.getElementById('selectedSeatId');
+        const display = document.getElementById('seatDisplay');
+        const btn = document.getElementById('btnConfirm');
+
+        input.value = selectedSeats.join(',');
+
+        if (selectedSeats.length > 0) {
+            display.innerText = "@Localizer["Sits"]: " + selectedSeats.join(', ');
+            btn.disabled = false;
+        } else {
+            display.innerText = "@Localizer["NoSeatSelected"]";
+            btn.disabled = true;
+            document.getElementById('totalPriceDisplay').innerText = "0.00 €";
+        }
     }
 </script>

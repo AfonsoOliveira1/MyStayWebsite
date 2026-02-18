@@ -19,16 +19,14 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
-
         [AllowAnonymous]
         public async Task<IActionResult> List()
         {
             var client = _clientFactory.CreateClient("Booking.API");
             var flights = await client.GetFromJsonAsync<List<FlightViewModel>>("api/Flights")
-                          ?? new List<FlightViewModel>();
+                                  ?? new List<FlightViewModel>();
             return View(flights);
         }
-
 
         [Authorize(Roles = "AIRLINE")]
         public async Task<IActionResult> MyFlights()
@@ -57,7 +55,6 @@ namespace Booking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(FlightViewModel model)
         {
-            
             ModelState.Remove("AirlineId");
 
             if (model.OriginId == model.DestinationId)
@@ -75,7 +72,6 @@ namespace Booking.Web.Controllers
             var token = await GetToken();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            
             model.ArrivalTime = model.DepartureTime.AddHours(2);
 
             var response = await client.PostAsJsonAsync("api/Flights", model);
@@ -92,7 +88,6 @@ namespace Booking.Web.Controllers
             return View(model);
         }
 
-
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> PendingApprovals()
         {
@@ -101,7 +96,7 @@ namespace Booking.Web.Controllers
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var flights = await client.GetFromJsonAsync<List<FlightViewModel>>("api/Flights/pending")
-                          ?? new List<FlightViewModel>();
+                                  ?? new List<FlightViewModel>();
             return View(flights);
         }
 
@@ -113,9 +108,9 @@ namespace Booking.Web.Controllers
             var token = await GetToken();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.PatchAsync($"api/Flights/{id}/approve", null);
+            var response = await client.PatchAsync("api/Flights/" + id + "/approve", null);
             if (response.IsSuccessStatusCode)
-                TempData["Success"] = $"Voo #{id} aprovado!";
+                TempData["Success"] = "Voo #" + id + " aprovado!";
             else
                 TempData["Error"] = "Erro ao aprovar o voo.";
 
@@ -126,20 +121,18 @@ namespace Booking.Web.Controllers
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Reject(int id)
         {
-
             var client = _clientFactory.CreateClient("Booking.API");
             var token = await GetToken();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.PatchAsync($"api/Flights/{id}/reject", null);
+            var response = await client.PatchAsync("api/Flights/" + id + "/reject", null);
             if (response.IsSuccessStatusCode)
-                TempData["Success"] = $"Voo #{id} rejeitado!";
+                TempData["Success"] = "Voo #" + id + " rejeitado!";
             else
                 TempData["Error"] = "Erro ao rejeitar o voo.";
 
             return RedirectToAction(nameof(PendingApprovals));
         }
-
 
         private async Task LoadFlightViewBags()
         {
@@ -155,8 +148,7 @@ namespace Booking.Web.Controllers
             return await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
         }
 
-        // get
-        [HttpGet("Flight/Reserve/{id}")]
+        [HttpGet]
         [Authorize(Roles = "CUSTOMER,ADMIN,AIRLINE")]
         public async Task<IActionResult> Reserve(int id)
         {
@@ -164,12 +156,11 @@ namespace Booking.Web.Controllers
             var token = await GetToken();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-          
-            var flight = await client.GetFromJsonAsync<FlightViewModel>($"api/Flights/{id}");
+            var flight = await client.GetFromJsonAsync<FlightViewModel>("api/Flights/" + id);
             if (flight == null) return NotFound();
 
-          
-            var seatsResponse = await client.GetAsync($"api/FlightBookings/flight/{id}/seats");
+
+            var seatsResponse = await client.GetAsync("api/FlightBookings/flight/" + id + "/seats");
 
             if (seatsResponse.IsSuccessStatusCode)
             {
@@ -179,47 +170,46 @@ namespace Booking.Web.Controllers
             else
             {
                 ViewBag.Seats = new List<SeatViewModel>();
-                TempData["Error"] = "Erro ao carregar os lugares do avião.";
+                TempData["Error"] = "Erro ao carregar os lugares.";
             }
 
             return View(flight);
         }
 
-        // post
-        [HttpPost("Flight/Reserve/{id}")]
+        [HttpPost]
         [Authorize(Roles = "CUSTOMER,ADMIN,AIRLINE")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reserve(int Id, string SeatId)
+        public async Task<IActionResult> Reserve(int id, string SeatId)
         {
             if (string.IsNullOrEmpty(SeatId))
             {
-                TempData["Error"] = "Por favor, selecione um lugar no mapa.";
-                return RedirectToAction(nameof(Reserve), new { id = Id });
+                TempData["Error"] = "Selecione pelo menos um lugar.";
+                return RedirectToAction("Reserve", new { id = id });
             }
+
+            var seatIdsList = SeatId.Split(',').Select(s => s.Trim()).ToList();
+
+            var dadosReserva = new
+            {
+                Flightid = id,
+                SeatIds = seatIdsList
+            };
 
             var client = _clientFactory.CreateClient("Booking.API");
             var token = await GetToken();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var bookingDto = new
-            {
-                Flightid = Id,
-                Seatid = SeatId 
-            };
-
-            var response = await client.PostAsJsonAsync("api/FlightBookings", bookingDto);
+            var response = await client.PostAsJsonAsync("api/FlightBookings", dadosReserva);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = $"Reserva confirmada! Lugar: {SeatId}";
-               
-                return RedirectToAction("Index", "Bookings");
+                TempData["Success"] = "Reserva concluída com sucesso!";
+                return RedirectToAction("Index", "Home");
             }
 
-           
-            var error = await response.Content.ReadAsStringAsync();
-            TempData["Error"] = "Não foi possível reservar: " + error;
-            return RedirectToAction(nameof(Reserve), new { id = Id });
+            var erro = await response.Content.ReadAsStringAsync();
+            TempData["Error"] = "Erro na reserva: " + erro;
+            return RedirectToAction("Reserve", new { id = id });
         }
     }
 }

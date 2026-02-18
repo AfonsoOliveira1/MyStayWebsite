@@ -120,141 +120,47 @@
       <div class="leg-item"><span class="seat occupied"></span> @Localizer["Occupied"]</div>
     </div>
 
-    <div class="cabin">
-      <div class="row letters">
-        <div class="col-group"><span>A</span><span>B</span><span>C</span></div>
-        <div class="row-num"></div>
-        <div class="col-group"><span>D</span><span>E</span><span>F</span></div>
-      </div>
+        <div class="cabin">
+           
+            <div class="row letters">
+                <div class="col-group"><span>A</span><span>B</span><span>C</span></div>
+                <div class="row-num"></div>
+                <div class="col-group"><span>D</span><span>E</span><span>F</span></div>
+            </div>
 
-      <div class="row">
-        <div class="col-group">
-          <button class="seat available">A</button>
-          <button class="seat available">B</button>
-          <button class="seat available">C</button>
-        </div>
-        <div class="row-num">1</div>
-        <div class="col-group">
-          <button class="seat available">D</button>
-          <button class="seat available">E</button>
-          <button class="seat available">F</button>
-        </div>
-      </div>
+           
+            @for (int row = 1; row <= 9; row++)
+            {
+                <div class="row">
+                   
+                    <div class="col-group">
+                        @foreach (var letter in new[] { "A", "B", "C" })
+                        {
+                            var seatId = $"{row}{letter}";
+                            var seatData = ((List<SeatViewModel>)ViewBag.Seats)?.FirstOrDefault(s => s.SeatNumber == seatId);
+                            var statusClass = seatData != null && seatData.IsBooked ? "occupied" : "available";
+                            var disabled = statusClass == "occupied" ? "disabled" : "";
 
-      <div class="row">
-        <div class="col-group">
-          <button class="seat available">A</button>
-          <button class="seat available">B</button>
-          <button class="seat available">C</button>
-        </div>
-        <div class="row-num">2</div>
-        <div class="col-group">
-          <button class="seat available">D</button>
-          <button class="seat available">E</button>
-          <button class="seat available">F</button>
-        </div>
-      </div>
+                            <button type="button" class="seat @statusClass" @disabled onclick="selectSeat('@seatId')">@letter</button>
+                        }
+                    </div>
 
-      <div class="row">
-        <div class="col-group">
-          <button class="seat available">A</button>
-          <button class="seat available">B</button>
-          <button class="seat available">C</button>
-        </div>
-        <div class="row-num">3</div>
-        <div class="col-group">
-          <button class="seat available">D</button>
-          <button class="seat available">E</button>
-          <button class="seat available">F</button>
-        </div>
-      </div>
+                    <div class="row-num">@row</div>
 
-      <div class="row">
-        <div class="col-group">
-          <button class="seat available">A</button>
-          <button class="seat available">B</button>
-          <button class="seat available">C</button>
-        </div>
-        <div class="row-num">4</div>
-        <div class="col-group">
-          <button class="seat available">D</button>
-          <button class="seat available">E</button>
-          <button class="seat available">F</button>
-        </div>
-      </div>
+                    <div class="col-group">
+                        @foreach (var letter in new[] { "D", "E", "F" })
+                        {
+                            var seatId = $"{row}{letter}";
+                            var seatData = ((List<SeatViewModel>)ViewBag.Seats)?.FirstOrDefault(s => s.SeatNumber == seatId);
+                            var statusClass = seatData != null && seatData.IsBooked ? "occupied" : "available";
+                            var disabled = statusClass == "occupied" ? "disabled" : "";
 
-      <div class="row">
-        <div class="col-group">
-          <button class="seat available">A</button>
-          <button class="seat available">B</button>
-          <button class="seat available">C</button>
+                            <button type="button" class="seat @statusClass" @disabled onclick="selectSeat('@seatId')">@letter</button>
+                        }
+                    </div>
+                </div>
+            }
         </div>
-        <div class="row-num">5</div>
-        <div class="col-group">
-          <button class="seat available">D</button>
-          <button class="seat available">E</button>
-          <button class="seat available">F</button>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-group">
-          <button class="seat available">A</button>
-          <button class="seat available">B</button>
-          <button class="seat available">C</button>
-        </div>
-        <div class="row-num">6</div>
-        <div class="col-group">
-          <button class="seat available">D</button>
-          <button class="seat available">E</button>
-          <button class="seat available">F</button>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-group">
-          <button class="seat available">A</button>
-          <button class="seat available">B</button>
-          <button class="seat available">C</button>
-        </div>
-        <div class="row-num">7</div>
-        <div class="col-group">
-          <button class="seat available">D</button>
-          <button class="seat available">E</button>
-          <button class="seat available">F</button>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-group">
-          <button class="seat available">A</button>
-          <button class="seat available">B</button>
-          <button class="seat available">C</button>
-        </div>
-        <div class="row-num">8</div>
-        <div class="col-group">
-          <button class="seat available">D</button>
-          <button class="seat available">E</button>
-          <button class="seat available">F</button>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-group">
-          <button class="seat available">A</button>
-          <button class="seat available">B</button>
-          <button class="seat available">C</button>
-        </div>
-        <div class="row-num">9</div>
-        <div class="col-group">
-          <button class="seat available">D</button>
-          <button class="seat available">E</button>
-          <button class="seat available">F</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
   
   <footer class="plane-footer">
     <div class="selection-summary">
