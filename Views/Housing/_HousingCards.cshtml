@@ -28,94 +28,103 @@
 
 <style>
   .hotel-card-mini {
-    max-width: 500px; 
-    margin: 20px auto;
+    width: 100%;
+    height: 170px; /* altura fixa igual para todos */
+    margin: 0; /* remove centralização */
     background: #003580;
     border-radius: 12px;
     display: flex;
-    height: 160px;
     overflow: hidden;
     color: #fff;
     font-family: 'Segoe UI', Arial, sans-serif;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  }
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
 
-  .image-wrapper {
-    flex: 0 0 210px;
-  }
+.image-wrapper {
+    flex: 0 0 220px; /* largura fixa da imagem */
+    height: 100%;
+}
 
-  .image-wrapper img {
+.image-wrapper img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
+}
 
-  .content-mini {
+.content-mini {
     flex: 1;
-    padding: 15px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     min-width: 0;
-  }
+}
 
-  .info-top h2 {
-    font-size: 1.15rem;
+.info-top h2 {
+    font-size: 1.1rem;
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
+}
 
-  .stars-mini {
+.stars-mini {
     color: #febb02;
     font-size: 0.85rem;
-  }
+}
 
-  .loc-mini {
-    font-size: 0.8rem;
-    opacity: 0.8;
-    margin: 5px 0;
-  }
+.loc-mini {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin: 6px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-  .footer-mini {
+.footer-mini {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-  }
+}
 
-  .old-p {
-    font-size: 0.8rem;
+.price-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.old-p {
+    font-size: 0.75rem;
     text-decoration: line-through;
-    color: #ff9b9b;
-    display: block;
-  }
+    color: #ffb3b3;
+}
 
-  .new-p {
-    font-size: 1.6rem;
+.new-p {
+    font-size: 1.5rem;
     font-weight: bold;
     line-height: 1;
-  }
+}
 
-  .tax-mini {
+.tax-mini {
     font-size: 0.7rem;
-    margin-top: 2px;
-    opacity: 0.7;
-  }
+    opacity: 0.75;
+}
 
-  .btn-mini {
+.btn-mini {
     background: #006ce4;
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: 9px 18px;
+    border-radius: 6px;
     font-weight: bold;
     font-size: 0.85rem;
     cursor: pointer;
     transition: background 0.2s;
-  }
+    text-align: center;
+}
 
-  .btn-mini:hover {
+.btn-mini:hover {
     background: #0056b3;
-  }
+}
+
 </style>

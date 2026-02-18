@@ -9,6 +9,43 @@
         padding: 0 15px;
         color: #333;
     }
+    /* ============================= */
+/*   FIX ALIGNMENT RESULTS      */
+/* ============================= */
+
+.results-list {
+    flex: 1;
+    padding: 0;
+    margin: 0;
+}
+
+.results-header {
+    margin: 0 0 15px 0;
+    padding: 0;
+}
+
+.results-header h1 {
+    margin: 0 0 10px 0;
+}
+
+.sort-bar {
+    margin: 0 0 10px 0;
+    padding: 0;
+}
+
+.cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+/* Remove qualquer possível deslocamento vindo do partial */
+.cards-container > * {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
 
     /* ----------------------------- */
     /*        FILTER SIDEBAR         */
@@ -63,6 +100,7 @@
                 outline: none;
             }
 
+
     #applyFilters {
         width: 100%;
         padding: 12px;
@@ -96,11 +134,24 @@
 </style>
 
 <div class="search-container">
-    <aside class="filters-sidebar">
+    <main class="results-list">
+        <header class="results-header">
+            <h1>@Localizer["AvailableStays"]</h1>
+            <div class="sort-bar mb-3">
+                <button class="btn dropdown-toggle">
+                    Ordenar por: As nossas principais escolhas
+                </button>
+            </div>
+        </header>
 
+        <div id="cardsContainer" class="cards-container">
+            @await Html.PartialAsync("_HousingCards", Model)
+        </div>
+    </main>
+
+    <aside class="filters-sidebar">
         <div class="filter-section">
             <h3>Filtrar por:</h3>
-
             <div class="filter-group">
                 <label>O seu orçamento (por noite)</label>
                 <input type="number" id="minPrice" placeholder="Min €" />
@@ -117,21 +168,6 @@
             <button type="button" id="applyFilters">Apply</button>
         </div>
     </aside>
-
-    <main class="results-list">
-        <header class="results-header">
-            <h1>@Localizer["AvailableStays"]</h1>
-            <div class="sort-bar mb-3">
-                <button class="btn dropdown-toggle">
-                    Ordenar por: As nossas principais escolhas
-                </button>
-            </div>
-        </header>
-
-        <div id="cardsContainer" class="cards-container">
-            @await Html.PartialAsync("_HousingCards", Model)
-        </div>
-    </main>
 </div>
 
 <script>
