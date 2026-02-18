@@ -31,6 +31,7 @@
                         </form>
 
                         <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@item.Id" />
                             <button type="submit" class="btn btn-danger btn-sm">
                                 @Localizer["Reject"]
                             </button>
