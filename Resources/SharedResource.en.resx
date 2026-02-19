@@ -448,7 +448,7 @@
     <value>Filter by:</value>
   </data>
   <data name="Budget" xml:space="preserve">
-    <value>Budget</value>
+    <value>Your budget (per night)</value>
   </data>
   <data name="OrderBy" xml:space="preserve">
     <value>Order by</value>
@@ -479,5 +479,8 @@
   </data>
   <data name="NoRenters" xml:space="preserve">
     <value>No renters found</value>
+  </data>
+  <data name="AvailableStays" xml:space="preserve">
+    <value>Available stays</value>
   </data>
 </root>

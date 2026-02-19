@@ -138,9 +138,6 @@
         <header class="results-header">
             <h1>@Localizer["AvailableStays"]</h1>
             <div class="sort-bar mb-3">
-                <button class="btn dropdown-toggle">
-                    Ordenar por: As nossas principais escolhas
-                </button>
             </div>
         </header>
 
@@ -151,21 +148,22 @@
 
     <aside class="filters-sidebar">
         <div class="filter-section">
-            <h3>Filtrar por:</h3>
+            <h3>@Localizer["Filter"]</h3>
             <div class="filter-group">
-                <label>O seu orçamento (por noite)</label>
-                <input type="number" id="minPrice" placeholder="Min €" />
-                <input type="number" id="maxPrice" placeholder="Max €" />
+                <label>@Localizer["Budget"]</label>
+<input type="number" id="minPrice" placeholder="Min €" min="0" />
+<input type="number" id="maxPrice" placeholder="Max €" min="0" />
+
             </div>
 
             <div class="filter-group">
                 <label class="form-label fw-bold">Cidade:</label>
                 <select asp-items="ViewBag.Cities" id="cityId" class="form-select" required>
-                    <option value="">Selecione a cidade...</option>
+                    <option value="">@Localizer["SelectCity"]</option>
                 </select>
             </div>
 
-            <button type="button" id="applyFilters">Apply</button>
+            <button type="button" id="applyFilters">@Localizer["Confirm"]</button>
         </div>
     </aside>
 </div>

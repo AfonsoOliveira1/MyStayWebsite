@@ -29,8 +29,20 @@
                 @foreach (var city in Model)
                 {
                     <tr>
-                        <td class="px-4 py-3 text-muted">#@city.Id</td>
-                        <td class="px-4 py-3 fw-bold">@city.Name</td>
+                        @{
+                            var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+                            var flag = culture.StartsWith("pt") ? "🇵🇹" : "🇺🇸";
+                        }
+                        @if(culture.StartsWith("pt"))
+                        {
+                              <td class="px-4 py-3 text-muted">#@city.Id</td>
+                              <td class="px-4 py-3 fw-bold">@(city.Citynamept ?? "← CAMPO VAZIO OU NULL")</td>
+                        }
+                        else
+                        {
+                              <td class="px-4 py-3 text-muted">#@city.Id</td>
+                              <td class="px-4 py-3 fw-bold">@(city.Citynameen ?? "n deve estar a tradução em ing desta cidade")</td>
+                        }
                         <td class="px-4 py-3 text-end">
                             <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
                                     <i class="bi bi-pencil me-1"></i>@Localizer["Edit"]

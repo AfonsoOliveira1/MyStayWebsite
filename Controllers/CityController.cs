@@ -51,7 +51,7 @@ namespace Booking.Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Cidade " + model.Name + " adicionada com sucesso!";
+                TempData["Success"] = "Cidade " + model.Citynamept + " adicionada com sucesso!";
                 return RedirectToAction("List"); //para lista de cidades
             }
 

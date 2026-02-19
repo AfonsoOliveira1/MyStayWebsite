@@ -3,10 +3,12 @@
     public class CityViewModel
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public int CountryId { get; set; } = 1;// valor default
+        //public string Name { get; set; }//
+        public string Citynamept { get; set; }//
+        public string Citynameen { get; set; }//
+        public int Countryid { get; set; } = 1;//
         public int? StateId { get; set; }
-        public string? Timezone { get; set; }
-        public int IsCapital { get; set; } 
+        public string? Timezone { get; set; }//
+        public bool? IsCapital { get; set; }
     }
 }
