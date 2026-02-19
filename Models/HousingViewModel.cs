@@ -12,6 +12,7 @@ namespace Booking.web.Models
         public string ImageUrl { get; set; } = "";
         public bool IsAvailable { get; set; } = true;
         public string CityName { get; set; } = "";
+        public int CompanyId { get; set; }
 
         public string ApprovalStatus { get; set; } = "PENDING";
         public int CityId { get; set; } 

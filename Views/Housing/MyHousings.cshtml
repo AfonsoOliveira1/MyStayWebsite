@@ -27,9 +27,9 @@
                         <p class="fw-bold text-primary">@item.PricePerNight€ <small class="text-muted">/ @Localizer["Night"]</small></p>
                     </div>
 
-                    <div class="card-footer bg-transparent border-0 d-grid gap-2 pb-3">
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">@Localizer["Edit"]</a>
-                    </div>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-pencil"></i> @Localizer["Edit"]
+                    </a>
                 </div>
             </div>
         }
