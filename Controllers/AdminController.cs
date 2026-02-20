@@ -20,7 +20,19 @@ namespace Booking.web.Controllers
         [HttpGet]
         public async Task<IActionResult> Revenue()
         {
-            return await GetFinancialData();
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync("api/Users/dashboard/finance");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var summary = await response.Content.ReadFromJsonAsync<RevenueSummaryViewModel>(options);
+                return View(summary);
+            }
+            return View(new RevenueSummaryViewModel());
         }
 
         [Authorize(Roles = "ADMIN")]
@@ -32,22 +44,50 @@ namespace Booking.web.Controllers
         {
             var client = _clientFactory.CreateClient("Booking.API");
             var token = User.FindFirst("JWToken")?.Value;
-
-            if (string.IsNullOrEmpty(token)) return RedirectToAction("Login", "Account");
-
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await client.GetAsync("api/Users/dashboard/finance");
 
             if (response.IsSuccessStatusCode)
             {
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var summary = await response.Content.ReadFromJsonAsync<RevenueSummaryViewModel>(options);
+                var jsonString = await response.Content.ReadAsStringAsync();
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true 
+                };
+
+                var summary = JsonSerializer.Deserialize<RevenueSummaryViewModel>(jsonString, options);
+
                 return View("Revenue", summary);
             }
 
-            TempData["Error"] = "Erro ao carregar dados da API.";
             return View("Revenue", new RevenueSummaryViewModel());
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet]
+        public async Task<IActionResult> EditCommission(int id)
+        {
+            return View(id);
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateCommission(int id, decimal newRate)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.PatchAsJsonAsync("api/Housings/"+id+"/update-commission", newRate);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Ok();
+            }
+
+            return BadRequest("Erro ao atualizar na API");
         }
     }
 }

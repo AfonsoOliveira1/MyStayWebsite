@@ -15,7 +15,9 @@ namespace Booking.web.Models
         public int CompanyId { get; set; }
 
         public string ApprovalStatus { get; set; } = "PENDING";
-        public int CityId { get; set; } 
+        public int CityId { get; set; }
+
+        public decimal? BookingCommissionRate { get; set; }
         public HousingRatingViewModel HousingRatingViewModel { get; set; } = new HousingRatingViewModel();
     }
 }

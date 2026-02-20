@@ -4,13 +4,17 @@
 {
     <section class="hotel-card-mini">
         <div class="image-wrapper">
-            <img src=@item.ImageUrl alt="@item.Name">
+            <img src="@item.ImageUrl" alt="@item.Name">
         </div>
 
         <div class="content-mini">
             <div class="info-top">
-                <h2>@item.Name <span class="stars-mini">@item.HousingRatingViewModel.Score</span></h2>
+                <h2>@item.Name <span class="stars-mini">★ @item.HousingRatingViewModel.Score</span></h2>
                 <p class="loc-mini">@item.Location</p>
+                @if (User.IsInRole("ADMIN"))
+                {
+                    <span class="badge bg-warning text-dark">Comissão: @(item.BookingCommissionRate ?? 0)%</span>
+                }
             </div>
 
             <div class="footer-mini">
@@ -20,111 +24,181 @@
                     <p class="tax-mini">@Localizer["Taxes"]</p>
                 </div>
 
-                <a asp-action="Reserve" asp-route-id="@item.Id" class="btn-mini" style="text-decoration: none; text-align: center;">@Localizer["Reserve"]</a>
+                <div class="button-group" style="display: flex; gap: 8px;">
+                    @if (User.IsInRole("ADMIN"))
+                    {
+                        <button onclick="alterarComissao(@item.Id, @(item.BookingCommissionRate ?? 0))" class="btn-commission" style="border:none; cursor:pointer;">
+                            <i class="bi bi-percent"></i> %
+                        </button>
+                    }
+                    <a asp-action="Reserve" asp-route-id="@item.Id" class="btn-mini" style="text-decoration: none; text-align: center;">@Localizer["Reserve"]</a>
+                </div>
             </div>
         </div>
     </section>
 }
+<script>
+    function alterarComissao(id, taxaAtual) {
+        const novaTaxa = prompt("Nova taxa de comissão (%):", taxaAtual);
+
+        if (novaTaxa !== null && novaTaxa !== "" && !isNaN(novaTaxa)) {
+            const url = "/Admin/UpdateCommission?id=" + id + "&newRate=" + novaTaxa.replace(',', '.');
+
+            fetch(url, {
+                method: 'POST'
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert("Sucesso!");
+                    location.reload();
+                } else {
+                    alert("Erro ao atualizar. Verifica se a API está ligada.");
+                }
+            })
+            .catch(() => alert("Erro de conexão."));
+        }
+    }
+</script>
 
 <style>
-  .hotel-card-mini {
-    width: 100%;
-    height: 170px;
-    margin: 0;
-    background: #003580;
-    border-radius: 12px;
-    display: flex;
-    overflow: hidden;
-    color: #fff;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-}
+    .hotel-card-mini {
+        width: 100%;
+        height: 170px;
+        margin: 0;
+        background: #003580;
+        border-radius: 12px;
+        display: flex;
+        overflow: hidden;
+        color: #fff;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
 
-.image-wrapper {
-    flex: 0 0 220px;
-    height: 100%;
-}
 
-.image-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
 
-.content-mini {
-    flex: 1;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-width: 0;
-}
+    .image-wrapper {
+        flex: 0 0 220px;
+        height: 100%;
+    }
 
-.info-top h2 {
-    font-size: 1.1rem;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
-.stars-mini {
-    color: #febb02;
-    font-size: 0.85rem;
-}
 
-.loc-mini {
-    font-size: 0.85rem;
-    opacity: 0.85;
-    margin: 6px 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-.footer-mini {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
 
-.price-box {
-    display: flex;
-    flex-direction: column;
-}
 
-.old-p {
-    font-size: 0.75rem;
-    text-decoration: line-through;
-    color: #ffb3b3;
-}
+    .content-mini {
+        flex: 1;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-width: 0;
+    }
 
-.new-p {
-    font-size: 1.5rem;
-    font-weight: bold;
-    line-height: 1;
-}
 
-.tax-mini {
-    font-size: 0.7rem;
-    opacity: 0.75;
-}
 
-.btn-mini {
-    background: #006ce4;
-    color: white;
-    border: none;
-    padding: 9px 18px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    text-align: center;
-}
+    .info-top h2 {
+        font-size: 1.1rem;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-.btn-mini:hover {
-    background: #0056b3;
-}
 
+
+    .stars-mini {
+        color: #febb02;
+        font-size: 0.85rem;
+    }
+
+
+
+    .loc-mini {
+        font-size: 0.85rem;
+        opacity: 0.85;
+        margin: 6px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+
+
+    .footer-mini {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+
+
+    .price-box {
+        display: flex;
+        flex-direction: column;
+    }
+
+
+
+    .old-p {
+        font-size: 0.75rem;
+        text-decoration: line-through;
+        color: #ffb3b3;
+    }
+
+
+
+    .new-p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+
+
+    .tax-mini {
+        font-size: 0.7rem;
+        opacity: 0.75;
+    }
+
+
+
+    .btn-mini {
+        background: #006ce4;
+        color: white;
+        border: none;
+        padding: 9px 18px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-align: center;
+    }
+
+
+
+        .btn-mini:hover {
+            background: #0056b3;
+        }
+
+    .btn-commission {
+        background: #febb02;
+        color: #003580;
+        border: none;
+        padding: 9px 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+        .btn-commission:hover {
+            background: #e1a601;
+        }
 </style>
