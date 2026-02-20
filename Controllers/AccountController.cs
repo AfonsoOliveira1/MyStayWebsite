@@ -65,13 +65,11 @@ namespace Booking.web.Controllers
         {
             var client = _clientFactory.CreateClient("Booking.API");
 
-            // 1. Procurar Airlines
             var airlineResponse = await client.GetAsync("api/Airlines");
             var airlines = airlineResponse.IsSuccessStatusCode
                 ? await airlineResponse.Content.ReadFromJsonAsync<List<AirlineViewModel>>()
                 : new List<AirlineViewModel>();
 
-            // 2. Procurar Renters
             var renterResponse = await client.GetAsync("api/Renters");
             var renters = renterResponse.IsSuccessStatusCode
                 ? await renterResponse.Content.ReadFromJsonAsync<List<RenterViewModel>>()
@@ -132,7 +130,7 @@ namespace Booking.web.Controllers
             TempData["RegisterModel"] = JsonSerializer.Serialize(model);
             TempData["Email"] = model.Email;
 
-            // manter dados vivos
+            // manter dados 
             TempData.Keep("RegisterModel");
             TempData.Keep("Email");
 
@@ -151,7 +149,7 @@ namespace Booking.web.Controllers
                 //le o conteúdo da resposta de erro
                 var content = await response.Content.ReadAsStringAsync();
                 string message;
-                // desserializa o JSON { "message": "..." }
+
                 var apiResponse = JsonSerializer
                     .Deserialize<ApiMessage>(content);
                 ModelState.AddModelError("", apiResponse?.Message ?? "Falha ao enviar código.");
@@ -190,7 +188,6 @@ namespace Booking.web.Controllers
 
             RegisterModel regModel = JsonSerializer.Deserialize<RegisterModel>(registerModelJson);
 
-            // Preparar o DTO para a api
             var userDto = new
             {
                 Name = regModel.Name,
@@ -211,7 +208,7 @@ namespace Booking.web.Controllers
             else
             { 
                 var errorDetail = await registerResponse.Content.ReadAsStringAsync();
-                ModelState.AddModelError("", $"Erro da API: {errorDetail}");
+                ModelState.AddModelError("", "Erro da API:" +"{errorDetail}");
 
                 TempData.Keep("RegisterModel");
                 TempData.Keep("Email");
@@ -282,7 +279,7 @@ namespace Booking.web.Controllers
             if (confirmed != "true" || confirmedAt == null)
                 return RedirectToAction("VerifyCode");
 
-            // validar tempo (5 minutos) converter string para datetime e fica o var time com o valor
+          
             if (DateTime.TryParse(confirmedAt, out var time))
             {
                 if (DateTime.UtcNow - time > TimeSpan.FromMinutes(5))
@@ -292,7 +289,7 @@ namespace Booking.web.Controllers
             }
             else
             {
-                // erro força nova verificação obviamente
+               
                 return RedirectToAction("VerifyCode");
             }
 

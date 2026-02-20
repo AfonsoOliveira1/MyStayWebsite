@@ -52,7 +52,7 @@ namespace Booking.Web.Controllers
             if (response.IsSuccessStatusCode)
             {
                 TempData["Success"] = "Cidade " + model.Citynamept + " adicionada com sucesso!";
-                return RedirectToAction("List"); //para lista de cidades
+                return RedirectToAction("List"); // de cidades
             }
 
             ModelState.AddModelError("", "Erro ao guardar a cidade na API. Status: " + response.StatusCode);

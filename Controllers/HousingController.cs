@@ -37,7 +37,7 @@ namespace Booking.Web.Controllers
            
             ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", cityId);
 
-            //   Filtros 
+            //   filtros 
             if (minPrice.HasValue)
                 housings = housings.Where(h => h.PricePerNight >= minPrice).ToList();
 

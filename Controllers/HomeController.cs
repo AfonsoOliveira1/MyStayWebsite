@@ -28,7 +28,6 @@ namespace Booking.web.Controllers
                 var client = _clientFactory.CreateClient("Booking.API");
                 client.Timeout = TimeSpan.FromSeconds(5); // evita bloqueio longo
 
-                // procurar voos
                 var flightsResponse = await client.GetAsync("api/Flights");
                 if (flightsResponse.IsSuccessStatusCode)
                 {
@@ -36,7 +35,6 @@ namespace Booking.web.Controllers
                                        ?? new List<FlightViewModel>();
                 }
 
-                // procurar housing
                 var staysResponse = await client.GetAsync("api/Housing");
                 if (staysResponse.IsSuccessStatusCode)
                 {
