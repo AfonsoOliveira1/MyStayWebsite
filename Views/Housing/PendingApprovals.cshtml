@@ -15,7 +15,7 @@
                         <th>@Localizer["Stay"]</th>
                         <th>@Localizer["City"]</th>
                         <th>@Localizer["Price"]/@Localizer["Night"]</th>
-                        <th>@Localizer["Description"]</th> @* Nova Coluna *@
+                        <th>@Localizer["Description"]</th>
                         <th class="text-center">@Localizer["Actions"]</th>
                     </tr>
                 </thead>
@@ -64,15 +64,22 @@
 
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <form asp-action="Approve" asp-controller="Housing" asp-route-id="@house.Id" method="post">
-                                        <button type="submit" class="btn btn-outline-success btn-sm">
-                                                <i class="bi bi-check-circle"></i> @Localizer["Approve"]
+                                    <form asp-action="Approve" asp-controller="Housing" method="post" class="d-flex align-items-center gap-2">
+                                        <input type="hidden" name="id" value="@house.Id" />
+
+                                        <div class="input-group input-group-sm" style="width: 130px;">
+                                            <input type="number" name="commissionRate" class="form-control"
+                                                   placeholder="Taxa %" step="0.1" min="0" max="100" required />
+                                            <span class="input-group-text">%</span>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="bi bi-check-circle"></i> @Localizer["Approve"]
                                         </button>
                                     </form>
-
-                                    <form asp-action="Reject" asp-controller="Housing" asp-route-id="@house.Id" method="post">
+                                  <form asp-action="Reject" asp-controller="Housing" asp-route-id="@house.Id" method="post">
                                         <button type="submit" class="btn btn-outline-danger btn-sm">
-                                                <i class="bi bi-x-circle"></i> @Localizer["Reject"]
+                                            <i class="bi bi-x-circle"></i> @Localizer["Reject"]
                                         </button>
                                     </form>
                                 </div>
@@ -85,7 +92,7 @@
     </div>
 </div>
 
-@* edit descricao *@
+@* descricao *@
 <div class="modal fade" id="editDescModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

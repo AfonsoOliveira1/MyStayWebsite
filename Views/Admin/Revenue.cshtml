@@ -1,0 +1,32 @@
+﻿@model RevenueSummaryViewModel
+
+<div class="container mt-4">
+    <h2>Dashboard de Comissões</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Comissões de Casas</h5>
+                    <p class="card-text fs-2">@Model.HousingProfit.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Comissões de Voos</h5>
+                    <p class="card-text fs-2">@Model.FlightProfit.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Lucro Total MyStay</h5>
+                    <p class="card-text fs-2">@Model.TotalProfit.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

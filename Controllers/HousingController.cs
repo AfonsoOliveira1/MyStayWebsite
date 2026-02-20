@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace Booking.Web.Controllers
 {
@@ -103,6 +104,7 @@ namespace Booking.Web.Controllers
             return View(model);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Reserve(int id)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -124,29 +126,45 @@ namespace Booking.Web.Controllers
                 CheckInDate = DateTime.Now,
                 CheckOutDate = DateTime.Now.AddDays(1)
             };
+
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reserve(HousingBookingViewModel booking)
+        public async Task<IActionResult> ConfirmReservation(HousingBookingViewModel model)
         {
-            if (!ModelState.IsValid) return View(booking);
-
             var client = _clientFactory.CreateClient("Booking.API");
             var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.PostAsJsonAsync("api/HousingBookings", booking);
+            // Garantimos que os nomes das propriedades são idênticos ao DTO da API (case-sensitive às vezes importa)
+            var bookingData = new
+            {
+                Housingid = model.HousingId,
+                Customerid = model.CustomerId,
+                Checkindate = model.CheckInDate,
+                Checkoutdate = model.CheckOutDate
+            };
+
+            var response = await client.PostAsJsonAsync("api/HousingBookings", bookingData);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Message"] = "Reserva efetuada com sucesso!";
-                return RedirectToAction("MyBookings", "Bookings"); 
+                TempData["Success"] = "Reserva guardada na base de dados!";
+                return RedirectToAction("Index", "Home");
             }
+            else
+            {
+                // Se falhou, vamos ler o porquê
+                var errorBody = await response.Content.ReadAsStringAsync();
 
-            ModelState.AddModelError("", "Não foi possível reservar o alojamento " + booking.HousingName + ".");
-            return View(booking);
+                // Isto vai ajudar-te a ver no "Output" do Visual Studio qual o erro real
+                System.Diagnostics.Debug.WriteLine($"Erro da API: {errorBody}");
+
+                ModelState.AddModelError("", "A API rejeitou a reserva. Verifique se as datas estão disponíveis.");
+                return View("Reserve", model);
+            }
         }
 
         [Authorize(Roles = "ADMIN")]
@@ -166,18 +184,28 @@ namespace Booking.Web.Controllers
 
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Approve(int id)
+        public async Task<IActionResult> Approve(int id, decimal commissionRate)
         {
             var client = _clientFactory.CreateClient("Booking.API");
             var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.PostAsync("api/Housings/" + id + "/approve", null);
+            var approvalData = new { CommissionRate = commissionRate };
+
+         
+            string url = "api/Housings/" + id + "/approve";
+
+            var response = await client.PostAsJsonAsync(url, approvalData);
 
             if (response.IsSuccessStatusCode)
-                TempData["Success"] = "Alojamento aprovado com sucesso!";
+            { 
+                TempData["Success"] = "Alojamento aprovado com sucesso! Taxa: " + commissionRate + "%";
+            }
             else
-                TempData["Error"] = "Erro ao comunicar com a API para aprovação.";
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = "Erro ao aprovar: " + error;
+            }
 
             return RedirectToAction("PendingApprovals");
         }
