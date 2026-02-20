@@ -3,7 +3,7 @@
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-dark mb-0">Gestão de Destinos</h2>
+            <h2 class="fw-bold text-dark mb-0">@Localizer["ManageDestiny"]</h2>
             <p class="text-muted">@Localizer["CityList"]</p>
         </div>
         <a asp-action="Create" class="btn btn-success rounded-pill px-4 shadow-sm">
@@ -36,12 +36,12 @@
                         @if(culture.StartsWith("pt"))
                         {
                               <td class="px-4 py-3 text-muted">#@city.Id</td>
-                              <td class="px-4 py-3 fw-bold">@(city.Citynamept ?? "← CAMPO VAZIO OU NULL")</td>
+                              <td class="px-4 py-3 fw-bold">@(city.Citynamept ?? "Não há nome português para esta cidade")</td>
                         }
                         else
                         {
                               <td class="px-4 py-3 text-muted">#@city.Id</td>
-                              <td class="px-4 py-3 fw-bold">@(city.Citynameen ?? "n deve estar a tradução em ing desta cidade")</td>
+                              <td class="px-4 py-3 fw-bold">@(city.Citynameen ?? "No english name found for this city")</td>
                         }
                         <td class="px-4 py-3 text-end">
                             <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">

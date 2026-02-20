@@ -483,4 +483,37 @@
   <data name="AvailableStays" xml:space="preserve">
     <value>Available stays</value>
   </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Commission Dashboard</value>
+  </data>
+  <data name="MonitorizeMyStay" xml:space="preserve">
+    <value>Monitor the performance and profits of your MyStay platform.</value>
+  </data>
+  <data name="CommissionHouse" xml:space="preserve">
+    <value>Stays commissions</value>
+  </data>
+  <data name="CommissionFlights" xml:space="preserve">
+    <value>Flights commissions</value>
+  </data>
+  <data name="MyStayProfit" xml:space="preserve">
+    <value>Total profit MyStay</value>
+  </data>
+  <data name="ManageDestiny" xml:space="preserve">
+    <value>Destiny manager</value>
+  </data>
+  <data name="AirlineManagement" xml:space="preserve">
+    <value>Airline management</value>
+  </data>
+  <data name="AirlineList" xml:space="preserve">
+    <value>List of registered airlines and their contact information.</value>
+  </data>
+  <data name="ManageRentalCompanies" xml:space="preserve">
+    <value>Manage the rental companies registered in the system.</value>
+  </data>
+  <data name="PendingStays" xml:space="preserve">
+    <value>Pending stays</value>
+  </data>
+  <data name="Routes" xml:space="preserve">
+    <value>Routes</value>
+  </data>
 </root>

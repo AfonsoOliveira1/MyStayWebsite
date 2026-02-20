@@ -17,19 +17,19 @@
 
                        
                         <div class="mb-3">
-                            <label class="form-label">Airline Name</label>
+                            <label class="form-label">@Localizer["Name"]</label>
                             <input asp-for="AirlineName" class="form-control" placeholder="Ex: TAP Air Portugal" required />
                             <span asp-validation-for="AirlineName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Email Address</label>
+                            <label class="form-label">Email</label>
                             <input asp-for="Email" type="email" class="form-control" placeholder="contact@airline.com" required />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Phone Number</label>
+                            <label class="form-label">@Localizer["Phone"]</label>
                             <input asp-for="Phone" type="number" class="form-control" placeholder="Ex: 351912345678" />
                             <span asp-validation-for="Phone" class="text-danger"></span>
                         </div>
