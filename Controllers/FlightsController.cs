@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 
 namespace Booking.Web.Controllers
 {
@@ -27,7 +25,6 @@ namespace Booking.Web.Controllers
                                   ?? new List<FlightViewModel>();
             return View(flights);
         }
-
         [Authorize(Roles = "AIRLINE")]
         public async Task<IActionResult> MyFlights()
         {
@@ -44,7 +41,9 @@ namespace Booking.Web.Controllers
             return View(new List<FlightViewModel>());
         }
 
+     
         [HttpGet]
+        [Authorize(Roles = "AIRLINE,ADMIN")]
         public async Task<IActionResult> Create()
         {
             await LoadFlightViewBags();
@@ -53,6 +52,7 @@ namespace Booking.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "AIRLINE,ADMIN")]
         public async Task<IActionResult> Create(FlightViewModel model)
         {
             ModelState.Remove("AirlineId");
@@ -72,6 +72,7 @@ namespace Booking.Web.Controllers
             var token = await GetToken();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
+            //duracao
             model.ArrivalTime = model.DepartureTime.AddHours(2);
 
             var response = await client.PostAsJsonAsync("api/Flights", model);
@@ -117,37 +118,6 @@ namespace Booking.Web.Controllers
             return RedirectToAction(nameof(PendingApprovals));
         }
 
-        [HttpPost]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Reject(int id)
-        {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = await GetToken();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            var response = await client.PatchAsync("api/Flights/" + id + "/reject", null);
-            if (response.IsSuccessStatusCode)
-                TempData["Success"] = "Voo #" + id + " rejeitado!";
-            else
-                TempData["Error"] = "Erro ao rejeitar o voo.";
-
-            return RedirectToAction(nameof(PendingApprovals));
-        }
-
-        private async Task LoadFlightViewBags()
-        {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities") ?? new List<CityViewModel>();
-            var cityList = new SelectList(cities, "Id", "Name");
-            ViewBag.OriginId = cityList;
-            ViewBag.DestinationId = cityList;
-        }
-
-        private async Task<string> GetToken()
-        {
-            return await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
-        }
-
         [HttpGet]
         [Authorize(Roles = "CUSTOMER,ADMIN,AIRLINE")]
         public async Task<IActionResult> Reserve(int id)
@@ -158,7 +128,6 @@ namespace Booking.Web.Controllers
 
             var flight = await client.GetFromJsonAsync<FlightViewModel>("api/Flights/" + id);
             if (flight == null) return NotFound();
-
 
             var seatsResponse = await client.GetAsync("api/FlightBookings/flight/" + id + "/seats");
 
@@ -175,7 +144,6 @@ namespace Booking.Web.Controllers
 
             return View(flight);
         }
-
         [HttpPost]
         [Authorize(Roles = "CUSTOMER,ADMIN,AIRLINE")]
         [ValidateAntiForgeryToken]
@@ -210,6 +178,37 @@ namespace Booking.Web.Controllers
             var erro = await response.Content.ReadAsStringAsync();
             TempData["Error"] = "Erro na reserva: " + erro;
             return RedirectToAction("Reserve", new { id = id });
+        }
+
+
+
+        private async Task LoadFlightViewBags()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            try
+            {
+                var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities") ?? new List<CityViewModel>();
+
+              
+                var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+                string displayField = culture.StartsWith("pt") ? "Citynamept" : "Citynameen";
+
+                var cityList = new SelectList(cities, "Id", displayField);
+
+                ViewBag.OriginId = cityList;
+                ViewBag.DestinationId = cityList;
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Erro ao carregar cidades da API: " + ex.Message;
+                ViewBag.OriginId = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewBag.DestinationId = new SelectList(Enumerable.Empty<SelectListItem>());
+            }
+        }
+
+        private async Task<string> GetToken()
+        {
+            return await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
         }
     }
 }

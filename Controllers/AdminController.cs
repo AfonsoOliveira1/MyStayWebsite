@@ -80,14 +80,16 @@ namespace Booking.web.Controllers
             var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.PatchAsJsonAsync("api/Housings/"+id+"/update-commission", newRate);
+            var url = "api/Housings/" + id + "/update-commission";
+
+            var response = await client.PatchAsJsonAsync(url, newRate);
 
             if (response.IsSuccessStatusCode)
             {
-                return Ok();
+                return RedirectToAction("List", "Housing");
             }
 
-            return BadRequest("Erro ao atualizar na API");
+            return BadRequest("Erro ao comunicar com a API");
         }
     }
 }

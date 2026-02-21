@@ -17,6 +17,8 @@ namespace Booking.web.Models
         public int CompanyId { get; set; }
         public string ApprovalStatus { get; set; } = "PENDING";
         public int CityId { get; set; }
+
+        [JsonPropertyName("bookingCommissionRate")]
         public decimal? BookingCommissionRate { get; set; }
 
         public double AverageRating => Ratings.Any() ? Ratings.Average(r => r.Score) : 0;

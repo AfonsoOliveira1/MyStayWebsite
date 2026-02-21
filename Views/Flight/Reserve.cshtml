@@ -87,7 +87,7 @@
                         </div>
                     </div>
 
-                    <form asp-action="Reserve" method="post" id="bookingForm">
+                    <form asp-action="Reserve" asp-controller="Flight" asp-route-id="@Model.Id" method="post" id="bookingForm">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="FlightId" value="@Model.Id" />
                         <input type="hidden" name="SeatId" id="selectedSeatId" required />

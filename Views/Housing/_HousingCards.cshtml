@@ -13,29 +13,29 @@
 
         <div class="content-mini">
             <div class="info-top">
-                <h2>
-                    <span class="text-truncate" style="max-width: 250px;">@item.Name</span>
+                <div class="d-flex justify-content-between align-items-start">
+                    <h2 class="text-truncate" style="max-width: 250px; margin: 0;">@item.Name</h2>
+
                     @if (hasRatings)
                     {
                         <div class="stars-display">
                             <i class="bi bi-star-fill"></i> @avg.ToString("0.0")
                         </div>
                     }
-                </h2>
+                </div>
+
                 <p class="loc-mini"><i class="bi bi-geo-alt"></i> @item.CityName</p>
 
-                @if (hasRatings)
-                {
-                    <small class="text-white-50">
-                        <i class="bi bi-chat-right-text me-1"></i> @total @(total == 1 ? "avaliação" : "avaliações")
-                    </small>
-                }
-                else
-                {
-                    <small class="text-white-50 italic">
-                        <i class="bi bi-stars me-1"></i> Novo na plataforma
-                    </small>
-                }
+                <small class="text-white-50">
+                    @if (hasRatings)
+                    {
+                        <span><i class="bi bi-chat-right-text me-1"></i> @total @(total == 1 ? "avaliação" : "avaliações")</span>
+                    }
+                    else
+                    {
+                        <span class="italic"><i class="bi bi-stars me-1"></i> Novo na plataforma</span>
+                    }
+                </small>
             </div>
 
             <div class="footer-mini">
@@ -44,24 +44,29 @@
                         @((item.PricePerNight * 1.2m).ToString("C", new System.Globalization.CultureInfo("pt-PT")))
                     </span>
                     <span class="new-p">@item.PricePerNight.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
-                    <p class="tax-mini mb-0 small opacity-75">@Localizer["Taxes"]</p>
                 </div>
 
-                @* --- GRUPO DE BOTÕES --- *@
-                <div class="button-group d-flex gap-2 align-items-center">
+                <div class="button-group d-flex align-items-center gap-2">
 
-                    @* BOTÃO DE COMISSÃO (APENAS ADMIN) *@
                     @if (User.IsInRole("ADMIN"))
                     {
-                        <button onclick="alterarComissao(@item.Id, @(item.BookingCommissionRate ?? 0))"
-                                class="btn"
-                                style="background:#febb02; border:none; border-radius:6px; padding: 8px 12px; color: #003580;"
-                                title="Alterar Comissão">
-                            <i class="bi bi-percent fw-bold"></i>
-                        </button>
+                        <form asp-controller="Admin" asp-action="UpdateCommission" method="post" class="d-flex gap-1 align-items-center mb-1">
+                            <input type="hidden" name="id" value="@item.Id" />
+
+                            <div class="input-group input-group-sm" style="width: 100px;">
+                                <input type="number" name="newRate"
+                                       class="form-control form-control-sm border-warning fw-bold text-center"
+                                       value="@(item.BookingCommissionRate?.ToString( System.Globalization.CultureInfo.InvariantCulture))"
+                                       step="0.1" />
+                                <span class="input-group-text bg-warning border-warning fw-bold" style="padding: 0 4px;">%</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-sm btn-warning shadow-sm">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </form>
                     }
 
-                    @* BOTÃO RESERVAR *@
                     <a asp-controller="Housing" asp-action="Reserve" asp-route-id="@item.Id" class="btn-mini">
                         @Localizer["Reserve"]
                     </a>

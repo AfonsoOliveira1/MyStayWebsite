@@ -1,0 +1,62 @@
+﻿@model CityViewModel
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white p-4">
+                    <h3 class="mb-0"><i class="bi bi-pencil-square me-2"></i>@Localizer["EditCity"]</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">@Localizer["Name"] pt-PT</label>
+                                <input asp-for="Citynamept" class="form-control form-control-lg" placeholder="Ex: Lisboa" required />
+                                <span asp-validation-for="Citynamept" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">@Localizer["Name"] en-US</label>
+                                <input asp-for="Citynameen" class="form-control form-control-lg" placeholder="Ex: Lisbon" required />
+                                <span asp-validation-for="Citynameen" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">@Localizer["Country"]</label>
+                                <select asp-for="Countryid" class="form-select form-select-lg"
+                                        asp-items="@(ViewBag.Countries as SelectList)">
+                                    <option value="">-- @Localizer["SelectCountry"] --</option>
+                                </select>
+                                <span asp-validation-for="Countryid" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">@Localizer["Timezone"]</label>
+                                <input asp-for="Timezone" class="form-control" placeholder="UTC+0" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">@Localizer["IsCapital"]?</label>
+                                <select asp-for="IsCapital" class="form-select">
+                                    <option value="false">@Localizer["No"]</option>
+                                    <option value="true">@Localizer["Yes"]</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-action="List" class="btn btn-light px-4">@Localizer["Back"]</a>
+                            <button type="submit" class="btn btn-primary px-5 fw-bold">@Localizer["Save"]</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

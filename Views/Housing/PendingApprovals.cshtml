@@ -3,7 +3,7 @@
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-house-gear text-primary"></i>@Localizer["PendingStays"]</h2>
+        <h2><i class="bi bi-house-gear text-primary me-2"></i>@Localizer["PendingStays"]</h2>
     </div>
 
     <div class="card shadow-sm border-0">
@@ -16,7 +16,7 @@
                         <th>@Localizer["City"]</th>
                         <th>@Localizer["Price"]/@Localizer["Night"]</th>
                         <th>@Localizer["Description"]</th>
-                        <th class="text-center">@Localizer["Actions"]</th>
+                        <th class="text-end" style="padding-right: 2rem;">@Localizer["Actions"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,7 +32,7 @@
                     @foreach (var house in Model)
                     {
                         <tr>
-                            <td>
+                            <td class="align-middle">
                                 @if (!string.IsNullOrEmpty(house.ImageUrl))
                                 {
                                     <img src="@house.ImageUrl" alt="Housing" class="rounded" style="width: 60px; height: 45px; object-fit: cover;">
@@ -44,41 +44,41 @@
                                     </div>
                                 }
                             </td>
-                            <td>
+                            <td class="align-middle">
                                 <strong>@house.Name</strong><br>
                                 <small class="text-muted">ID: #@house.Id</small>
                             </td>
-                            <td>@house.CityName</td>
-                            <td>@house.PricePerNight.ToString("C")</td>
+                            <td class="align-middle">@house.CityName</td>
 
-                            <td style="max-width: 250px;">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <small class="text-truncate d-inline-block" style="max-width: 180px;" id="desc-@house.Id">
-                                        @house.Description
-                                    </small>
-                                    <button class="btn btn-link btn-sm p-0 ms-2" onclick="openEditModal('@house.Id', '@JavaScriptEncoder.Default.Encode(house.Description)')">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
+                            <td class="align-middle text-nowrap">@house.PricePerNight.ToString("F2") €"</td>
+
+                            <td class="align-middle" style="width: 35%;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-pencil-square text-primary" style="font-size: 0.9rem;"></i>
+                                    <input type="text" name="description" form="form-approve-@house.Id"
+                                           class="form-control form-control-sm border-0 bg-transparent p-0"
+                                           value="@house.Description" style="box-shadow: none; min-width: 200px;" />
                                 </div>
                             </td>
 
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <form asp-action="Approve" asp-controller="Housing" method="post" class="d-flex align-items-center gap-2">
+                            <td class="align-middle text-end">
+                                <div class="d-inline-flex align-items-center gap-2" style="padding-right: 1rem;">
+                                    <form asp-action="Approve" asp-controller="Housing" method="post" id="form-approve-@house.Id" class="d-inline-flex gap-2">
                                         <input type="hidden" name="id" value="@house.Id" />
 
-                                        <div class="input-group input-group-sm" style="width: 130px;">
-                                            <input type="number" name="commissionRate" class="form-control"
-                                                   placeholder="Taxa %" step="0.1" min="0" max="100" required />
+                                        <div class="input-group input-group-sm" style="width: 110px;">
+                                            <input type="number" name="commissionRate" class="form-control" placeholder="Taxa %" step="0.1" required />
                                             <span class="input-group-text">%</span>
                                         </div>
 
-                                        <button type="submit" class="btn btn-success btn-sm">
-                                            <i class="bi bi-check-circle"></i> @Localizer["Approve"]
+                                        <button type="submit" class="btn btn-success btn-sm text-nowrap">
+                                            <i class="bi bi-check2-circle"></i> @Localizer["Approve"]
                                         </button>
                                     </form>
-                                  <form asp-action="Reject" asp-controller="Housing" asp-route-id="@house.Id" method="post">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+
+                                    <form asp-action="Reject" asp-controller="Housing" asp-route-id="@house.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm text-nowrap"
+                                                onclick="return confirm('Tem a certeza que deseja rejeitar este alojamento?')">
                                             <i class="bi bi-x-circle"></i> @Localizer["Reject"]
                                         </button>
                                     </form>
@@ -92,48 +92,3 @@
     </div>
 </div>
 
-@* descricao *@
-<div class="modal fade" id="editDescModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@Localizer["Edit"]</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="modalHouseId" />
-                <textarea class="form-control" id="modalDescription" rows="5"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
-                <button type="button" class="btn btn-primary" onclick="saveDescription()">@Localizer["SaveChanges"]</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        function openEditModal(id, desc) {
-            document.getElementById('modalHouseId').value = id;
-            document.getElementById('modalDescription').value = desc;
-            new bootstrap.Modal(document.getElementById('editDescModal')).show();
-        }
-
-        async function saveDescription() {
-            const id = document.getElementById('modalHouseId').value;
-            const desc = document.getElementById('modalDescription').value;
-
-            const response = await fetch(`/Housing/UpdateDescription?id=${id}&description=${encodeURIComponent(desc)}`, {
-                method: 'POST'
-            });
-
-            if (response.ok) {
-                document.getElementById(`desc-${id}`).innerText = desc;
-                bootstrap.Modal.getInstance(document.getElementById('editDescModal')).hide();
-            } else {
-                alert("Erro ao atualizar descrição.");
-            }
-        }
-    </script>
-}

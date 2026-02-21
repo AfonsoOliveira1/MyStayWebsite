@@ -1,80 +1,207 @@
 ﻿@model Booking.web.Models.FlightBookingViewModel
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 <style>
-    .receipt-container {
-        max-width: 500px;
-        margin: 50px auto;
-        padding: 30px;
-        border: 2px dashed #ccc;
-        background-color: #fff;
-        font-family: 'Courier New', Courier, monospace;
+    body {
+        background-color: #f4f7f6;
     }
 
-    .receipt-header {
+    .ticket-card {
+        max-width: 600px;
+        margin: 60px auto;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .ticket-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 25px;
         text-align: center;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 20px;
-        margin-bottom: 20px;
+        position: relative;
     }
 
-    .receipt-row {
+        .ticket-header h3 {
+            letter-spacing: 4px;
+            font-weight: 800;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+    .ticket-body {
+        padding: 30px;
+        position: relative;
+    }
+
+    .flight-path {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 10px;
+        align-items: center;
+        margin-bottom: 30px;
     }
 
-    .print-btn {
-        display: block;
-        width: 100%;
-        margin-top: 20px;
+    .city-code {
+        font-size: 2rem;
+        font-weight: 900;
+        color: #333;
+        margin: 0;
+    }
+
+    .city-name {
+        font-size: 0.85rem;
+        color: #777;
+        text-transform: uppercase;
+    }
+
+    .plane-icon {
+        color: #2a5298;
+        font-size: 1.5rem;
+        flex-grow: 1;
+        text-align: center;
+        position: relative;
+    }
+
+        .plane-icon::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            border-bottom: 2px dashed #ddd;
+            z-index: 0;
+        }
+
+        .plane-icon i {
+            background: white;
+            padding: 0 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: #aaa;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .seat-badge {
+        background-color: #eef2f7;
+        color: #2a5298;
+        padding: 5px 15px;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+
+    .ticket-body::before, .ticket-body::after {
+        content: "";
+        position: absolute;
+        top: 135px; 
+        width: 30px;
+        height: 30px;
+        background-color: #f4f7f6;
+        border-radius: 50%;
+    }
+
+    .ticket-body::before {
+        left: -15px;
+    }
+
+    .ticket-body::after {
+        right: -15px;
+    }
+
+    .print-section {
+        padding: 0 30px 30px;
     }
 
     @@media print {
-        .print-btn, nav, footer {
+        .print-section, nav, footer {
             display: none;
         }
 
-        .receipt-container {
-            border: none;
+        .ticket-card {
+            box-shadow: none;
             margin: 0;
+            border: 1px solid #eee;
+        }
+
+        body {
+            background: white;
         }
     }
 </style>
 
-<div class="receipt-container shadow-sm">
-    <div class="receipt-header">
+<div class="ticket-card shadow-lg">
+    <div class="ticket-header">
         <h3>BOARDING PASS</h3>
-        <p>Voo #@Model.Id</p>
+        <small class="opacity-75">Flight Reservation #@Model.Id</small>
     </div>
 
-    <div class="receipt-row">
-        <span><strong>Origem:</strong></span>
-        <span>@Model.OriginCityName</span>
-    </div>
-    <div class="receipt-row">
-        <span><strong>Destino:</strong></span>
-        <span>@Model.DestinationCityName</span>
-    </div>
-    <hr />
-    <div class="receipt-row">
-        <span><strong>Partida:</strong></span>
-        <span>@Model.DepartureTime.ToString("dd/MM/yyyy HH:mm")</span>
-    </div>
-    <div class="receipt-row">
-        <span><strong>Lugar:</strong></span>
-        <span class="h4">@Model.SeatNumber</span>
-    </div>
-    <div class="receipt-row">
-        <span><strong>Estado:</strong></span>
-        <span>@Model.Status</span>
-    </div>
-    <hr />
-    <div class="receipt-row">
-        <span><strong>Preço Pago:</strong></span>
-        <span>@Model.Price.ToString("F2")€</span>
+    <div class="ticket-body">
+        <div class="flight-path">
+            <div class="text-start">
+                <p class="city-code">@Model.OriginCityName.Substring(0, 3).ToUpper()</p>
+                <p class="city-name">@Model.OriginCityName</p>
+            </div>
+
+            <div class="plane-icon">
+                <i class="bi bi-airplane-fill"></i>
+            </div>
+
+            <div class="text-end">
+                <p class="city-code">@Model.DestinationCityName.Substring(0, 3).ToUpper()</p>
+                <p class="city-name">@Model.DestinationCityName</p>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div>
+                <p class="info-label">Data e Hora</p>
+                <p class="info-value">@Model.DepartureTime.ToString("dd MMM yyyy, HH:mm")</p>
+            </div>
+            <div class="text-end">
+                <p class="info-label">Lugar</p>
+                <span class="seat-badge">@Model.SeatNumber</span>
+            </div>
+            <div>
+                <p class="info-label">Estado</p>
+                <p class="info-value">
+                    <span class="badge @(Model.Status == "CONFIRMED" ? "bg-success" : "bg-warning text-dark")">
+                        @Model.Status
+                    </span>
+                </p>
+            </div>
+            <div class="text-end">
+                <p class="info-label">Preço Total</p>
+                <p class="info-value">@Model.Price.ToString("F2")€</p>
+            </div>
+        </div>
     </div>
 
-    <button onclick="window.print()" class="btn btn-dark print-btn">
-        <i class="bi bi-printer"></i> Imprimir Talão
-    </button>
+    <div class="print-section">
+        <button onclick="window.print()" class="btn btn-primary w-100 btn-lg shadow-sm" style="background: #2a5298; border: none;">
+            <i class="bi bi-printer me-2"></i> Imprimir Cartão de Embarque
+        </button>
+        <a asp-controller="Bookings" asp-action="MyBookings" class="btn btn-link w-100 mt-2 text-decoration-none text-muted small">Voltar às minhas reservas</a>
+    </div>
 </div>

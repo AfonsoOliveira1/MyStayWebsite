@@ -18,6 +18,15 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
+        public async Task<IActionResult> List()
+        {
+            var client = CreateClientWithAuth();
+            var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities")
+                         ?? new List<CityViewModel>();
+
+            return View(cities);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -35,53 +44,95 @@ namespace Booking.Web.Controllers
                 return View(model);
             }
 
-            var client = _clientFactory.CreateClient("Booking.API");
-
-           
-            var token = User.FindFirst("JWToken")?.Value;
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
-            }
-
-            
+            var client = CreateClientWithAuth();
             var response = await client.PostAsJsonAsync("api/Cities", model);
 
             if (response.IsSuccessStatusCode)
             {
                 TempData["Success"] = "Cidade " + model.Citynamept + " adicionada com sucesso!";
-                return RedirectToAction("List"); // de cidades
+                return RedirectToAction("List");
             }
 
-            ModelState.AddModelError("", "Erro ao guardar a cidade na API. Status: " + response.StatusCode);
+            ModelState.AddModelError("", "Erro ao guardar a cidade. Status: " + response.StatusCode);
             await PopulateCountriesDropdown();
             return View(model);
         }
 
-        public async Task<IActionResult> List()
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
+            var client = CreateClientWithAuth();
+            var response = await client.GetAsync("api/Cities/" + id);
 
-            var token = User.FindFirst("JWToken")?.Value;
-            if (!string.IsNullOrEmpty(token))
+            if (!response.IsSuccessStatusCode) return NotFound();
+
+            var city = await response.Content.ReadFromJsonAsync<CityViewModel>();
+
+            await PopulateCountriesDropdown();
+
+            return View(city);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(CityViewModel model)
+        {
+            if (!ModelState.IsValid)
             {
-                client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
+                await PopulateCountriesDropdown();
+                return View(model);
             }
 
-            
-            var cities = await client.GetFromJsonAsync<List<CityViewModel>>("api/Cities")
-                         ?? new List<CityViewModel>();
+            var client = CreateClientWithAuth();
+            var response = await client.PutAsJsonAsync("api/Cities/" + model.Id, model);
 
-            return View(cities);
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Cidade " + model.Citynamept + " atualizada com sucesso!";
+                return RedirectToAction("List");
+            }
+
+            TempData["Error"] = "Erro ao atualizar a cidade.";
+            await PopulateCountriesDropdown();
+            return View(model);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var client = CreateClientWithAuth();
+            var response = await client.DeleteAsync("api/Cities/" + id);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "A cidade com o ID " + id + " foi desativada com sucesso.";
+            }
+            else
+            {
+                TempData["Error"] = "Não foi possível ocultar a cidade.";
+            }
+
+            return RedirectToAction("List");
+        }
+
+
+        private HttpClient CreateClientWithAuth()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            return client;
         }
 
         private async Task PopulateCountriesDropdown()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-
             try
             {
                 var countries = await client.GetFromJsonAsync<List<CountryViewModel>>("api/Countries")
@@ -89,10 +140,10 @@ namespace Booking.Web.Controllers
 
                 ViewBag.Countries = new SelectList(countries, "Id", "Name");
             }
-            catch
+            catch (Exception ex)
             {
-                ViewBag.Countries = new SelectList(Enumerable.Empty<SelectListItem>());
-                ModelState.AddModelError("", "Não foi possível carregar a lista de países da API.");
+                ModelState.AddModelError("", "Erro ao carregar países: " + ex.Message);
+                ViewBag.Countries = new SelectList(new List<SelectListItem>());
             }
         }
     }

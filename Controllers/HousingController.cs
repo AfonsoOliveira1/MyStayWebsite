@@ -191,30 +191,34 @@ namespace Booking.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Approve(int id, decimal commissionRate)
+        public async Task<IActionResult> Approve(int id, decimal commissionRate, string description)
         {
             var client = _clientFactory.CreateClient("Booking.API");
+
             var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
 
-            var approvalData = new { CommissionRate = commissionRate };
+            var approvalData = new
+            {
+                CommissionRate = commissionRate,
+                Description = description
+            };
 
-         
-            string url = "api/Housings/" + id + "/approve";
-
-            var response = await client.PostAsJsonAsync(url, approvalData);
+           
+            var response = await client.PostAsJsonAsync("api/Housings/" + id + "/approve", approvalData);
 
             if (response.IsSuccessStatusCode)
-            { 
-                TempData["Success"] = "Alojamento aprovado com sucesso! Taxa: " + commissionRate + "%";
+            {
+                TempData["Success"] = "Alojamento aprovado!";
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = "Erro ao aprovar: " + error;
+                TempData["Error"] = "Erro: " + response.StatusCode + " - " + error;
             }
-
             return RedirectToAction("PendingApprovals");
         }
 
@@ -223,15 +227,23 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> Reject(int id)
         {
             var client = _clientFactory.CreateClient("Booking.API");
+
             var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
 
             var response = await client.PostAsync("api/Housings/" + id + "/reject", null);
 
             if (response.IsSuccessStatusCode)
-                TempData["Success"] = "Alojamento rejeitado.";
+            {
+                TempData["Success"] = "Alojamento rejeitado!";
+            }
             else
-                TempData["Error"] = "Erro ao comunicar com a API para rejeição.";
+            {
+                TempData["Error"] = "Erro ao rejeitar alojamento na API.";
+            }
 
             return RedirectToAction("PendingApprovals");
         }
