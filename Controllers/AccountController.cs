@@ -44,6 +44,7 @@ namespace Booking.web.Controllers
                         new Claim("JWToken", loginResponse.Token)
                     };
 
+
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                     await HttpContext.SignInAsync(
