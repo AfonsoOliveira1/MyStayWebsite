@@ -40,7 +40,7 @@ namespace Booking.web.Controllers
                         new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
                         new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
                         new Claim(ClaimTypes.Email, loginResponse.User.Email),
-                        new Claim(ClaimTypes.Role, loginResponse.User.Role),
+                        new Claim(ClaimTypes.Role, loginResponse.User.Role),    
                         new Claim("JWToken", loginResponse.Token)
                     };
 
@@ -142,7 +142,7 @@ namespace Booking.web.Controllers
         public async Task<IActionResult> ResendCodeConfirm(string Email)
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PostAsJsonAsync("api/Email/send-code", new VerifyCodeDTO { Email = Email });
+            var response = await client.PostAsJsonAsync("api/Email/send-code", new VerifyCodeDTO { Email = Email, Subject = "2FA Confirm your Email - MyStay", Body = "Thanks for joining MyStay,\nThis code will expire in 5 minutes. Do not share it with anyone.\nYour MyStay verification code is" });
 
             if (!response.IsSuccessStatusCode)
             {
@@ -235,11 +235,16 @@ namespace Booking.web.Controllers
             
             var identity = (ClaimsIdentity)User.Identity;
 
-            identity.RemoveClaim(identity.FindFirst("EmailConfirmed"));
-            identity.RemoveClaim(identity.FindFirst("EmailConfirmedAt"));
+            var confirmed = User.Claims.FirstOrDefault(c => c.Type == "EmailConfirmed")?.Value;
+            var confirmedAt = User.Claims.FirstOrDefault(c => c.Type == "EmailConfirmedAt")?.Value;
+
+            if(confirmed == "true" && confirmedAt != null)
+            {
+                identity.RemoveClaim(identity.FindFirst("EmailConfirmed"));
+                identity.RemoveClaim(identity.FindFirst("EmailConfirmedAt"));
+            }
 
             identity.AddClaim(new Claim("EmailConfirmed", "true"));
-
             identity.AddClaim(new Claim("EmailConfirmedAt", DateTime.UtcNow.ToString("o")));
 
             await HttpContext.SignInAsync(
@@ -253,7 +258,7 @@ namespace Booking.web.Controllers
         [HttpPost]
         public async Task<IActionResult> ResendCode(string Email)
         {
-            VerifyCodeDTO model = new VerifyCodeDTO { Email = Email, Subject = "ola", Body = "aaaa"};
+            VerifyCodeDTO model = new VerifyCodeDTO { Email = Email, Subject = "2FA Verify your Email - MyStay", Body = "Welcome back to MyStay,\nThis code will expire in 5 minutes. Do not share it with anyone.\nYour MyStay verification code is" };
             var client = _clientFactory.CreateClient("Booking.API");
             var response = await client.PostAsJsonAsync("api/Email/send-code", model);
 
@@ -283,22 +288,20 @@ namespace Booking.web.Controllers
             if (DateTime.TryParse(confirmedAt, out var time))
             {
                 if (DateTime.UtcNow - time > TimeSpan.FromMinutes(5))
-                {
                     return RedirectToAction("VerifyCode");
-                }
             }
             else
-            {
-               
                 return RedirectToAction("VerifyCode");
-            }
+            
 
             var user = new UserUpdateDto
             {
                 Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"),
                 Name = User.Identity?.Name ?? "Utilizador",
                 Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "",
-                Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Customer"
+                Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Customer",
+                RenterId = 0,
+                AirlineId = 0
             };
 
             return View(user);
@@ -308,7 +311,6 @@ namespace Booking.web.Controllers
         [HttpPost]
         public async Task<IActionResult> ProfileEdit(UserUpdateDto profile, string? newpass, string? confirmpass)
         {
-           
             if (!string.IsNullOrEmpty(newpass))
             {
                 if (newpass != confirmpass)
@@ -334,11 +336,6 @@ namespace Booking.web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-               
-                if (!string.IsNullOrEmpty(newpass))
-                {
-                    return RedirectToAction("Logout");
-                }
                 TempData["Message"] = "Perfil atualizado com sucesso!";
                 return RedirectToAction("Profile");
             }

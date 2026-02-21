@@ -43,6 +43,15 @@
             </div>
 
             <div class="form-floating">
+                <select asp-for="Role" class="form-select">
+					<option value="">@Localizer["SelectCompany"]</option>
+                    <option value="AirlineId">Airline</option>
+                    <option value="RenterId">Renter</option>
+                </select>
+                <label for="Role">Role</label>
+            </div>
+
+            <div class="form-floating">
                 <input id="newpass" name="newpass" type="password" class="form-control" placeholder="@Localizer["NewPassword"]" />
                 <label for="newpass">@Localizer["NewPassword"]</label>
             </div>
