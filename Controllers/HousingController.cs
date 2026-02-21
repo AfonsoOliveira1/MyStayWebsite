@@ -125,7 +125,14 @@ namespace Booking.Web.Controllers
                 HousingName = housing.Name,
                 PricePerNight = housing.PricePerNight,
                 CheckInDate = DateTime.Now,
-                CheckOutDate = DateTime.Now.AddDays(1)
+                CheckOutDate = DateTime.Now.AddDays(1),
+
+                Ratings = housing.Ratings?.Select(r => new HousingRatingViewModel
+                {
+                    Score = r.Score,
+                    Comment = r.Comment,
+                    CustomerName = r.CustomerName
+                }).ToList() ?? new List<HousingRatingViewModel>()
             };
 
             return View(model);
@@ -315,20 +322,42 @@ namespace Booking.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> EnviarRating(int housingId, int score, string comment)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
-
-            if (!string.IsNullOrEmpty(token))
+            if (housingId <= 0)
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                TempData["Error"] = "Erro: ID do alojamento inválido.";
+                return RedirectToAction("MyBookings", "Bookings");
             }
 
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var client = _clientFactory.CreateClient("Booking.API");
+
+            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
+            if (!string.IsNullOrEmpty(token))
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+
+            var responseReservas = await client.GetAsync("api/HousingBookings/my-bookings/" + userIdClaim);
+            if (responseReservas.IsSuccessStatusCode)
+            {
+                var reservas = await responseReservas.Content.ReadFromJsonAsync<List<HousingBookingViewModel>>();
+                DateOnly hoje = DateOnly.FromDateTime(DateTime.Now);
+
+                var podeAvaliar = reservas?.Any(r =>
+                    r.HousingId == housingId &&
+                    DateOnly.FromDateTime(r.CheckInDate) <= hoje) ?? false;
+
+                if (!podeAvaliar)
+                {
+                    TempData["Error"] = "Ainda não pode avaliar este alojamento (Check-in futuro).";
+                    return RedirectToAction("MyBookings", "Bookings");
+                }
+            }
 
             var ratingData = new
             {
-                housingid = housingId,
-                customerid = int.Parse(userId),
+                housingid = housingId, 
+                customerid = int.Parse(userIdClaim),
                 score = score,
                 comment = comment
             };
@@ -337,12 +366,12 @@ namespace Booking.Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Avaliação guardada!";
+                TempData["Success"] = "Avaliação enviada com sucesso!";
             }
             else
             {
-                var error = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = "Erro na API: " + error;
+                var errorObj = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = "Erro ao processar avaliação: " + errorObj;
             }
 
             return RedirectToAction("MyBookings", "Bookings");

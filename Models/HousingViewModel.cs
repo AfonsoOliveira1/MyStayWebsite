@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Booking.web.Models
 {
@@ -18,8 +19,10 @@ namespace Booking.web.Models
         public int CityId { get; set; }
         public decimal? BookingCommissionRate { get; set; }
 
-        public decimal AverageRating { get; set; }
-        public int TotalReviews { get; set; } 
+        public double AverageRating => Ratings.Any() ? Ratings.Average(r => r.Score) : 0;
+        public int TotalReviews { get; set; }
+
+        [JsonPropertyName("ratings")]
         public List<HousingRatingReadDto> Ratings { get; set; } = new List<HousingRatingReadDto>();
     }
 }

@@ -19,12 +19,31 @@
     .text-mystay-blue {
         color: #003580;
     }
+
+
+    .italic {
+        font-style: italic;
+    }
+
+    .border-dashed {
+        border-style: dashed !important;
+        border-width: 2px !important;
+    }
+
+    .review-card {
+        transition: transform 0.2s ease;
+        border-radius: 15px;
+    }
+
+        .review-card:hover {
+            transform: translateY(-3px);
+        }
 </style>
 
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10 col-xl-8">
-            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden mb-5">
                 <div class="row g-0">
                     <div class="col-md-5 bg-mystay-blue text-white p-5 d-flex flex-column justify-content-between">
                         <div>
@@ -84,7 +103,7 @@
                                     <button type="submit" class="btn btn-mystay btn-lg w-100 fw-bold py-3 shadow-sm mb-3">
                                         @Localizer["Reserve"] <i class="bi bi-arrow-right ms-2"></i>
                                     </button>
-                                    
+
                                     <div class="text-center">
                                         <a href="/Housing/List" class="text-decoration-none text-muted small">
                                             <i class="bi bi-x-circle me-1"></i> @Localizer["CancelAndLeave"]
@@ -96,6 +115,59 @@
                     </div>
                 </div>
             </div>
+
+            @* avaliacoes *@
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-5">
+                <h4 class="fw-bold text-mystay-blue mb-0">
+                    <i class="bi bi-chat-left-text-fill me-2 text-warning"></i>
+                    @Localizer["GuestReviews"]
+                </h4>
+                @if (Model.Ratings != null && Model.Ratings.Any())
+                {
+                    <span class="badge bg-mystay-blue px-3 py-2 rounded-pill">
+                        @(Model.Ratings.Average(r => r.Score).ToString("0.0")) ⭐ — @Model.Ratings.Count @Localizer["Reviews"]
+                    </span>
+                }
+            </div>
+
+            @if (Model.Ratings != null && Model.Ratings.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var r in Model.Ratings)
+                    {
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100 review-card p-3 bg-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-person-fill text-mystay-blue"></i>
+                                            </div>
+                                            <span class="fw-bold small text-truncate" style="max-width: 150px;">@r.CustomerName</span>
+                                        </div>
+                                        <div class="text-warning small">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="bi bi-star@(i <= r.Score ? "-fill" : "")"></i>
+                                            }
+                                        </div>
+                                    </div>
+                                    <p class="text-muted small mb-0 italic" style="line-height: 1.6;">
+                                        <i class="bi bi-quote opacity-50"></i> @r.Comment
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center p-5 bg-white rounded-4 shadow-sm border border-dashed">
+                    <i class="bi bi-chat-dots fs-1 text-muted opacity-25"></i>
+                    <p class="text-muted mt-2">@Localizer["NoReviewsYet"]</p>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -131,7 +203,6 @@
 
         checkoutInput.addEventListener('change', updateUI);
 
-        
         updateUI();
     </script>
 }

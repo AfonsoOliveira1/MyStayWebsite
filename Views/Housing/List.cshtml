@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
 
-<style> 
+<style>
     .search-container {
         display: flex;
         gap: 20px;
@@ -24,7 +24,7 @@
 
     .hotel-card-mini {
         width: 100%;
-        height: 180px; 
+        height: 180px;
         background: #003580;
         border-radius: 12px;
         display: flex;
@@ -32,7 +32,12 @@
         color: #fff;
         font-family: 'Segoe UI', Arial, sans-serif;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        transition: transform 0.2s;
     }
+
+        .hotel-card-mini:hover {
+            transform: scale(1.01);
+        }
 
     .image-wrapper {
         flex: 0 0 220px;
@@ -69,6 +74,9 @@
         border-radius: 4px;
         font-weight: bold;
         font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
 
     .loc-mini {
@@ -103,96 +111,80 @@
         text-decoration: none;
         transition: background 0.2s;
     }
+
+        .btn-mini:hover {
+            background: #0053b3;
+            color: white;
+        }
+
+    .italic {
+        font-style: italic;
+    }
 </style>
 
 <div class="search-container">
-    <aside class="filters-sidebar">
-        <div class="filter-section">
-            <h3>@Localizer["Filters"]</h3>
-            <div class="filter-group">
-                <label>Cidade</label>
-                <select id="cityId" class="form-control">
-                    <option value="">Todas</option>
-                </select>
+    <aside class="filters-sidebar" style="flex: 0 0 250px;">
+        <div class="filter-section p-3 border rounded bg-light shadow-sm">
+            <h5 class="fw-bold mb-3 text-dark">@Localizer["Filters"]</h5>
+
+            <div class="filter-group mb-3">
+                <label class="small fw-bold text-muted">Cidade</label>
+                @Html.DropDownList("cityId", (SelectList)ViewBag.Cities, "Todas", new { @class = "form-select form-select-sm", id = "cityId" })
             </div>
-            <div class="filter-group">
-                <label>Preço Máx</label>
-                <input type="number" id="maxPrice" placeholder="€">
+
+            <div class="filter-group mb-3">
+                <label class="small fw-bold text-muted">Preço Máximo</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">€</span>
+                    <input type="number" id="maxPrice" class="form-control" placeholder="Ex: 100">
+                </div>
             </div>
-            <button id="applyFilters">Aplicar</button>
+
+            <button id="applyFilters" class="btn btn-primary btn-sm w-100 fw-bold shadow-sm">
+                <i class="bi bi-search me-1"></i> Aplicar
+            </button>
+
+            <button onclick="location.reload()" class="btn btn-outline-secondary btn-sm w-100 mt-2 small">
+                Limpar
+            </button>
         </div>
     </aside>
 
     <div class="results-list">
         <div class="cards-container" id="cardsContainer">
-            @foreach (var item in Model)
-            {
-                <section class="hotel-card-mini">
-                    <div class="image-wrapper">
-                        <img src="@item.ImageUrl" alt="@item.Name">
-                    </div>
-
-                    <div class="content-mini">
-                        <div class="info-top">
-                            <h2>
-                                <span class="text-truncate" style="max-width: 250px;">@item.Name</span>
-                                @if (item.TotalReviews > 0)
-                                {
-                                    <div class="stars-display">
-                                        <i class="bi bi-star-fill"></i> @item.AverageRating.ToString("0.0")
-                                    </div>
-                                }
-                            </h2>
-                            <p class="loc-mini"><i class="bi bi-geo-alt"></i> @item.Location</p>
-
-                            @if (item.TotalReviews > 0)
-                            {
-                                <small class="text-white-50">(@item.TotalReviews @(item.TotalReviews == 1 ? "avaliação" : "avaliações"))</small>
-                            }
-                            else
-                            {
-                                <small class="text-white-50 italic">Novo na plataforma</small>
-                            }
-                        </div>
-
-                        <div class="footer-mini">
-                            <div class="price-box">
-                                <span class="old-p text-decoration-line-through small opacity-50">
-                                    @((item.PricePerNight * 1.2m).ToString("C", new System.Globalization.CultureInfo("pt-PT")))
-                                </span>
-                                <span class="new-p">@item.PricePerNight.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
-                                <p class="tax-mini mb-0 small opacity-75">@Localizer["Taxes"]</p>
-                            </div>
-
-                            <div class="button-group d-flex gap-2">
-                                @if (User.IsInRole("ADMIN"))
-                                {
-                                    <button onclick="alterarComissao(@item.Id, @(item.BookingCommissionRate ?? 0))" class="btn-commission" style="background:#febb02; border:none; border-radius:6px; padding: 8px 12px;">
-                                        <i class="bi bi-percent"></i>
-                                    </button>
-                                }
-                                <a asp-action="Reserve" asp-route-id="@item.Id" class="btn-mini">@Localizer["Reserve"]</a>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            }
+            @await Html.PartialAsync("_HousingCards", Model)
         </div>
     </div>
 </div>
 
 <script>
     document.getElementById("applyFilters")?.addEventListener("click", function () {
-        const max = document.getElementById("maxPrice").value || "";
-        const cityid = document.getElementById("cityId").value || "";
-        const params = new URLSearchParams({ maxPrice: max, cityId: cityid });
+        const max = document.getElementById("maxPrice").value;
+        const city = document.getElementById("cityId").value;
+
+        // criar parametros  
+        const params = new URLSearchParams();
+        if (max) params.append("maxPrice", max);
+        if (city) params.append("cityId", city);
+
+        //  visual 
+        const container = document.getElementById("cardsContainer");
+        container.style.opacity = "0.5";
 
         fetch('/Housing/List?' + params.toString(), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(res => res.text())
+        .then(res => {
+            if (!res.ok) throw new Error("Erro na resposta");
+            return res.text();
+        })
         .then(html => {
-            document.getElementById("cardsContainer").innerHTML = html;
+            container.innerHTML = html;
+            container.style.opacity = "1";
+        })
+        .catch(err => {
+            console.error("Erro ao filtrar:", err);
+            container.style.opacity = "1";
         });
     });
 

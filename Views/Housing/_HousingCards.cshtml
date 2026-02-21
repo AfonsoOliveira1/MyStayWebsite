@@ -1,181 +1,72 @@
-﻿@model IEnumerable<Booking.web.Models.HousingBookingViewModel>
-
-<style>
-    .hotel-card-mini {
-        width: 100%;
-        height: 170px;
-        margin: 0;
-        background: #003580;
-        border-radius: 12px;
-        display: flex;
-        overflow: hidden;
-        color: #fff;
-        font-family: 'Segoe UI', Arial, sans-serif;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        position: relative;
-        z-index: 2;
-    }
-
-    .image-wrapper {
-        flex: 0 0 220px;
-        height: 100%;
-    }
-
-        .image-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-    .content-mini {
-        flex: 1;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        min-width: 0;
-    }
-
-    .info-top h2 {
-        font-size: 1.1rem;
-        margin: 0;
-    }
-
-    .loc-mini {
-        font-size: 0.85rem;
-        opacity: 0.85;
-        margin: 4px 0;
-    }
-
-    .footer-mini {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-    }
-
-    .price-box {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .new-p {
-        font-size: 1.5rem;
-        font-weight: bold;
-        line-height: 1;
-    }
-
-    .btn-mini {
-        background: #006ce4;
-        color: white;
-        border: none;
-        padding: 9px 18px;
-        border-radius: 6px;
-        font-weight: bold;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: background 0.2s;
-        text-align: center;
-        text-decoration: none;
-    }
-
-        .btn-mini:hover {
-            background: #0056b3;
-            color: white;
-        }
-
-    .rating-form-container {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-top: none;
-        border-radius: 0 0 12px 12px;
-        margin-top: -10px;
-        padding: 25px 20px 20px 20px;
-        position: relative;
-        z-index: 1;
-        color: #333;
-    }
-
-    .btn-rate-toggle {
-        background: #febb02 !important;
-        color: #003580 !important;
-    }
-
-    .status-badge {
-        font-size: 0.75rem;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-</style>
+﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
 
 @foreach (var item in Model)
 {
-    <div class="booking-item mb-4">
-        <section class="hotel-card-mini">
-            <div class="image-wrapper">
-                <img src="@item.ImageUrl" alt="@item.HousingName">
+    var hasRatings = item.Ratings != null && item.Ratings.Any();
+    var avg = hasRatings ? item.Ratings.Average(r => r.Score) : 0;
+    var total = hasRatings ? item.Ratings.Count : 0;
+
+    <section class="hotel-card-mini">
+        <div class="image-wrapper">
+            <img src="@item.ImageUrl" alt="@item.Name" onerror="this.src='/img/default-housing.jpg'">
+        </div>
+
+        <div class="content-mini">
+            <div class="info-top">
+                <h2>
+                    <span class="text-truncate" style="max-width: 250px;">@item.Name</span>
+                    @if (hasRatings)
+                    {
+                        <div class="stars-display">
+                            <i class="bi bi-star-fill"></i> @avg.ToString("0.0")
+                        </div>
+                    }
+                </h2>
+                <p class="loc-mini"><i class="bi bi-geo-alt"></i> @item.CityName</p>
+
+                @if (hasRatings)
+                {
+                    <small class="text-white-50">
+                        <i class="bi bi-chat-right-text me-1"></i> @total @(total == 1 ? "avaliação" : "avaliações")
+                    </small>
+                }
+                else
+                {
+                    <small class="text-white-50 italic">
+                        <i class="bi bi-stars me-1"></i> Novo na plataforma
+                    </small>
+                }
             </div>
 
-            <div class="content-mini">
-                <div class="info-top">
-                    <div class="d-flex justify-content-between">
-                        <h2>@item.HousingName</h2>
-                        <span class="status-badge @(item.Status == "Confirmed" ? "bg-success" : "bg-secondary")">
-                            @item.Status
-                        </span>
-                    </div>
-                    <p class="loc-mini">
-                        <i class="bi bi-calendar-check"></i> @item.CheckInDate.ToShortDateString() - @item.CheckOutDate.ToShortDateString()
-                    </p>
+            <div class="footer-mini">
+                <div class="price-box">
+                    <span class="old-p text-decoration-line-through small opacity-50">
+                        @((item.PricePerNight * 1.2m).ToString("C", new System.Globalization.CultureInfo("pt-PT")))
+                    </span>
+                    <span class="new-p">@item.PricePerNight.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
+                    <p class="tax-mini mb-0 small opacity-75">@Localizer["Taxes"]</p>
                 </div>
 
-                <div class="footer-mini">
-                    <div class="price-box">
-                        <span class="new-p">@item.TotalPrice.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
-                        <p class="tax-mini" style="font-size: 0.7rem; opacity: 0.8;">Reserva #@item.Id</p>
-                    </div>
+                @* --- GRUPO DE BOTÕES --- *@
+                <div class="button-group d-flex gap-2 align-items-center">
 
-                    <div class="button-group" style="display: flex; gap: 8px;">
-                        @if (item.Status.Trim().Equals("Confirmed", StringComparison.OrdinalIgnoreCase))
-                        {
-                            <button class="btn-mini btn-rate-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#rateForm-@item.Id">
-                                <i class="bi bi-star-fill"></i> @Localizer["Avaliar"]
-                            </button>
-                        }
-                        <a asp-action="Details" asp-controller="Booking" asp-route-id="@item.Id" class="btn-mini">@Localizer["Ver Recibo"]</a>
-                    </div>
+                    @* BOTÃO DE COMISSÃO (APENAS ADMIN) *@
+                    @if (User.IsInRole("ADMIN"))
+                    {
+                        <button onclick="alterarComissao(@item.Id, @(item.BookingCommissionRate ?? 0))"
+                                class="btn"
+                                style="background:#febb02; border:none; border-radius:6px; padding: 8px 12px; color: #003580;"
+                                title="Alterar Comissão">
+                            <i class="bi bi-percent fw-bold"></i>
+                        </button>
+                    }
+
+                    @* BOTÃO RESERVAR *@
+                    <a asp-controller="Housing" asp-action="Reserve" asp-route-id="@item.Id" class="btn-mini">
+                        @Localizer["Reserve"]
+                    </a>
                 </div>
-            </div>
-        </section>
-
-        <div class="collapse" id="rateForm-@item.Id">
-            <div class="rating-form-container">
-                <form asp-action="CreateRating" asp-controller="Housing" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="Housingid" value="@item.HousingId" />
-
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label small fw-bold">Pontuação</label>
-                            <select name="Score" class="form-select form-select-sm">
-                                <option value="5">5 ★★★★★ (Excelente)</option>
-                                <option value="4">4 ★★★★☆ (Muito Bom)</option>
-                                <option value="3">3 ★★★☆☆ (Bom)</option>
-                                <option value="2">2 ★★☆☆☆ (Razoável)</option>
-                                <option value="1">1 ★☆☆☆☆ (Mau)</option>
-                            </select>
-                        </div>
-                        <div class="col-md-7">
-                            <label class="form-label small fw-bold">O seu comentário</label>
-                            <input type="text" name="Comment" class="form-control form-control-sm" placeholder="O que achou da estadia?" required />
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">Enviar</button>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
-    </div>
+    </section>
 }

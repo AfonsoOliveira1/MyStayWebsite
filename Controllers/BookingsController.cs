@@ -46,6 +46,16 @@ namespace Booking.web.Controllers
             {
                 model.Housings = await housingResponse.Content.ReadFromJsonAsync<List<HousingBookingViewModel>>(options)
                                   ?? new List<HousingBookingViewModel>();
+
+                foreach (var h in model.Housings)
+                {
+                    var ratingResponse = await client.GetAsync("api/HousingRatings/housing/" + h.HousingId);
+                    if (ratingResponse.IsSuccessStatusCode)
+                    {
+                        var ratings = await ratingResponse.Content.ReadFromJsonAsync<List<HousingRatingReadDto>>(options);
+                        h.HasRating = ratings.Any(r => r.CustomerName == User.Identity.Name);
+                    }
+                }
             }
 
             return View(model);
