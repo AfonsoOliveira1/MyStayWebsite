@@ -4,7 +4,7 @@
 {
     foreach (var f in Model.Flights)
     {
-        <div class="booking-card">
+        <div class="booking-card item-flight">
             <div class="card-header">
                 <span class="badge flight">✈️ Flight</span>
                 <span class="status confirmed">@f.Status</span>
@@ -16,7 +16,7 @@
             </div>
             <div class="price">€@f.Price</div>
             <div class="card-footer">
-                <a asp-action="Receipt" asp-route-id="@f.Id" class="btn-details" style="padding: 8px 14px; text-decoration: none; border-radius: 6px;">Ver Talão</a>
+                <a href="/Bookings/Receipt/" + f.Id + "" class="btn-details" style="padding: 8px 14px; text-decoration: none; border-radius: 6px;">Ver Talão</a>
             </div>
         </div>
     }
@@ -26,7 +26,7 @@
 {
     foreach (var h in Model.Housings)
     {
-        <div class="booking-card">
+        <div class="booking-card item-housing">
             <div class="card-header">
                 <span class="badge housing">🏨 Housing</span>
                 <span class="status confirmed">@h.Status</span>
@@ -38,8 +38,8 @@
             </div>
             <div class="price">€@h.TotalPrice</div>
             <div class="card-footer">
-                <a asp-action="Receipt" asp-route-id="@h.Id" class="btn-details" style="padding: 8px 14px; text-decoration: none; border-radius: 6px;">Ver Talão</a>
-                <button class="btn-invoice">Fatura</button>
+                <button class="btn-details">Fatura</button>
+                <button onclick="abrirRating(" + h.HousingId + ")" class="btn-invoice" style="background:#febb02; color:#003580;">Avaliar</button>
             </div>
         </div>
     }

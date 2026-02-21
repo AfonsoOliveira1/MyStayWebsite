@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<Booking.web.Models.HousingViewModel>
 
-<style>
+<style> 
     .search-container {
         display: flex;
         gap: 20px;
@@ -10,114 +10,10 @@
         color: #333;
     }
 
-
-.results-list {
-    flex: 1;
-    padding: 0;
-    margin: 0;
-}
-
-.results-header {
-    margin: 0 0 15px 0;
-    padding: 0;
-}
-
-.results-header h1 {
-    margin: 0 0 10px 0;
-}
-
-.sort-bar {
-    margin: 0 0 10px 0;
-    padding: 0;
-}
-
-.cards-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin: 0;
-    padding: 0;
-}
-
-
-.cards-container > * {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-}
-
-
-
-    .filters-sidebar {
-        flex: 0 0 280px;
-    }
-
-    .filter-section {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        border: 1px solid #e5e5e5;
-    }
-
-        .filter-section h3 {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #003580;
-            font-weight: 600;
-        }
-
-    .filter-group {
-        margin-bottom: 20px;
-    }
-
-        .filter-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #333;
-        }
-
-        .filter-group input[type="number"],
-        .filter-group select {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            background: #fafafa;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
-        }
-
-            .filter-group input[type="number"]:focus,
-            .filter-group select:focus {
-                border-color: #006ce4;
-                background: #fff;
-                box-shadow: 0 0 0 3px rgba(0,108,228,0.15);
-                outline: none;
-            }
-
-
-    #applyFilters {
-        width: 100%;
-        padding: 12px;
-        background: #006ce4;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-
-        #applyFilters:hover {
-            background: #0056b3;
-        }
-
-
-
     .results-list {
         flex: 1;
+        padding: 0;
+        margin: 0;
     }
 
     .cards-container {
@@ -125,63 +21,186 @@
         flex-direction: column;
         gap: 15px;
     }
+
+    .hotel-card-mini {
+        width: 100%;
+        height: 180px; 
+        background: #003580;
+        border-radius: 12px;
+        display: flex;
+        overflow: hidden;
+        color: #fff;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .image-wrapper {
+        flex: 0 0 220px;
+        height: 100%;
+    }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .content-mini {
+        flex: 1;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-width: 0;
+    }
+
+    .info-top h2 {
+        font-size: 1.1rem;
+        margin: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stars-display {
+        background: #febb02;
+        color: #003580;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .loc-mini {
+        font-size: 0.85rem;
+        opacity: 0.85;
+        margin: 4px 0;
+    }
+
+    .footer-mini {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .price-box {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .new-p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    .btn-mini {
+        background: #006ce4;
+        color: white;
+        padding: 9px 18px;
+        border-radius: 6px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
 </style>
 
 <div class="search-container">
-    <main class="results-list">
-        <header class="results-header">
-            <h1>@Localizer["AvailableStays"]</h1>
-            <div class="sort-bar mb-3">
-            </div>
-        </header>
-
-        <div id="cardsContainer" class="cards-container">
-            @await Html.PartialAsync("_HousingCards", Model)
-        </div>
-    </main>
-
     <aside class="filters-sidebar">
         <div class="filter-section">
-            <h3>@Localizer["Filter"]</h3>
+            <h3>@Localizer["Filters"]</h3>
             <div class="filter-group">
-                <label>@Localizer["Budget"]</label>
-<input type="number" id="minPrice" placeholder="Min €" min="0" />
-<input type="number" id="maxPrice" placeholder="Max €" min="0" />
-
-            </div>
-
-            <div class="filter-group">
-                <label class="form-label fw-bold">Cidade:</label>
-                <select asp-items="ViewBag.Cities" id="cityId" class="form-select" required>
-                    <option value="">@Localizer["SelectCity"]</option>
+                <label>Cidade</label>
+                <select id="cityId" class="form-control">
+                    <option value="">Todas</option>
                 </select>
             </div>
-
-            <button type="button" id="applyFilters">@Localizer["Confirm"]</button>
+            <div class="filter-group">
+                <label>Preço Máx</label>
+                <input type="number" id="maxPrice" placeholder="€">
+            </div>
+            <button id="applyFilters">Aplicar</button>
         </div>
     </aside>
+
+    <div class="results-list">
+        <div class="cards-container" id="cardsContainer">
+            @foreach (var item in Model)
+            {
+                <section class="hotel-card-mini">
+                    <div class="image-wrapper">
+                        <img src="@item.ImageUrl" alt="@item.Name">
+                    </div>
+
+                    <div class="content-mini">
+                        <div class="info-top">
+                            <h2>
+                                <span class="text-truncate" style="max-width: 250px;">@item.Name</span>
+                                @if (item.TotalReviews > 0)
+                                {
+                                    <div class="stars-display">
+                                        <i class="bi bi-star-fill"></i> @item.AverageRating.ToString("0.0")
+                                    </div>
+                                }
+                            </h2>
+                            <p class="loc-mini"><i class="bi bi-geo-alt"></i> @item.Location</p>
+
+                            @if (item.TotalReviews > 0)
+                            {
+                                <small class="text-white-50">(@item.TotalReviews @(item.TotalReviews == 1 ? "avaliação" : "avaliações"))</small>
+                            }
+                            else
+                            {
+                                <small class="text-white-50 italic">Novo na plataforma</small>
+                            }
+                        </div>
+
+                        <div class="footer-mini">
+                            <div class="price-box">
+                                <span class="old-p text-decoration-line-through small opacity-50">
+                                    @((item.PricePerNight * 1.2m).ToString("C", new System.Globalization.CultureInfo("pt-PT")))
+                                </span>
+                                <span class="new-p">@item.PricePerNight.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
+                                <p class="tax-mini mb-0 small opacity-75">@Localizer["Taxes"]</p>
+                            </div>
+
+                            <div class="button-group d-flex gap-2">
+                                @if (User.IsInRole("ADMIN"))
+                                {
+                                    <button onclick="alterarComissao(@item.Id, @(item.BookingCommissionRate ?? 0))" class="btn-commission" style="background:#febb02; border:none; border-radius:6px; padding: 8px 12px;">
+                                        <i class="bi bi-percent"></i>
+                                    </button>
+                                }
+                                <a asp-action="Reserve" asp-route-id="@item.Id" class="btn-mini">@Localizer["Reserve"]</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            }
+        </div>
+    </div>
 </div>
 
 <script>
-    document.getElementById("applyFilters").addEventListener("click", function () {
-        const min = document.getElementById("minPrice").value || "";
+    document.getElementById("applyFilters")?.addEventListener("click", function () {
         const max = document.getElementById("maxPrice").value || "";
         const cityid = document.getElementById("cityId").value || "";
-
-        const params = new URLSearchParams({ minPrice: min, maxPrice: max, cityId: cityid });
-        console.log("Selected city:", cityid);
+        const params = new URLSearchParams({ maxPrice: max, cityId: cityid });
 
         fetch('/Housing/List?' + params.toString(), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(response => {
-            console.log("Fetch response status:", response.status);
-            return response.text();
-        })
+        .then(res => res.text())
         .then(html => {
-            console.log("Fetch returned HTML length:", html.length);
             document.getElementById("cardsContainer").innerHTML = html;
-        })
-        .catch(err => console.error("Fetch error:", err));
+        });
     });
+
+    function alterarComissao(id, taxaAtual) {
+        const novaTaxa = prompt("Nova taxa de comissão (%):", taxaAtual);
+        if (novaTaxa !== null && !isNaN(novaTaxa)) {
+            fetch("/Admin/UpdateCommission?id=" + id + "&newRate=" + novaTaxa.replace(',', '.'), { method: 'POST' })
+            .then(res => res.ok ? location.reload() : alert("Erro ao atualizar."));
+        }
+    }
 </script>

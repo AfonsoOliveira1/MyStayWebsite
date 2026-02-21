@@ -29,5 +29,9 @@ namespace Booking.web.Models
 
         public string Status { get; set; } = "Confirmed";
         public bool IsActive { get; set; } = true;
+
+        public string ImageUrl { get; set; }
+
+        public bool HasRating { get; set; }
     }
 }

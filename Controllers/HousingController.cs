@@ -1,4 +1,5 @@
 ﻿using Booking.web.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -310,5 +311,43 @@ namespace Booking.Web.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> EnviarRating(int housingId, int score, string comment)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            var ratingData = new
+            {
+                housingid = housingId,
+                customerid = int.Parse(userId),
+                score = score,
+                comment = comment
+            };
+
+            var response = await client.PostAsJsonAsync("api/HousingRatings", ratingData);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Avaliação guardada!";
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = "Erro na API: " + error;
+            }
+
+            return RedirectToAction("MyBookings", "Bookings");
+        }
     }
+
+
 }

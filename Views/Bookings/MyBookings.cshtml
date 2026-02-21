@@ -1,206 +1,132 @@
 ﻿@model Booking.web.Models.UserBookingHistory
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f5f7fa;
-        margin: 0;
-        padding: 0;
-    }
-
     .page-wrapper {
         display: flex;
         margin-top: 80px;
-    }
-
-    .sidebar {
-        width: 240px;
-        background: #ffffff;
+        gap: 20px;
         padding: 20px;
-        border-right: 1px solid #ddd;
-    }
-
-        .sidebar h2 {
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-
-    .filter-group {
-        margin-bottom: 20px;
-    }
-
-        .filter-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-
-    .btn-filter {
-        width: 100%;
-        padding: 10px;
-        background: #0078ff;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 15px;
     }
 
     .content {
         flex: 1;
-        padding: 30px;
     }
 
-    .booking-card {
+    .section-title {
+        margin: 20px 0;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 10px;
+    }
+
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .card-booking {
         background: white;
         border-radius: 12px;
         padding: 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        position: relative;
     }
 
-    .cards-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 3 cards por linha mínimo 280px */
-        gap: 20px; /* espaço entre os cards */
+    .card-flight {
+        border-top: 6px solid #0078ff;
     }
 
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 15px;
+    .card-housing {
+        border-top: 6px solid #28a745;
     }
 
-    .badge {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: bold;
-        color: white;
+    .rating-form {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        border: 1px solid #eee;
     }
 
-    .flight {
-        background: #0078ff;
-    }
+        .rating-form select, .rating-form textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
 
-    .housing {
-        background: #28a745;
-    }
-
-    .status {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: bold;
-    }
-
-    .confirmed {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .cancelled {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .card-title {
-        font-size: 22px;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .dates {
-        margin-bottom: 10px;
-        color: #555;
-    }
-
-    .price {
-        font-size: 20px;
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 15px;
-    }
-
-    .card-footer button {
-        padding: 8px 14px;
-        margin-right: 10px;
+    .btn-submit-rating {
+        background: #febb02;
         border: none;
-        border-radius: 6px;
+        padding: 8px;
+        width: 100%;
+        font-weight: bold;
         cursor: pointer;
-    }
-
-    .btn-details {
-        background: #0078ff;
-        color: white;
-    }
-
-    .btn-invoice {
-        background: #6c757d;
-        color: white;
-    }
-
-    .btn-cancel {
-        background: #dc3545;
-        color: white;
     }
 </style>
 
 <div class="page-wrapper">
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>Filtrar histórico</h2>
+    <div class="content">
 
-        <div class="filter-group">
-            <label>Tipo</label>
-            <input type="checkbox" id="filterFlights" checked> Voos
-            <input type="checkbox" id="filterHousings" checked> Alojamentos
+        <h2 class="section-title">✈️ Meus Voos</h2>
+        <div class="cards-grid">
+            @foreach (var f in Model.Flights)
+            {
+                <div class="card-booking card-flight">
+                    <div class="d-flex justify-content-between">
+                        <strong>Voo #@f.Id</strong>
+                        <span class="badge bg-primary">@f.Status</span>
+                    </div>
+                    <h4>@f.OriginCityName → @f.DestinationCityName</h4>
+                    <p>📅 @f.DepartureTime.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p>💺 Lugar: @f.SeatNumber</p>
+                    <div class="price">€@f.Price</div>
+                    <a asp-action="Receipt" asp-route-id="@f.Id" class="btn btn-sm btn-outline-primary w-100 mt-2">Ver Talão</a>
+                </div>
+            }
         </div>
 
-        <div class="filter-group">
-            <label>Estado</label>
-            <input type="checkbox" id="filterConfirmed" checked> Confirmado
-            <input type="checkbox" id="filterCancelled" checked> Cancelado
-            <input type="checkbox" id="filterActive" checked> Ativo / Inativo
+        <h2 class="section-title">🏨 Meus Alojamentos</h2>
+        <div class="cards-grid">
+            @foreach (var h in Model.Housings)
+            {
+                <div class="card-booking card-housing">
+                    <div class="d-flex justify-content-between">
+                        <strong>@h.HousingName</strong>
+                        <span class="badge bg-success">@h.Status</span>
+                    </div>
+                    <p>📅 @h.CheckInDate.ToShortDateString() até @h.CheckOutDate.ToShortDateString()</p>
+                    <div class="price">Total: €@h.TotalPrice</div>
+
+                    @if (h.Status == "Confirmed" && h.HasRating == false)
+                    {
+                        <div class="rating-form">
+                            <form asp-controller="Housing" asp-action="EnviarRating" method="post">
+                                <input type="hidden" name="housingId" value="@h.HousingId" />
+
+                                <select name="score" required>
+                                    <option value="5">5 - Excelente</option>
+                                    <option value="4">4 - Muito Bom</option>
+                                    <option value="3">3 - Bom</option>
+                                    <option value="2">2 - Razoável</option>
+                                    <option value="1">1 - Mau</option>
+                                </select>
+
+                                <textarea name="comment" placeholder="Comentário opcional"></textarea>
+                                <button type="submit" class="btn-submit-rating">Enviar Avaliação</button>
+                            </form>
+                        </div>
+                    }
+                    else if (h.HasRating == true)
+                    {
+                        <p class="text-success mt-3"><strong>✓ Avaliação enviada com sucesso!</strong></p>
+                    }
+                </div>
+            }
         </div>
 
-        <button type="button" id="applyFilters" class="btn-filter">Aplicar</button>
-    </div>
-
-    <div id="cardsContainer" class="cards-container">
-        @await Html.PartialAsync("_UserHistoryCards", Model)
     </div>
 </div>
-
-<script>
-    document.getElementById("applyFilters").addEventListener("click", function () {
-        // Filtros de tipo
-        const showFlights = document.getElementById("filterFlights").checked;
-        const showHousings = document.getElementById("filterHousings").checked;
-
-        // Filtros de status
-        const showConfirmed = document.getElementById("filterConfirmed").checked;
-        const showCancelled = document.getElementById("filterCancelled").checked;
-        const showActive = document.getElementById("filterActive").checked;
-
-        document.querySelectorAll(".booking-card").forEach(card => {
-            const isFlight = card.querySelector(".flight") !== null;
-            const isHousing = card.querySelector(".housing") !== null;
-            const status = card.querySelector(".status")?.innerText.toLowerCase() || "";
-
-            let visible = true;
-
-            // Tipo
-            if (isFlight && !showFlights) visible = false;
-            if (isHousing && !showHousings) visible = false;
-
-            // Status
-            if (status.includes("confirmado") && !showConfirmed) visible = false;
-            if (status.includes("cancelado") && !showCancelled) visible = false;
-            if ((status.includes("ativo") || status.includes("inativo")) && !showActive) visible = false;
-
-            card.style.display = visible ? "block" : "none";
-        });
-    });
-</script>
