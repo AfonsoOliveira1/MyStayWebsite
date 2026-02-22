@@ -298,7 +298,7 @@ namespace Booking.web.Controllers
             var user = new UserUpdateDto
             {
                 Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"),
-                Name = User.Identity?.Name ?? "Utilizador",
+                Name = User.FindFirst(ClaimTypes.Name)?.Value ?? "Utilizador",
                 Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "",
                 Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Customer",
             };
@@ -335,10 +335,21 @@ namespace Booking.web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
+                // atualizar os claims sem a password
+                var identity = (ClaimsIdentity)User.Identity;
+                identity.RemoveClaim(identity.FindFirst(ClaimTypes.Name));
+                identity.RemoveClaim(identity.FindFirst(ClaimTypes.Email));
+                identity.RemoveClaim(identity.FindFirst(ClaimTypes.Role));
+                identity.AddClaim(new Claim(ClaimTypes.Name, profile.Name));
+                identity.AddClaim(new Claim(ClaimTypes.Email, profile.Email));
+                identity.AddClaim(new Claim(ClaimTypes.Role, profile.Role));
                 TempData["Message"] = "Perfil atualizado com sucesso!";
+                if(!string.IsNullOrEmpty(newpass) && !string.IsNullOrEmpty(confirmpass))
+                {
+                    return RedirectToAction("Logout");
+                }
                 return RedirectToAction("Profile");
             }
-
             ModelState.AddModelError("", "Erro ao atualizar o perfil na API.");
             return View("Profile", profile);
         }
