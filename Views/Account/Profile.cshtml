@@ -1,69 +1,209 @@
 ﻿@model UserUpdateDto
 
-<div class="profile-wrapper">
-    <div class="profile-card">
-        <div class="profile-header">
-            <div class="profile-photo-icon">
-                <i class="bi bi-person-fill"></i>
-            </div>
-            <div class="profile-header-text">
-                <h3 class="user-name">@Model.Name</h3>
-                <h2 class="profile-title">@Localizer["ProfileManagement"]</h2>
-            </div>
-        </div>
+<style>
+    /* ===== Reset ===== */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    }
 
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="alert alert-danger">
-                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    <p>@error.ErrorMessage</p>
-                }
-            </div>
+    body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(135deg, #f3f6fb, #e4e9f2);
+    }
+
+    /* ===== Conteúdo principal ===== */
+    .page-content {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+    }
+
+    /* ===== Wrapper ===== */
+    .profile-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* ===== Card ===== */
+    .profile-card {
+        background: #fff;
+        width: 100%;
+        max-width: 520px;
+        padding: 35px;
+        border-radius: 18px;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+        transition: 0.3s;
+    }
+
+        .profile-card:hover {
+            transform: translateY(-3px);
         }
 
-        <form asp-action="ProfileEdit" method="post" class="profile-form-grid">
-            <div class="form-floating">
-                <input asp-for="Name" class="form-control" placeholder="Name" />
-                <label for="Name">@Localizer["Name"]</label>
+    /* ===== Header ===== */
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    .profile-photo-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: #4f6cff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 30px;
+    }
+
+    .profile-title {
+        font-size: 14px;
+        color: #777;
+    }
+
+    /* ===== Form ===== */
+    .profile-form-grid {
+        display: grid;
+        gap: 18px;
+    }
+
+    .form-floating {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+        .form-floating label {
+            position: relative !important;
+            top: 0 !important;
+            left: 0 !important;
+            transform: none !important;
+            padding: 0 !important;
+            font-size: 13px;
+        }
+
+
+        .form-floating input,
+        .form-floating select {
+            width: 100%;
+            height: 45px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #dcdcdc;
+            background: #fff;
+        }
+
+            .form-floating input:focus,
+            .form-floating select:focus {
+                border-color: #4f6cff;
+                outline: none;
+            }
+
+    /* ===== Botão ===== */
+    .btn-save {
+        width: 100%;
+        padding: 12px;
+        background: #4f6cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .btn-save:hover {
+            background: #3d56d6;
+        }
+
+    /* ===== Responsivo ===== */
+    @@media (max-width: 600px) {
+        .page-content
+
+    {
+        padding: 20px;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    }
+</style>
+
+<div class="page-content">
+    <div class="profile-wrapper">
+        <div class="profile-card">
+
+            <div class="profile-header">
+                <div class="profile-photo-icon">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+
+                <div class="profile-header-text">
+                    <h3 class="user-name">@Model.Name</h3>
+                    <h2 class="profile-title">@Localizer["ProfileManagement"]</h2>
+                </div>
             </div>
 
-            <div class="form-floating">
-                <input asp-for="Email" class="form-control" placeholder="Email" readonly />
-                <label for="Email">Email</label>
-            </div>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <p>@error.ErrorMessage</p>
+                    }
+                </div>
+            }
 
-            <div class="form-floating">
-                <select asp-for="Role" class="form-select">
-                    <option value="CUSTOMER">@Localizer["Customer"]</option>
-                    <option value="COMPANY">@Localizer["CompanyAirline"]</option>
-                    <option value="ADMIN">@Localizer["Admin"]</option>
-                </select>
-                <label for="Role">Role</label>
-            </div>
+            <form asp-action="ProfileEdit" method="post" class="profile-form-grid">
 
-            <div class="form-floating">
-                <select asp-for="Role" class="form-select">
-					<option value="">@Localizer["SelectCompany"]</option>
-                    <option value="AirlineId">Airline</option>
-                    <option value="RenterId">Renter</option>
-                </select>
-                <label for="Role">Role</label>
-            </div>
+                <div class="form-floating">
+                    <label asp-for="Name">@Localizer["Name"]</label>
+                    <input asp-for="Name" class="form-control" />
+                </div>
 
-            <div class="form-floating">
-                <input id="newpass" name="newpass" type="password" class="form-control" placeholder="@Localizer["NewPassword"]" />
-                <label for="newpass">@Localizer["NewPassword"]</label>
-            </div>
+                <div class="form-floating">
+                    <label asp-for="Email">Email</label>
+                    <input asp-for="Email" class="form-control" readonly />
+                </div>
 
-            <div class="form-floating">
-                <input id="confirmpass" name="confirmpass" type="password" class="form-control" placeholder="@Localizer["Confirm"]" />
-                <label for="confirmpass">@Localizer["Confirm"]</label>
-            </div>
+                <div class="form-floating">
+                    <label asp-for="Role">Role</label>
+                    <select asp-for="Role" class="form-select">
+                        <option value=""></option>
+                        <option value="CUSTOMER">@Localizer["Customer"]</option>
+                        <option value="COMPANY">@Localizer["CompanyAirline"]</option>
+                        <option value="admin">@Localizer["Admin"]</option>
+                    </select>
+                </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn-save">@Localizer["SaveChanges"]</button>
-            </div>
-        </form>
+                <div class="form-floating">
+                    <label for="newpass">@Localizer["NewPassword"]</label>
+                    <input id="newpass" name="newpass" type="password" class="form-control" />
+                </div>
+
+                <div class="form-floating">
+                    <label for="confirmpass">@Localizer["Confirm"]</label>
+                    <input id="confirmpass" name="confirmpass" type="password" class="form-control" />
+                </div>
+
+                <button type="submit" class="btn-save">
+                    @Localizer["SaveChanges"]
+                </button>
+
+            </form>
+        </div>
     </div>
 </div>

@@ -40,7 +40,7 @@ namespace Booking.web.Controllers
                         new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
                         new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
                         new Claim(ClaimTypes.Email, loginResponse.User.Email),
-                        new Claim(ClaimTypes.Role, loginResponse.User.Role),    
+                        new Claim(ClaimTypes.Role, loginResponse.User.Role),
                         new Claim("JWToken", loginResponse.Token)
                     };
 
@@ -301,8 +301,6 @@ namespace Booking.web.Controllers
                 Name = User.Identity?.Name ?? "Utilizador",
                 Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "",
                 Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Customer",
-                RenterId = 0,
-                AirlineId = 0
             };
 
             return View(user);
