@@ -36,10 +36,8 @@ namespace Booking.Web.Controllers
                          ?? new List<CityViewModel>();
             }
 
-           
             ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", cityId);
 
-            //   filtros 
             if (minPrice.HasValue)
                 housings = housings.Where(h => h.PricePerNight >= minPrice).ToList();
 
@@ -49,7 +47,6 @@ namespace Booking.Web.Controllers
             if (cityId.HasValue)
                 housings = housings.Where(h => h.CityId == cityId).ToList();
 
-            
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 return PartialView("_HousingCards", housings);
 
@@ -71,7 +68,6 @@ namespace Booking.Web.Controllers
                          ?? new List<CityViewModel>();
             }
 
-            
             ViewBag.Cities = new SelectList(cities, "Id", "Citynamept");
 
             return View("Create");
@@ -94,7 +90,6 @@ namespace Booking.Web.Controllers
                 return RedirectToAction("List");
             }
 
-           
             var citiesResponse = await client.GetAsync("api/Cities");
             var cities = citiesResponse.IsSuccessStatusCode
                 ? await citiesResponse.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>()
@@ -138,6 +133,20 @@ namespace Booking.Web.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetBookedDates(int id)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var response = await client.GetAsync("api/HousingBookings/occupied-dates/" + id);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadAsStringAsync();
+                return Content(data, "application/json");
+            }
+            return BadRequest();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmReservation(HousingBookingViewModel model)
@@ -146,7 +155,26 @@ namespace Booking.Web.Controllers
             var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            // Garantimos que os nomes das propriedades são idênticos ao DTO da API (case-sensitive às vezes importa)
+            var checkResponse = await client.GetAsync("api/HousingBookings/occupied-dates/" + model.HousingId);
+            if (checkResponse.IsSuccessStatusCode)
+            {
+                var occupied = await checkResponse.Content.ReadFromJsonAsync<List<OccupiedRangeDto>>();
+                var checkIn = DateOnly.FromDateTime(model.CheckInDate);
+                var checkOut = DateOnly.FromDateTime(model.CheckOutDate);
+
+                bool isOverlapping = occupied?.Any(o =>
+                    (checkIn >= o.from && checkIn < o.to) ||
+                    (checkOut > o.from && checkOut <= o.to) ||
+                    (checkIn <= o.from && checkOut >= o.to)
+                ) ?? false;
+
+                if (isOverlapping)
+                {
+                    ModelState.AddModelError("", "As datas selecionadas já não estão disponíveis. Por favor, escolha outro período.");
+                    return View("Reserve", model);
+                }
+            }
+
             var bookingData = new
             {
                 Housingid = model.HousingId,
@@ -164,11 +192,8 @@ namespace Booking.Web.Controllers
             }
             else
             {
-                // Se falhou, vamos ler o porquê
                 var errorBody = await response.Content.ReadAsStringAsync();
-
-                // Isto vai ajudar-te a ver no "Output" do Visual Studio qual o erro real
-                System.Diagnostics.Debug.WriteLine($"Erro da API: {errorBody}");
+                System.Diagnostics.Debug.WriteLine("Erro da API: " + errorBody);
 
                 ModelState.AddModelError("", "A API rejeitou a reserva. Verifique se as datas estão disponíveis.");
                 return View("Reserve", model);
@@ -194,31 +219,18 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> Approve(int id, decimal commissionRate, string description)
         {
             var client = _clientFactory.CreateClient("Booking.API");
-
             var token = User.FindFirst("JWToken")?.Value;
             if (!string.IsNullOrEmpty(token))
-            {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
 
-            var approvalData = new
-            {
-                CommissionRate = commissionRate,
-                Description = description
-            };
-
-           
+            var approvalData = new { CommissionRate = commissionRate, Description = description };
             var response = await client.PostAsJsonAsync("api/Housings/" + id + "/approve", approvalData);
 
             if (response.IsSuccessStatusCode)
-            {
                 TempData["Success"] = "Alojamento aprovado!";
-            }
             else
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = "Erro: " + response.StatusCode + " - " + error;
-            }
+                TempData["Error"] = "Erro: " + response.StatusCode;
+
             return RedirectToAction("PendingApprovals");
         }
 
@@ -227,23 +239,15 @@ namespace Booking.Web.Controllers
         public async Task<IActionResult> Reject(int id)
         {
             var client = _clientFactory.CreateClient("Booking.API");
-
             var token = User.FindFirst("JWToken")?.Value;
             if (!string.IsNullOrEmpty(token))
-            {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
 
             var response = await client.PostAsync("api/Housings/" + id + "/reject", null);
-
             if (response.IsSuccessStatusCode)
-            {
                 TempData["Success"] = "Alojamento rejeitado!";
-            }
             else
-            {
                 TempData["Error"] = "Erro ao rejeitar alojamento na API.";
-            }
 
             return RedirectToAction("PendingApprovals");
         }
@@ -268,18 +272,14 @@ namespace Booking.Web.Controllers
         {
             var client = _clientFactory.CreateClient("Booking.API");
             var token = User.FindFirst("JWToken")?.Value;
-
             if (string.IsNullOrEmpty(token)) return RedirectToAction("Login", "Account");
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
             var housing = await client.GetFromJsonAsync<HousingViewModel>("api/Housings/" + id);
             if (housing == null) return NotFound();
 
             var citiesResponse = await client.GetAsync("api/Cities");
-            var cities = await citiesResponse.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>()
-                          ?? new List<CityViewModel>();
-
+            var cities = await citiesResponse.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>() ?? new List<CityViewModel>();
             ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", housing.CityId);
 
             return View(housing);
@@ -289,7 +289,6 @@ namespace Booking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(HousingViewModel model)
         {
-            //  limpa validacoes dos campos que n estao no formulario
             ModelState.Remove("HousingRatingViewModel");
             ModelState.Remove("CityName");
             ModelState.Remove("ApprovalStatus");
@@ -310,9 +309,7 @@ namespace Booking.Web.Controllers
                 IsAvailable = model.IsAvailable
             };
 
-           
             var response = await client.PutAsJsonAsync("api/Housings/" + model.Id, updateDto);
-
 
             if (response.IsSuccessStatusCode)
             {
@@ -320,12 +317,8 @@ namespace Booking.Web.Controllers
                 return RedirectToAction("MyHousings", "Housing");
             }
 
-            var errorContent = await response.Content.ReadAsStringAsync();
-            TempData["Error"] = "A API não autorizou a gravação: " + errorContent;
-
             var citiesResponse = await client.GetAsync("api/Cities");
-            var cities = await citiesResponse.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>()
-                         ?? new List<CityViewModel>();
+            var cities = await citiesResponse.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>() ?? new List<CityViewModel>();
             ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", model.CityId);
 
             return View(model);
@@ -334,19 +327,14 @@ namespace Booking.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> EnviarRating(int housingId, int score, string comment)
         {
-            if (housingId <= 0)
-            {
-                TempData["Error"] = "Erro: ID do alojamento inválido.";
-                return RedirectToAction("MyBookings", "Bookings");
-            }
+            if (housingId <= 0) return RedirectToAction("MyBookings", "Bookings");
 
             var client = _clientFactory.CreateClient("Booking.API");
-
             var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
             if (!string.IsNullOrEmpty(token))
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
 
             var responseReservas = await client.GetAsync("api/HousingBookings/my-bookings/" + userIdClaim);
@@ -355,40 +343,14 @@ namespace Booking.Web.Controllers
                 var reservas = await responseReservas.Content.ReadFromJsonAsync<List<HousingBookingViewModel>>();
                 DateOnly hoje = DateOnly.FromDateTime(DateTime.Now);
 
-                var podeAvaliar = reservas?.Any(r =>
-                    r.HousingId == housingId &&
-                    DateOnly.FromDateTime(r.CheckInDate) <= hoje) ?? false;
-
-                if (!podeAvaliar)
-                {
-                    TempData["Error"] = "Ainda não pode avaliar este alojamento (Check-in futuro).";
-                    return RedirectToAction("MyBookings", "Bookings");
-                }
+                var podeAvaliar = reservas?.Any(r => r.HousingId == housingId && DateOnly.FromDateTime(r.CheckInDate) <= hoje) ?? false;
+                if (!podeAvaliar) return RedirectToAction("MyBookings", "Bookings");
             }
 
-            var ratingData = new
-            {
-                housingid = housingId, 
-                customerid = int.Parse(userIdClaim),
-                score = score,
-                comment = comment
-            };
-
-            var response = await client.PostAsJsonAsync("api/HousingRatings", ratingData);
-
-            if (response.IsSuccessStatusCode)
-            {
-                TempData["Success"] = "Avaliação enviada com sucesso!";
-            }
-            else
-            {
-                var errorObj = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = "Erro ao processar avaliação: " + errorObj;
-            }
+            var ratingData = new { housingid = housingId, customerid = int.Parse(userIdClaim), score = score, comment = comment };
+            await client.PostAsJsonAsync("api/HousingRatings", ratingData);
 
             return RedirectToAction("MyBookings", "Bookings");
         }
     }
-
-
 }

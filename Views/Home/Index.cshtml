@@ -1,41 +1,127 @@
-﻿@model HomeViewModel
+﻿@model Booking.web.Models.HomeViewModel
 
-<div class="container">
-    <h2 class="fw-bold mb-4">@Localizer["RecomendedStays"]</h2>
-    <div class="row g-4">
-        @foreach (var stay in Model.TopStays)
-        {
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100 hotel-card">
-                    <img src="@stay.ImageUrl" class="card-img-top rounded-3" alt="@stay.Name">
-                    <div class="card-body px-0">
-                        <h5 class="card-title fw-bold">@stay.Name</h5>
-                        <p class="text-muted mb-1">@stay.Location</p>
-                        <p class="fw-bold text-primary">Desde @stay.PricePerNight.ToString("C") / noite</p>
-                    </div>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container py-4">
+    @if (ViewBag.UserName != null)
+    {
+        <div class="mb-4">
+            <h2 class="fw-bold">Olá, @ViewBag.UserName!</h2>
+            <p class="text-muted">Vamos encontrar a próxima viagem!</p>
+        </div>
+    }
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card bg-dark text-white border-0 overflow-hidden shadow-lg hero-card">
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200"
+                     class="card-img opacity-50" alt="Hotéis" style="object-fit: cover; height: 350px;"
+                     onerror="this.src='https://via.placeholder.com/1200x350?text=Alojamentos'">
+                <div class="card-img-overlay d-flex flex-column justify-content-center align-items-center text-center p-4">
+                    <h1 class="card-title fw-bold mb-3 text-white">Alojamentos</h1>
+                    <p class="card-text mb-4 fs-5 text-white">Encontre o lugar perfeito para descansar.</p>
+                    <a href="@Url.Action("List", "Housing")" class="btn btn-primary btn-lg px-5 rounded-pill shadow">Ver Todos</a>
                 </div>
             </div>
-        }
+        </div>
+
+        <div class="col-md-6">
+            <div class="card bg-dark text-white border-0 overflow-hidden shadow-lg hero-card">
+                <img src="https://images.pexels.com/photos/46148/aircraft-jet-landing-cloud-46148.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                     class="card-img opacity-50" alt="Voos" style="object-fit: cover; height: 350px;"
+                     onerror="this.src='https://via.placeholder.com/1200x350?text=Voos'">
+                <div class="card-img-overlay d-flex flex-column justify-content-center align-items-center text-center p-4">
+                    <h1 class="card-title fw-bold mb-3 text-white">Voos</h1>
+                    <p class="card-text mb-4 fs-5 text-white">Vá para qualquer parte do mundo com as melhores companhias.</p>
+                    <a href="@Url.Action("List", "Flight")" class="btn btn-info text-white btn-lg px-5 rounded-pill shadow">Explorar Voos</a>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <h2 class="fw-bold my-5">@Localizer["AvailableFlights"]</h2>
-    <div class="row g-4">
-        @foreach (var flight in Model.TopFlights)
-        {
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm p-3 flight-card">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <h6 class="mb-0 fw-bold">@flight.OriginId &rarr; @flight.DestinationId</h6>
-                            <small class="text-muted">Partida: @flight.DepartureTime.ToString("dd/MM/yyyy HH:mm")</small>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">
+            <i class="bi bi-star-fill text-warning me-2"></i>Melhores Avaliações
+        </h3>
+        <a href="@Url.Action("List", "Housing")" class="text-decoration-none">Ver todos os alojamentos</a>
+    </div>
+
+    @if (Model.TopStays != null && Model.TopStays.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var stay in Model.TopStays)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm transition-card">
+                        <div class="position-relative">
+                            <img src="@(string.IsNullOrEmpty(stay.ImageUrl) ? "https://via.placeholder.com/400x250?text=Sem+Foto" : stay.ImageUrl)"
+                                 class="card-img-top" alt="@stay.Name" style="height: 200px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 shadow-sm border-0">
+                                <i class="bi bi-award-fill me-1"></i>RECOMENDADO
+                            </span>
                         </div>
-                        <div class="text-end">
-                            <div class="fw-bold fs-5 text-dark">@flight.Price.ToString("C")</div>
-                                <a href="/Booking/Flight/@flight.Id" class="btn btn-sm btn-primary">@Localizer["Reserve"]</a>
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <h5 class="card-title fw-bold mb-0">@stay.Name</h5>
+                            </div>
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-geo-alt me-1"></i>@stay.CityName
+                            </p>
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <div>
+                                    <span class="text-muted small d-block" style="text-decoration: line-through;">
+                                        @((stay.PricePerNight * 1.2m).ToString("F2")) €
+                                    </span>
+                                    <span class="fs-4 fw-bold text-primary">@stay.PricePerNight.ToString("F2") €</span>
+                                </div>
+                                <a href="@("/Housing/Reserve/" + stay.Id)" class="btn btn-outline-primary rounded-pill px-3">
+                                    Ver Detalhes
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-light text-center py-5 border shadow-sm">
+            <i class="bi bi-emoji-frown fs-1 text-muted mb-3 d-block"></i>
+            <p class="text-muted">Ainda não temos alojamentos avaliados para mostrar aqui.</p>
+        </div>
+    }
 </div>
+
+<style>
+    .transition-card {
+        transition: all 0.3s ease-in-out;
+        border-radius: 12px;
+    }
+
+        .transition-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+
+    .hero-card {
+        border-radius: 20px;
+        transition: transform 0.4s ease;
+    }
+
+        .hero-card:hover {
+            transform: scale(1.01);
+        }
+
+    .card-img-overlay {
+        background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.8));
+    }
+
+    .badge {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+</style>

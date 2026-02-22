@@ -1,5 +1,12 @@
 ﻿@model Booking.web.Models.HousingBookingViewModel
 
+@{
+    ViewData["Title"] = "Reservar " + Model.HousingName;
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+
 <style>
     .bg-mystay-blue {
         background-color: #003580 !important;
@@ -20,7 +27,6 @@
         color: #003580;
     }
 
-
     .italic {
         font-style: italic;
     }
@@ -38,6 +44,15 @@
         .review-card:hover {
             transform: translateY(-3px);
         }
+
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.flatpickr-disabled:hover {
+        color: #ff0000 !important; 
+        background: #fff0f0 !important; 
+        text-decoration: line-through; 
+        cursor: not-allowed;
+    }
+
 </style>
 
 <div class="container py-5">
@@ -75,7 +90,7 @@
                         <h4 class="fw-bold text-mystay-blue mb-4">@Localizer["PickDate"]</h4>
 
                         <form asp-action="ConfirmReservation" method="post">
-                            <input type="hidden" asp-for="HousingId" />
+                            <input type="hidden" asp-for="HousingId" id="housingIdField" />
                             <input type="hidden" asp-for="CustomerId" />
                             <input type="hidden" asp-for="HousingName" />
                             <input type="hidden" asp-for="PricePerNight" id="pricePerNightValue" />
@@ -85,8 +100,8 @@
                                     <label class="form-label fw-semibold text-muted">Check-in</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-event"></i></span>
-                                        <input asp-for="CheckInDate" type="date" class="form-control form-control-lg border-start-0 bg-light"
-                                               id="checkin" min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                                        <input asp-for="CheckInDate" type="text" class="form-control form-control-lg border-start-0 bg-light"
+                                               id="checkin" placeholder="Selecionar data" required />
                                     </div>
                                 </div>
 
@@ -94,8 +109,8 @@
                                     <label class="form-label fw-semibold text-muted">Check-out</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-check"></i></span>
-                                        <input asp-for="CheckOutDate" type="date" class="form-control form-control-lg border-start-0 bg-light"
-                                               id="checkout" required />
+                                        <input asp-for="CheckOutDate" type="text" class="form-control form-control-lg border-start-0 bg-light"
+                                               id="checkout" placeholder="Selecionar data" required />
                                     </div>
                                 </div>
 
@@ -116,7 +131,6 @@
                 </div>
             </div>
 
-            @* avaliacoes *@
             <div class="d-flex align-items-center justify-content-between mb-4 mt-5">
                 <h4 class="fw-bold text-mystay-blue mb-0">
                     <i class="bi bi-chat-left-text-fill me-2 text-warning"></i>
@@ -173,36 +187,81 @@
 </div>
 
 @section Scripts {
+    @*interface*@
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    @*traducao*@
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
     <script>
         const checkinInput = document.getElementById('checkin');
         const checkoutInput = document.getElementById('checkout');
         const displayTotal = document.getElementById('displayTotal');
+
+        //formato valido
         const price = parseFloat("@Model.PricePerNight".replace(',', '.'));
+        const housingId = "@Model.HousingId";
 
         function updateUI() {
+            // O flatpickr guarda as datas 
             const start = new Date(checkinInput.value);
             const end = new Date(checkoutInput.value);
 
-            if (start && end && end > start) {
+            if (checkinInput.value && checkoutInput.value && end > start) {
                 const diffTime = Math.abs(end - start);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 const total = diffDays * price;
-
                 displayTotal.innerText = total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
             } else {
                 displayTotal.innerText = (0).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
             }
         }
+        const apiUrl = "/Housing/GetBookedDates/" + housingId;
 
-        checkinInput.addEventListener('change', () => {
-            const nextDay = new Date(checkinInput.value);
-            nextDay.setDate(nextDay.getDate() + 1);
-            checkoutInput.min = nextDay.toISOString().split('T')[0];
-            updateUI();
-        });
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) throw new Error("Não foi possível obter as datas.");
+                return response.json();
+            })
+            .then(data => {
+                // mapear datas.
+                // aceitar tanto from como From
+                const disableDates = data.map(range => ({
+                    from: range.from || range.From,
+                    to: range.to || range.To
+                }));
 
-        checkoutInput.addEventListener('change', updateUI);
+                const commonConfig = {
+                    locale: "pt",
+                    minDate: "today",
+                    dateFormat: "Y-m-d",
+                    disable: disableDates, // bloquear datas
+                    allowInput: false
+                };
 
-        updateUI();
+                const fpCheckin = flatpickr(checkinInput, {
+                    ...commonConfig,
+                    onChange: function(selectedDates) {
+                        if (selectedDates.length > 0) {
+                            const nextDay = new Date(selectedDates[0]);
+                            nextDay.setDate(nextDay.getDate() + 1);
+
+                            //dia seguinte ao checkin
+                            fpCheckout.set("minDate", nextDay);
+                        }
+                        updateUI();
+                    }
+                });
+
+                const fpCheckout = flatpickr(checkoutInput, {
+                    ...commonConfig,
+                    onChange: updateUI
+                });
+            })
+            .catch(err => {
+                console.error("Erro ao carregar datas: " + err);
+                // api falha,entao inicializa os calendarios com a data minima
+                flatpickr(checkinInput, { locale: "pt", minDate: "today", dateFormat: "Y-m-d", onChange: updateUI });
+                flatpickr(checkoutInput, { locale: "pt", minDate: "today", dateFormat: "Y-m-d", onChange: updateUI });
+            });
     </script>
 }

@@ -23,19 +23,23 @@ namespace Booking.web.Controllers
                 TopStays = new List<HousingViewModel>()
             };
 
+            ViewBag.UserName = User.Identity?.IsAuthenticated == true
+                ? User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
+                : null;
+
             try
             {
                 var client = _clientFactory.CreateClient("Booking.API");
-                client.Timeout = TimeSpan.FromSeconds(5); // evita bloqueio longo
 
                 var flightsResponse = await client.GetAsync("api/Flights");
                 if (flightsResponse.IsSuccessStatusCode)
                 {
-                    model.TopFlights = await flightsResponse.Content.ReadFromJsonAsync<List<FlightViewModel>>()
-                                       ?? new List<FlightViewModel>();
+                    var allFlights = await flightsResponse.Content.ReadFromJsonAsync<List<FlightViewModel>>();
+                    model.TopFlights = allFlights?.Take(3).ToList() ?? new List<FlightViewModel>();
                 }
 
-                var staysResponse = await client.GetAsync("api/Housing");
+                
+                var staysResponse = await client.GetAsync("api/Housings/top-rated");
                 if (staysResponse.IsSuccessStatusCode)
                 {
                     model.TopStays = await staysResponse.Content.ReadFromJsonAsync<List<HousingViewModel>>()
@@ -44,19 +48,14 @@ namespace Booking.web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("Erro ao ligar à API no Index: " + ex.Message);
-                ViewBag.Error = "De momento, não conseguimos carregar as ofertas. Tente mais tarde.";
+                _logger.LogError("Erro ao carregar destaques: " + ex.Message);
             }
 
             return View(model);
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        public IActionResult Privacy() => View();
 
-        
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
