@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Booking.Web.Controllers
 {
@@ -36,7 +37,18 @@ namespace Booking.Web.Controllers
                          ?? new List<CityViewModel>();
             }
 
-            ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", cityId);
+            //a  é para colocar as cidades em ptpt ou em en-US dependendo da cultura/lingua do utilizador, pelo menos na "combobox"... nos api
+            var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+            var flag = culture.StartsWith("pt") ? "🇵🇹" : "🇺🇸";
+            
+            if (culture.StartsWith("pt"))
+            {
+                ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", cityId);
+            }
+            else
+            {
+                ViewBag.Cities = new SelectList(cities, "Id", "Citynameen", cityId);
+            }
 
             if (minPrice.HasValue)
                 housings = housings.Where(h => h.PricePerNight >= minPrice).ToList();
