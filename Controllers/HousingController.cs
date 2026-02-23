@@ -122,6 +122,8 @@ namespace Booking.Web.Controllers
                 CheckInDate = DateTime.Now,
                 CheckOutDate = DateTime.Now.AddDays(1),
 
+                Description = housing.Description,
+
                 Ratings = housing.Ratings?.Select(r => new HousingRatingViewModel
                 {
                     Score = r.Score,

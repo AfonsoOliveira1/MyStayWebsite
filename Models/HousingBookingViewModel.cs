@@ -18,6 +18,8 @@ namespace Booking.web.Models
         public string HousingName { get; set; } = "";    
         public decimal PricePerNight { get; set; }
 
+        public string Description { get; set; }
+
         [JsonPropertyName("checkindate")] 
         public DateTime CheckInDate { get; set; }
 

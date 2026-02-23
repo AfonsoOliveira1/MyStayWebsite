@@ -73,6 +73,15 @@
                                     <i class="bi bi-tag me-3 opacity-75"></i>
                                     <span><strong>@Model.PricePerNight.ToString("C")</strong> /@Localizer["Night"]</span>
                                 </li>
+                                @if (!string.IsNullOrEmpty(Model.Description))
+                                {
+                                    <li class="mb-3 d-flex align-items-start">
+                                        <i class="bi bi-info-circle me-3 opacity-75 mt-1"></i>
+                                        <p class="small mb-0" style="line-height: 1.4;">
+                                            @Model.Description
+                                        </p>
+                                    </li>
+                                }
                                 <li class="mb-3 d-flex align-items-center">
                                     <i class="bi bi-shield-check me-3 opacity-75"></i>
                                     <span>@Localizer["Confirmation"]</span>
