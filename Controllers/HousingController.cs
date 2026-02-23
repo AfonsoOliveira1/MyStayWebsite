@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Booking.Web.Controllers
 {
@@ -36,7 +37,18 @@ namespace Booking.Web.Controllers
                          ?? new List<CityViewModel>();
             }
 
-            ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", cityId);
+            //a  é para colocar as cidades em ptpt ou em en-US dependendo da cultura/lingua do utilizador, pelo menos na "combobox"... nos api
+            var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+            var flag = culture.StartsWith("pt") ? "🇵🇹" : "🇺🇸";
+            
+            if (culture.StartsWith("pt"))
+            {
+                ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", cityId);
+            }
+            else
+            {
+                ViewBag.Cities = new SelectList(cities, "Id", "Citynameen", cityId);
+            }
 
             if (minPrice.HasValue)
                 housings = housings.Where(h => h.PricePerNight >= minPrice).ToList();
@@ -354,5 +366,56 @@ namespace Booking.Web.Controllers
 
             return RedirectToAction("MyBookings", "Bookings");
         }
+        [HttpGet]
+        public IActionResult UpdatePrice(int id)
+        {
+            var model = new HousingPriceUpdateViewModel
+            {
+                Id = id
+            };
+
+            return View(model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApplyDiscount(int id, decimal newRate)
+        {
+            if (newRate < 0 || newRate > 100)
+            {
+                TempData["Error"] = "Percentagem inválida.";
+                return RedirectToAction("List");
+            }
+
+            var client = _clientFactory.CreateClient("Booking.API");
+
+            var token = User.FindFirst("JWToken")?.Value;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var url = "api/Housings/" + id + "/commission";
+
+            var dto = new
+            {
+                BookingCommissionRate = newRate
+            };
+
+            var response = await client.PutAsJsonAsync(url, dto);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Erro ao atualizar comissão.";
+            }
+            else
+            {
+                TempData["Success"] = "Comissão atualizada com sucesso!";
+            }
+
+            return RedirectToAction("List");
+        }
+
     }
 }

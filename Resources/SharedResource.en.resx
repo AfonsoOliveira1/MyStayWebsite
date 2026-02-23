@@ -516,4 +516,13 @@
   <data name="Routes" xml:space="preserve">
     <value>Routes</value>
   </data>
+  <data name="NewCard" xml:space="preserve">
+    <value>New to the platform</value>
+  </data>
+  <data name="MaximumPrice" xml:space="preserve">
+    <value>Maximum price</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
 </root>

@@ -6,6 +6,10 @@
     var avg = hasRatings ? item.Ratings.Average(r => r.Score) : 0;
     var total = hasRatings ? item.Ratings.Count : 0;
 
+    // Busca o nome da cidade traduzido que está na SelectList do Filtro
+    var cityNameTranslated = ((SelectList)ViewBag.Cities)?
+        .FirstOrDefault(c => c.Value == item.CityId.ToString())?.Text ?? item.CityName;
+
     <section class="hotel-card-mini">
         <div class="image-wrapper">
             <img src="@item.ImageUrl" alt="@item.Name" onerror="this.src='/img/default-housing.jpg'">
@@ -24,7 +28,7 @@
                     }
                 </div>
 
-                <p class="loc-mini"><i class="bi bi-geo-alt"></i> @item.CityName</p>
+                <p class="loc-mini"><i class="bi bi-geo-alt"></i> @cityNameTranslated</p>
 
                 <small class="text-white-50">
                     @if (hasRatings)
@@ -33,7 +37,7 @@
                     }
                     else
                     {
-                        <span class="italic"><i class="bi bi-stars me-1"></i> Novo na plataforma</span>
+                        <span class="italic"><i class="bi bi-stars me-1"></i>@Localizer["NewCard"]</span>
                     }
                 </small>
             </div>
@@ -50,13 +54,13 @@
 
                     @if (User.IsInRole("ADMIN"))
                     {
-                        <form asp-controller="Admin" asp-action="UpdateCommission" method="post" class="d-flex gap-1 align-items-center mb-1">
+                        <form asp-controller="Housing" asp-action="ApplyDiscount" method="post" class="d-flex gap-1 align-items-center mb-1">
                             <input type="hidden" name="id" value="@item.Id" />
 
                             <div class="input-group input-group-sm" style="width: 100px;">
                                 <input type="number" name="newRate"
                                        class="form-control form-control-sm border-warning fw-bold text-center"
-                                       value="@(item.BookingCommissionRate?.ToString( System.Globalization.CultureInfo.InvariantCulture))"
+                                       value="@(item.BookingCommissionRate?.ToString(System.Globalization.CultureInfo.InvariantCulture))"
                                        step="0.1" />
                                 <span class="input-group-text bg-warning border-warning fw-bold" style="padding: 0 4px;">%</span>
                             </div>
@@ -75,3 +79,4 @@
         </div>
     </section>
 }
+
