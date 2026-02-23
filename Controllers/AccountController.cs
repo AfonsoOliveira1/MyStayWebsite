@@ -294,16 +294,15 @@ namespace Booking.web.Controllers
             else
                 return RedirectToAction("VerifyCode");
             
-
-            var user = new UserUpdateDto
+            var profile = new UserUpdateDto
             {
-                Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"),
-                Name = User.FindFirst(ClaimTypes.Name)?.Value ?? "Utilizador",
-                Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "",
-                Role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Customer",
-            };
+                Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+                Name = User.FindFirst(ClaimTypes.Name)?.Value,
+                Email = User.FindFirst(ClaimTypes.Email)?.Value,
+                Role = User.FindFirst(ClaimTypes.Role)?.Value,
+            }; 
 
-            return View(user);
+             return View(profile);
         }
 
 
@@ -335,7 +334,7 @@ namespace Booking.web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                // atualizar os claims sem a password
+                //atualizar os claims
                 var identity = (ClaimsIdentity)User.Identity;
                 identity.RemoveClaim(identity.FindFirst(ClaimTypes.Name));
                 identity.RemoveClaim(identity.FindFirst(ClaimTypes.Email));
@@ -343,12 +342,19 @@ namespace Booking.web.Controllers
                 identity.AddClaim(new Claim(ClaimTypes.Name, profile.Name));
                 identity.AddClaim(new Claim(ClaimTypes.Email, profile.Email));
                 identity.AddClaim(new Claim(ClaimTypes.Role, profile.Role));
+
+                // mudar o cookie
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(identity)
+                );
+
                 TempData["Message"] = "Perfil atualizado com sucesso!";
                 if(!string.IsNullOrEmpty(newpass) && !string.IsNullOrEmpty(confirmpass))
                 {
                     return RedirectToAction("Logout");
                 }
-                return RedirectToAction("Profile");
+                return RedirectToAction("Profile", profile);
             }
             ModelState.AddModelError("", "Erro ao atualizar o perfil na API.");
             return View("Profile", profile);
