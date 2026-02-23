@@ -14,14 +14,14 @@
 
                 <form asp-action="ConfirmEmailCode" method="post" novalidate>
 
-                    <input type="hidden" asp-for="Email" " />
+                    <input type="hidden" asp-for="Email" />
 
                     <div class="mb-3">
                         <label asp-for="Code" class="form-label">Verification Code</label>
                         <input asp-for="Code"
                                class="form-control text-center"
                                maxlength="6"
-                               placeholder="______"
+                               placeholder="__"
                                style="font-size: 1.5rem; letter-spacing: 10px;" />
                         <span asp-validation-for="Code" class="text-danger small"></span>
                     </div>
@@ -63,4 +63,4 @@
         }
 
     </div>
-</div> 
+</div>

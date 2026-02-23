@@ -33,7 +33,7 @@
                     }
                     else
                     {
-                        <span class="italic"><i class="bi bi-stars me-1"></i> Novo na plataforma</span>
+                        <span class="italic"><i class="bi bi-stars me-1"></i>@Localizer["NewCard"]</span>
                     }
                 </small>
             </div>
@@ -50,7 +50,7 @@
 
                     @if (User.IsInRole("ADMIN"))
                     {
-                        <form asp-controller="Admin" asp-action="UpdateCommission" method="post" class="d-flex gap-1 align-items-center mb-1">
+                        <form asp-controller="Housing" asp-action="ApplyDiscount" method="post" class="d-flex gap-1 align-items-center mb-1">
                             <input type="hidden" name="id" value="@item.Id" />
 
                             <div class="input-group input-group-sm" style="width: 100px;">
@@ -66,6 +66,32 @@
                             </button>
                         </form>
                     }
+                    @*@if (User.IsInRole("ADMIN"))
+                    {
+                        <form asp-controller="Housing"
+                              asp-action="ApplyDiscount"
+                              method="post"
+                              class="d-flex gap-1 align-items-center mb-1">
+
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <input type="hidden" name="currentPrice" value="@item.PricePerNight" />
+
+                            <div class="input-group input-group-sm" style="width: 100px;">
+                                <input type="number"
+                                       name="discountPercent"
+                                       class="form-control form-control-sm border-warning fw-bold text-center"
+                                       placeholder="%"
+                                       step="1"
+                                       min="0"
+                                       max="100" />
+                                <span class="input-group-text bg-warning border-warning fw-bold" style="padding: 0 4px;">%</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-sm btn-warning shadow-sm">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </form>
+                    }*@
 
                     <a asp-controller="Housing" asp-action="Reserve" asp-route-id="@item.Id" class="btn-mini">
                         @Localizer["Reserve"]
