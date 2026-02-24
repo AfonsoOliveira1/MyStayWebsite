@@ -120,7 +120,22 @@ namespace Booking.web.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var token = User.FindFirst("JWToken")?.Value;
+
+            if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(token))
+            {
+                var client = _clientFactory.CreateClient("Booking.API");
+
+                // add token para autorizar a limpeza na api
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                await client.PostAsync("api/users/logout/" + userId, null);
+            }
+
+            //  limpar Cookie 
+            await HttpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+
             return RedirectToAction("Index", "Home");
         }
 

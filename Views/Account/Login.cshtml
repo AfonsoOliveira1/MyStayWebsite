@@ -3,7 +3,20 @@
 <div class="row justify-content-center">
     <div class="col-md-5 col-lg-4">
 
-        @* ssessao ativa *@
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger mt-5 small">
+                <div asp-validation-summary="ModelOnly"></div>
+            </div>
+        }
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success mt-5 small text-center">
+                @TempData["Message"]
+            </div>
+        }
+
+        @* alerta de sessao ativa *@
         @if (ViewBag.ShowForceLoginPrompt == true)
         {
             <div class="alert alert-warning mt-5 shadow-sm border-warning">
@@ -13,6 +26,7 @@
                     <input type="hidden" asp-for="Email" />
                     <input type="hidden" asp-for="Passwordhash" />
                     <input type="hidden" name="force" value="true" />
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-danger">Sim, encerrar outra sessão</button>
                         <a href="/Account/Login" class="btn btn-outline-secondary">Cancelar</a>
@@ -21,7 +35,6 @@
             </div>
         }
 
-        @* condição se estiver ativo *@
         <div class="card mt-5 @(ViewBag.ShowForceLoginPrompt == true ? "d-none" : "")">
             <div class="card-body p-4">
 
