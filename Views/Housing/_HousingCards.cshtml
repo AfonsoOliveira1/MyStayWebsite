@@ -54,7 +54,7 @@
 
                     @if (User.IsInRole("ADMIN"))
                     {
-                        <form asp-controller="Housing" asp-action="ApplyDiscount" method="post" class="d-flex gap-1 align-items-center mb-1">
+                        <form asp-controller="Housing" asp-action="ApplyCommission" method="post" class="d-flex gap-1 align-items-center mb-1">
                             <input type="hidden" name="id" value="@item.Id" />
 
                             <div class="input-group input-group-sm" style="width: 100px;">

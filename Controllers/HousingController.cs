@@ -421,7 +421,7 @@ namespace Booking.Web.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApplyDiscount(int id, decimal newRate)
+        public async Task<IActionResult> ApplyCommission(int id, decimal newRate)
         {
             if (newRate < 0 || newRate > 100)
             {
