@@ -467,7 +467,7 @@ namespace Booking.Web.Controllers
             var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.GetAsync("api/Housings/FinanceSummary");
+            var response = await client.GetAsync("api/Housing/FinanceSummary");
 
             if (response.IsSuccessStatusCode)
             {
