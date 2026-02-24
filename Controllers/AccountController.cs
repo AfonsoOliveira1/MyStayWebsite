@@ -22,28 +22,36 @@ namespace Booking.web.Controllers
         public IActionResult Login() => View();
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginModel model)
+        public async Task<IActionResult> Login(LoginModel model, bool force = false)
         {
             if (!ModelState.IsValid) return View(model);
 
             var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PostAsJsonAsync("api/users/login", model);
+
+            var response = await client.PostAsJsonAsync("api/users/login?force=" + force, model);
 
             if (response.IsSuccessStatusCode)
             {
                 var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponseDTO>();
 
-                if (loginResponse != null && loginResponse.User != null)
+                // ja existe alfuem logado
+                if (loginResponse?.Status == "AlreadyLoggedIn")
+                {
+                    ViewBag.ShowForceLoginPrompt = true;
+                    return View(model);
+                }
+
+                if (loginResponse?.User != null)
                 {
                     var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
-                        new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
-                        new Claim(ClaimTypes.Email, loginResponse.User.Email),
-                        new Claim(ClaimTypes.Role, loginResponse.User.Role),
-                        new Claim("JWToken", loginResponse.Token)
-                    };
-
+            {
+                new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
+                new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
+                new Claim(ClaimTypes.Email, loginResponse.User.Email),
+                new Claim(ClaimTypes.Role, loginResponse.User.Role),
+                new Claim("JWToken", loginResponse.Token),
+                new Claim("SessionId", loginResponse.SessionId) 
+            };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -60,6 +68,7 @@ namespace Booking.web.Controllers
             ModelState.AddModelError("", "Email ou password incorretos.");
             return View(model);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Register()

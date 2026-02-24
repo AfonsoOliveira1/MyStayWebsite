@@ -3,7 +3,26 @@
 <div class="row justify-content-center">
     <div class="col-md-5 col-lg-4">
 
-        <div class="card mt-5">
+        @* ssessao ativa *@
+        @if (ViewBag.ShowForceLoginPrompt == true)
+        {
+            <div class="alert alert-warning mt-5 shadow-sm border-warning">
+                <h5 class="text-center">@Localizer["ActiveSessionDetected"]</h5>
+                <p class="small text-center">Já tem uma sessão iniciada noutro dispositivo. Deseja encerrá-la e entrar neste?</p>
+                <form asp-action="Login" method="post">
+                    <input type="hidden" asp-for="Email" />
+                    <input type="hidden" asp-for="Passwordhash" />
+                    <input type="hidden" name="force" value="true" />
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">Sim, encerrar outra sessão</button>
+                        <a href="/Account/Login" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        }
+
+        @* condição se estiver ativo *@
+        <div class="card mt-5 @(ViewBag.ShowForceLoginPrompt == true ? "d-none" : "")">
             <div class="card-body p-4">
 
                 <h3 class="text-center mb-4">@Localizer["SignIn"]</h3>
@@ -12,7 +31,7 @@
 
                     <div class="mb-3">
                         <label asp-for="Email" class="form-label">@Localizer["EmailAddress"]</label>
-                        <input asp-for="Email" class="form-control"/>
+                        <input asp-for="Email" class="form-control" />
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
@@ -20,8 +39,7 @@
                         <label asp-for="Passwordhash" class="form-label">@Localizer["Password"]</label>
                         <input asp-for="Passwordhash"
                                type="password"
-                               class="form-control"
-                               />
+                               class="form-control" />
                         <span asp-validation-for="Passwordhash" class="text-danger small"></span>
                     </div>
 
