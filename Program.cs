@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
-using Booking.web; 
+using Booking.web;
+using Booking.web.Models; 
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -10,13 +12,12 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization(options => {
-       
         options.DataAnnotationLocalizerProvider = (type, factory) =>
             factory.Create(typeof(SharedResource));
     })
     .AddNewtonsoftJson();
 
-
+//validacao de sessao
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -26,8 +27,41 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.Cookie.SameSite = SameSiteMode.Lax;
-    });
 
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnValidatePrincipal = async context =>
+            {
+                //dados no Cookie atual
+                var userId = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var cookieSessionId = context.Principal?.FindFirst("SessionId")?.Value;
+
+                if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(cookieSessionId))
+                {
+                    return;
+                }
+
+                var clientFactory = context.HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>();
+                var client = clientFactory.CreateClient("Booking.API");
+
+               
+                var response = await client.GetAsync("api/Users/check-session/" + userId);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // ler o SessionId
+                    var dbSessionId = (await response.Content.ReadAsStringAsync()).Trim('"');
+
+                    // se o ID da bd mudou, este pc e expulso
+                    if (cookieSessionId != dbSessionId)
+                    {
+                        context.RejectPrincipal();
+                        await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    }
+                }
+            }
+        };
+    });
 
 builder.Services.AddHttpClient("Booking.API", client =>
 {
@@ -42,7 +76,7 @@ var supportedCultures = new[]
 {
     new CultureInfo("pt-PT"),
     new CultureInfo("en-US"),
-    new CultureInfo("en") 
+    new CultureInfo("en")
 };
 
 var localizationOptions = new RequestLocalizationOptions
@@ -54,17 +88,18 @@ var localizationOptions = new RequestLocalizationOptions
 
 localizationOptions.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
 
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-
+// aplica as traduções
 app.UseRequestLocalization(localizationOptions);
 
 app.UseAuthentication();

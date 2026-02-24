@@ -5,7 +5,6 @@ using Booking.web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using System.Text.Json;
 
 namespace Booking.web.Controllers
@@ -34,7 +33,7 @@ namespace Booking.web.Controllers
             {
                 var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponseDTO>();
 
-                // ja existe alfuem logado
+                //sessao ja ativa noutro pc
                 if (loginResponse?.Status == "AlreadyLoggedIn")
                 {
                     ViewBag.ShowForceLoginPrompt = true;
@@ -44,14 +43,14 @@ namespace Booking.web.Controllers
                 if (loginResponse?.User != null)
                 {
                     var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
-                new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
-                new Claim(ClaimTypes.Email, loginResponse.User.Email),
-                new Claim(ClaimTypes.Role, loginResponse.User.Role),
-                new Claim("JWToken", loginResponse.Token),
-                new Claim("SessionId", loginResponse.SessionId) 
-            };
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, loginResponse.User.Id.ToString()),
+                        new Claim(ClaimTypes.Name, loginResponse.User.Name ?? loginResponse.User.Email),
+                        new Claim(ClaimTypes.Email, loginResponse.User.Email),
+                        new Claim(ClaimTypes.Role, loginResponse.User.Role),
+                        new Claim("JWToken", loginResponse.Token),
+                        new Claim("SessionId", loginResponse.SessionId) 
+                    };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -68,7 +67,6 @@ namespace Booking.web.Controllers
             ModelState.AddModelError("", "Email ou password incorretos.");
             return View(model);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Register()
@@ -94,12 +92,10 @@ namespace Booking.web.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterModel model)
         {
-            // se formulário foi bem preenchido
             if (!ModelState.IsValid) return View(model);
 
             var client = _clientFactory.CreateClient("Booking.API");
 
-           
             var userDto = new UserCreateDto
             {
                 Name = model.Name,
@@ -128,23 +124,17 @@ namespace Booking.web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+
         [HttpGet]
         public IActionResult ConfirmEmailCode(RegisterModel model)
         {
-            if (string.IsNullOrEmpty(model.Email))
-            {
-                return RedirectToAction("Register");
-            }
+            if (string.IsNullOrEmpty(model.Email)) return RedirectToAction("Register");
 
-            // guardar dados
             TempData["RegisterModel"] = JsonSerializer.Serialize(model);
             TempData["Email"] = model.Email;
-
-            // manter dados 
             TempData.Keep("RegisterModel");
             TempData.Keep("Email");
 
-            // passar o email 
             return View(new VerifyCodeDTO { Email = model.Email });
         }
 
@@ -152,20 +142,22 @@ namespace Booking.web.Controllers
         public async Task<IActionResult> ResendCodeConfirm(string Email)
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PostAsJsonAsync("api/Email/send-code", new VerifyCodeDTO { Email = Email, Subject = "2FA Confirm your Email - MyStay", Body = "Thanks for joining MyStay,\nThis code will expire in 5 minutes. Do not share it with anyone.\nYour MyStay verification code is" });
+            var response = await client.PostAsJsonAsync("api/Email/send-code", new VerifyCodeDTO
+            {
+                Email = Email,
+                Subject = "2FA Confirm your Email - MyStay",
+                Body = "Thanks for joining MyStay,\nYour verification code is"
+            });
 
             if (!response.IsSuccessStatusCode)
             {
-                //le o conteúdo da resposta de erro
                 var content = await response.Content.ReadAsStringAsync();
-                string message;
-
-                var apiResponse = JsonSerializer
-                    .Deserialize<ApiMessage>(content);
+                var apiResponse = JsonSerializer.Deserialize<ApiMessage>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 ModelState.AddModelError("", apiResponse?.Message ?? "Falha ao enviar código.");
             }
             return View("ConfirmEmailCode", new VerifyCodeDTO { Email = Email });
         }
+
         [HttpPost]
         public async Task<IActionResult> ConfirmEmailCode(VerifyCodeDTO model)
         {
@@ -177,8 +169,6 @@ namespace Booking.web.Controllers
             }
 
             var client = _clientFactory.CreateClient("Booking.API");
-
-            // Verificar code
             var response = await client.PostAsJsonAsync("api/Email/verify-code", model);
 
             if (!response.IsSuccessStatusCode)
@@ -189,12 +179,8 @@ namespace Booking.web.Controllers
                 return View(model);
             }
 
-            // recuperar os dados do registo
             var registerModelJson = TempData["RegisterModel"] as string;
-            if (string.IsNullOrEmpty(registerModelJson))
-            {
-                return RedirectToAction("Register");
-            }
+            if (string.IsNullOrEmpty(registerModelJson)) return RedirectToAction("Register");
 
             RegisterModel regModel = JsonSerializer.Deserialize<RegisterModel>(registerModelJson);
 
@@ -204,7 +190,7 @@ namespace Booking.web.Controllers
                 Email = regModel.Email,
                 Password = regModel.Passwordhash,
                 Role = regModel.Role,
-                CompanyId = regModel.SelectedCompanyId 
+                CompanyId = regModel.SelectedCompanyId
             };
 
             var registerResponse = await client.PostAsJsonAsync("api/users/register", userDto);
@@ -215,15 +201,11 @@ namespace Booking.web.Controllers
                 TempData["Message"] = "Registo efetuado com sucesso!";
                 return RedirectToAction("Login");
             }
-            else
-            { 
-                var errorDetail = await registerResponse.Content.ReadAsStringAsync();
-                ModelState.AddModelError("", "Erro da API:" +"{errorDetail}");
 
-                TempData.Keep("RegisterModel");
-                TempData.Keep("Email");
-                return View(model);
-            }
+            var errorDetail = await registerResponse.Content.ReadAsStringAsync();
+            ModelState.AddModelError("", "Erro ao registar: " + errorDetail);
+            TempData.Keep("RegisterModel");
+            return View(model);
         }
 
         [HttpGet]
@@ -239,81 +221,42 @@ namespace Booking.web.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Code failed.");
-                return View("VerifyCode", new VerifyCodeDTO { Email = model.Email });
+                ModelState.AddModelError("", "Código inválido.");
+                return View(model);
             }
-            
+
             var identity = (ClaimsIdentity)User.Identity;
 
-            var confirmed = User.Claims.FirstOrDefault(c => c.Type == "EmailConfirmed")?.Value;
-            var confirmedAt = User.Claims.FirstOrDefault(c => c.Type == "EmailConfirmedAt")?.Value;
+            var existingConfirmed = identity.FindFirst("EmailConfirmed");
+            if (existingConfirmed != null) identity.RemoveClaim(existingConfirmed);
 
-            if(confirmed == "true" && confirmedAt != null)
-            {
-                identity.RemoveClaim(identity.FindFirst("EmailConfirmed"));
-                identity.RemoveClaim(identity.FindFirst("EmailConfirmedAt"));
-            }
+            var existingDate = identity.FindFirst("EmailConfirmedAt");
+            if (existingDate != null) identity.RemoveClaim(existingDate);
 
             identity.AddClaim(new Claim("EmailConfirmed", "true"));
             identity.AddClaim(new Claim("EmailConfirmedAt", DateTime.UtcNow.ToString("o")));
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity)
-            );
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
 
             return RedirectToAction("Profile");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ResendCode(string Email)
-        {
-            VerifyCodeDTO model = new VerifyCodeDTO { Email = Email, Subject = "2FA Verify your Email - MyStay", Body = "Welcome back to MyStay,\nThis code will expire in 5 minutes. Do not share it with anyone.\nYour MyStay verification code is" };
-            var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.PostAsJsonAsync("api/Email/send-code", model);
-
-                if (!response.IsSuccessStatusCode)
-            {
-                //le o conteúdo da resposta de erro
-                var content = await response.Content.ReadAsStringAsync();
-                var apiResponse = JsonSerializer.Deserialize<ApiMessage>(
-                    content,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                );
-                ModelState.AddModelError("", apiResponse?.Message ?? "Falha ao enviar código.");
-            }
-            return View("VerifyCode", model);
         }
 
         [HttpGet]
         public IActionResult Profile()
         {
-            var confirmed = User.Claims.FirstOrDefault(c => c.Type == "EmailConfirmed")?.Value;
-            var confirmedAt = User.Claims.FirstOrDefault(c => c.Type == "EmailConfirmedAt")?.Value;
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr == null) return RedirectToAction("Login");
 
-            if (confirmed != "true" || confirmedAt == null)
-                return RedirectToAction("VerifyCode");
-
-          
-            if (DateTime.TryParse(confirmedAt, out var time))
-            {
-                if (DateTime.UtcNow - time > TimeSpan.FromMinutes(5))
-                    return RedirectToAction("VerifyCode");
-            }
-            else
-                return RedirectToAction("VerifyCode");
-            
             var profile = new UserUpdateDto
             {
-                Id = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+                Id = int.Parse(userIdStr),
                 Name = User.FindFirst(ClaimTypes.Name)?.Value,
                 Email = User.FindFirst(ClaimTypes.Email)?.Value,
                 Role = User.FindFirst(ClaimTypes.Role)?.Value,
-            }; 
+            };
 
-             return View(profile);
+            return View(profile);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> ProfileEdit(UserUpdateDto profile, string? newpass, string? confirmpass)
@@ -328,14 +271,12 @@ namespace Booking.web.Controllers
                 profile.Password = newpass;
             }
 
-            // obter o id do user
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login");
 
             profile.Id = int.Parse(userIdStr);
-
-            // tokn JWT
             var token = User.FindFirst("JWToken")?.Value;
+
             var client = _clientFactory.CreateClient("Booking.API");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -343,28 +284,29 @@ namespace Booking.web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                //atualizar os claims
                 var identity = (ClaimsIdentity)User.Identity;
-                identity.RemoveClaim(identity.FindFirst(ClaimTypes.Name));
-                identity.RemoveClaim(identity.FindFirst(ClaimTypes.Email));
-                identity.RemoveClaim(identity.FindFirst(ClaimTypes.Role));
-                identity.AddClaim(new Claim(ClaimTypes.Name, profile.Name));
-                identity.AddClaim(new Claim(ClaimTypes.Email, profile.Email));
-                identity.AddClaim(new Claim(ClaimTypes.Role, profile.Role));
 
-                // mudar o cookie
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(identity)
-                );
+                //atualizar os claims no Cookie
+                void UpdateClaim(string type, string value)
+                {
+                    var c = identity.FindFirst(type);
+                    if (c != null) identity.RemoveClaim(c);
+                    identity.AddClaim(new Claim(type, value));
+                }
+
+                UpdateClaim(ClaimTypes.Name, profile.Name);
+                UpdateClaim(ClaimTypes.Email, profile.Email);
+                UpdateClaim(ClaimTypes.Role, profile.Role);
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
 
                 TempData["Message"] = "Perfil atualizado com sucesso!";
-                if(!string.IsNullOrEmpty(newpass) && !string.IsNullOrEmpty(confirmpass))
-                {
-                    return RedirectToAction("Logout");
-                }
-                return RedirectToAction("Profile", profile);
+
+                if (!string.IsNullOrEmpty(newpass)) return RedirectToAction("Logout");
+
+                return RedirectToAction("Profile");
             }
+
             ModelState.AddModelError("", "Erro ao atualizar o perfil na API.");
             return View("Profile", profile);
         }
