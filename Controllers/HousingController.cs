@@ -460,5 +460,23 @@ namespace Booking.Web.Controllers
             return RedirectToAction("List");
         }
 
+        [Authorize(Roles = "RENTER")]
+        public async Task<IActionResult> Earnings()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync("api/Housings/FinanceSummary");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<RenterFinanceViewModel>();
+                return View(data);
+            }
+
+            return View(new RenterFinanceViewModel());
+        }
+
     }
 }
