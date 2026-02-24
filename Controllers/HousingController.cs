@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -282,6 +283,44 @@ namespace Booking.Web.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> VerifyLockforEdit(int id)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("Login", "Account");
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var lockhouse = await client.PostAsync($"api/Housings/lock/{id}", null);
+
+            if (lockhouse.IsSuccessStatusCode)
+                return RedirectToAction("Edit", new { id });
+
+            if (lockhouse.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                TempData["Error"] = "Outro utilizador está a editar este alojamento.";
+                return RedirectToAction("MyHousings");
+            }
+
+            TempData["Error"] = "Erro ao bloquear o alojamento.";
+            return RedirectToAction("MyHousings");
+        }
+        [HttpGet]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var unlock = await client.PostAsync($"api/Housings/unlock/{id}", null);
+            if (unlock.StatusCode == System.Net.HttpStatusCode.Conflict)
+                return BadRequest("Error in unlocking");
+            return RedirectToAction("MyHousings");
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var client = _clientFactory.CreateClient("Booking.API");
@@ -310,6 +349,10 @@ namespace Booking.Web.Controllers
             var client = _clientFactory.CreateClient("Booking.API");
             var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var lockhouse = await client.PostAsync($"api/Housings/unlock/{model.Id}", null);
+            if (lockhouse.StatusCode == System.Net.HttpStatusCode.Conflict)
+                return RedirectToAction("MyHousings");
 
             var updateDto = new
             {
