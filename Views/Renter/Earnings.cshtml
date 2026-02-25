@@ -5,7 +5,7 @@
 
     <div class="card bg-primary text-white shadow-sm mb-5">
         <div class="card-body text-center p-5">
-            <h4 class="text-uppercase small fw-bold">Total Ganho (Reservas Confirmadas)</h4>
+            <h4 class="text-uppercase small fw-bold">Total Ganho Líquido (Reservas Confirmadas)</h4>
             <h1 class="display-3 fw-bold">@Model.TotalEarnings.ToString("C2")</h1>
         </div>
     </div>
@@ -22,25 +22,48 @@
                             <th>Alojamento</th>
                             <th>Hóspede</th>
                             <th>Check-In / Out</th>
-                            <th>Valor</th>
+                            <th>Valor Bruto</th>
+                            <th>Comissão</th>
+                            <th>Valor Líquido (Renter)</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var booking in Model.Bookings)
+                        @if (Model.Bookings != null && Model.Bookings.Any())
+                        {
+                            @foreach (var item in Model.Bookings)
+                            {
+                                // calcular comissão e valor liquido
+                                var valorComissao = item.Amount * (item.CommissionRate / 100);
+                                var valorLiquido = item.Amount - valorComissao;
+
+                                <tr>
+                                    <td class="fw-bold">@item.HousingName</td>
+                                    <td>@item.GuestName</td>
+                                    <td>
+                                        <small>
+                                            @item.CheckIn.ToString("dd/MM/yyyy") a @item.CheckOut.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </td>
+                                    <td>@item.Amount.ToString("C2")</td>
+                                    <td class="text-danger">
+                                        @item.CommissionRate % <small>(-@valorComissao.ToString("C2"))</small>
+                                    </td>
+                                    <td class="fw-bold text-success" style="font-size: 1.1rem;">
+                                        @valorLiquido.ToString("C2")
+                                    </td>
+                                    <td>
+                                        <span class="badge @(item.Status.ToUpper() == "CONFIRMED" ? "bg-success" : "bg-warning text-dark")">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
                         {
                             <tr>
-                                <td><strong>@booking.HousingName</strong></td>
-                                <td>@booking.GuestName</td>
-                                <td class="small">
-                                    @booking.CheckIn.ToShortDateString() a @booking.CheckOut.ToShortDateString()
-                                </td>
-                                <td class="fw-bold text-success">@booking.Amount.ToString("C2")</td>
-                                <td>
-                                    <span class="badge @(booking.Status == "CONFIRMED" ? "bg-success" : "bg-warning text-dark")">
-                                        @booking.Status
-                                    </span>
-                                </td>
+                                <td colspan="7" class="text-center py-4 text-muted">Nenhuma reserva encontrada.</td>
                             </tr>
                         }
                     </tbody>
@@ -49,3 +72,20 @@
         </div>
     </div>
 </div>
+
+<style>
+    .table thead th {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+    }
+
+    .bg-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #004dbd 100%) !important;
+    }
+</style>

@@ -97,7 +97,6 @@ namespace Booking.web.Controllers
             return RedirectToAction("List");
         }
 
-      //get
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -114,7 +113,6 @@ namespace Booking.web.Controllers
             return RedirectToAction("List");
         }
 
-        //post
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AirlineViewModel model)
@@ -133,6 +131,33 @@ namespace Booking.web.Controllers
 
             ModelState.AddModelError("", "Error updating airline. Please try again.");
             return View(model);
+        }
+
+        [Authorize(Roles = "AIRLINE")]
+        [HttpGet("Airline/Earnings")]
+        public async Task<IActionResult> Earnings()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var culture = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+
+            var response = await client.GetAsync("api/Airlines/FinanceSummary?lang=" + culture);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<AirlineFinanceViewModel>();
+                return View("~/Views/Airline/Earnings.cshtml", data);
+            }
+
+            return View("~/Views/Airline/Earnings.cshtml", new AirlineFinanceViewModel { Bookings = new List<FlightBookingHistoryViewModel>() });
         }
     }
 }

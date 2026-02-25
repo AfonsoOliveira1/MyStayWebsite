@@ -1,0 +1,87 @@
+﻿@model AirlineFinanceViewModel
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold">
+            <i class="bi bi-airplane-engines me-2"></i> @Localizer["Relatório Financeiro"]
+        </h2>
+        <a asp-action="ExportEarningsToExcel" class="btn btn-outline-success shadow-sm">
+            <i class="bi bi-file-earmark-excel me-1"></i> @Localizer["Exportar Excel"]
+        </a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-info text-white">
+                <div class="card-body p-4">
+                    <h6 class="text-uppercase opacity-75">@Localizer["Total de Ganhos"]</h6>
+                    <h2 class="display-5 fw-bold mb-0">@Model.TotalEarnings.ToString("C")</h2>
+                    <small>@Localizer["Baseado em voos confirmados"]</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-white text-dark">
+                <div class="card-body p-4 border-start border-info border-5">
+                    <h6 class="text-muted text-uppercase">@Localizer["Total de Bilhetes"]</h6>
+                    <h2 class="display-5 fw-bold mb-0">@Model.Bookings.Count</h2>
+                    <small class="text-muted">@Localizer["Reservas processadas"]</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0 text-secondary">@Localizer["Histórico de Vendas de Passagens"]</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted">
+                        <tr>
+                            <th class="ps-4">@Localizer["Nº do Voo"]</th>
+                            <th>@Localizer["Passageiro"]</th>
+                            <th>@Localizer["Data de Partida"]</th>
+                            <th>@Localizer["Valor"]</th>
+                            <th class="text-center">@Localizer["Estado"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Bookings.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="bi bi-info-circle me-2"></i> @Localizer["Ainda não existem dados para apresentar."]
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model.Bookings)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold text-primary">@item.FlightNumber</td>
+                                    <td>@item.PassengerName</td>
+                                    <td>@item.DepartureDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="fw-bold">@item.Amount.ToString("C")</td>
+                                    <td class="text-center">
+                                        @if (item.Status == "CONFIRMED")
+                                        {
+                                            <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">@item.Status</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning px-3">@item.Status</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Booking.Web.Controllers
 {
+
     public class HousingController : Controller
     {
         private readonly IHttpClientFactory _clientFactory;
@@ -461,21 +462,29 @@ namespace Booking.Web.Controllers
         }
 
         [Authorize(Roles = "RENTER")]
+        [HttpGet("Earnings")] 
         public async Task<IActionResult> Earnings()
         {
             var client = _clientFactory.CreateClient("Booking.API");
             var token = User.FindFirst("JWToken")?.Value;
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.GetAsync("api/Housing/FinanceSummary");
+            var response = await client.GetAsync("api/Housings/FinanceSummary");
 
             if (response.IsSuccessStatusCode)
             {
                 var data = await response.Content.ReadFromJsonAsync<RenterFinanceViewModel>();
-                return View(data);
+                return View("~/Views/Renter/Earnings.cshtml", data);
             }
 
-            return View(new RenterFinanceViewModel());
+            // api falha, mostra a view vazia
+            return View("~/Views/Renter/Earnings.cshtml", new RenterFinanceViewModel { Bookings = new List<HousingBookingHistoryViewModel>() });
         }
 
     }

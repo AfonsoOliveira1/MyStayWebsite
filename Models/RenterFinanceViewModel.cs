@@ -3,6 +3,6 @@
     public class RenterFinanceViewModel
     {
         public decimal TotalEarnings { get; set; }
-        public List<BookingHistoryViewModel> Bookings { get; set; } = new List<BookingHistoryViewModel>();
+        public List<HousingBookingHistoryViewModel> Bookings { get; set; } = new List<HousingBookingHistoryViewModel>();
     }
 }
