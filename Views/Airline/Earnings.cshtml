@@ -15,7 +15,7 @@
             <div class="card border-0 shadow-sm bg-info text-white">
                 <div class="card-body p-4">
                     <h6 class="text-uppercase opacity-75">@Localizer["Total de Ganhos"]</h6>
-                    <h2 class="display-5 fw-bold mb-0">@Model.TotalEarnings.ToString("C")</h2>
+                    <h2 class="display-5 fw-bold mb-0">@Model.TotalEarnings.ToString("C2")</h2>
                     <small>@Localizer["Baseado em voos confirmados"]</small>
                 </div>
             </div>
@@ -44,12 +44,12 @@
                             <th class="ps-4">@Localizer["Nº do Voo"]</th>
                             <th>@Localizer["Passageiro"]</th>
                             <th>@Localizer["Data de Partida"]</th>
-                            <th>@Localizer["Valor"]</th>
+                            <th>@Localizer["Valor Líquido"]</th>
                             <th class="text-center">@Localizer["Estado"]</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (!Model.Bookings.Any())
+                        @if (Model.Bookings == null || !Model.Bookings.Any())
                         {
                             <tr>
                                 <td colspan="5" class="text-center py-5 text-muted">
@@ -65,9 +65,10 @@
                                     <td class="ps-4 fw-bold text-primary">@item.FlightNumber</td>
                                     <td>@item.PassengerName</td>
                                     <td>@item.DepartureDate.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td class="fw-bold">@item.Amount.ToString("C")</td>
+                                   
+                                    <td class="fw-bold">@item.Value.ToString("C2")</td>
                                     <td class="text-center">
-                                        @if (item.Status == "CONFIRMED")
+                                        @if (item.Status?.ToUpper() == "CONFIRMED")
                                         {
                                             <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">@item.Status</span>
                                         }

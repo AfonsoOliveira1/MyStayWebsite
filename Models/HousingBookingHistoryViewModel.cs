@@ -10,7 +10,7 @@
         public decimal Amount { get; set; }
         public string Status { get; set; }
 
-        public decimal CommissionRate { get; set; }
+        public decimal CommissionValue { get; set; }
 
         public string StayPeriod => CheckIn.ToString("dd/MM/yyyy") + " - " + CheckOut.ToString("dd/MM/yyyy");
     }

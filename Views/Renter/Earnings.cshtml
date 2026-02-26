@@ -23,8 +23,8 @@
                             <th>Hóspede</th>
                             <th>Check-In / Out</th>
                             <th>Valor Bruto</th>
-                            <th>Comissão</th>
-                            <th>Valor Líquido (Renter)</th>
+                            <th>Comissão (Plataforma)</th>
+                            <th>O meu Ganho (Líquido)</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
@@ -33,21 +33,19 @@
                         {
                             @foreach (var item in Model.Bookings)
                             {
-                                // calcular comissão e valor liquido
-                                var valorComissao = item.Amount * (item.CommissionRate / 100);
-                                var valorLiquido = item.Amount - valorComissao;
+                                var valorLiquido = item.Amount - item.CommissionValue;
 
                                 <tr>
                                     <td class="fw-bold">@item.HousingName</td>
                                     <td>@item.GuestName</td>
                                     <td>
-                                        <small>
+                                        <small class="text-muted">
                                             @item.CheckIn.ToString("dd/MM/yyyy") a @item.CheckOut.ToString("dd/MM/yyyy")
                                         </small>
                                     </td>
                                     <td>@item.Amount.ToString("C2")</td>
                                     <td class="text-danger">
-                                        @item.CommissionRate % <small>(-@valorComissao.ToString("C2"))</small>
+                                        - @item.CommissionValue.ToString("C2")
                                     </td>
                                     <td class="fw-bold text-success" style="font-size: 1.1rem;">
                                         @valorLiquido.ToString("C2")
@@ -63,7 +61,9 @@
                         else
                         {
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">Nenhuma reserva encontrada.</td>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="bi bi-info-circle me-2"></i>Nenhuma reserva encontrada para a sua empresa.
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -75,17 +75,33 @@
 
 <style>
     .table thead th {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.8px;
+        color: #6c757d;
+        border-top: none;
     }
 
     .card {
         border: none;
-        border-radius: 12px;
+        border-radius: 15px;
+        overflow: hidden;
     }
 
     .bg-primary {
         background: linear-gradient(135deg, #0d6efd 0%, #004dbd 100%) !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease;
+    }
+
+    .badge {
+        padding: 0.5em 0.8em;
+        border-radius: 6px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.7rem;
     }
 </style>

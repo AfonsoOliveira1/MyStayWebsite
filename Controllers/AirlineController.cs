@@ -6,7 +6,8 @@ using System.Net.Http.Headers;
 
 namespace Booking.web.Controllers
 {
-    [Authorize(Roles = "ADMIN")]
+    [Authorize(Roles = "AIRLINE,ADMIN")]
+    [Route("Airline")]
     public class AirlineController : Controller
     {
         private readonly IHttpClientFactory _clientFactory;
@@ -134,7 +135,7 @@ namespace Booking.web.Controllers
         }
 
         [Authorize(Roles = "AIRLINE")]
-        [HttpGet("Airline/Earnings")]
+        [HttpGet("Earnings")]
         public async Task<IActionResult> Earnings()
         {
             var client = _clientFactory.CreateClient("Booking.API");

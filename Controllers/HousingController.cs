@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Booking.Web.Controllers
 {
-
+    [Route("Housing")]
     public class HousingController : Controller
     {
         private readonly IHttpClientFactory _clientFactory;

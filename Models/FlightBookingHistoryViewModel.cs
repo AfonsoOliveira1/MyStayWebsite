@@ -6,7 +6,7 @@
         public string FlightNumber { get; set; }
         public string PassengerName { get; set; }
         public DateTime DepartureDate { get; set; }
-        public decimal Amount { get; set; }
+        public decimal Value { get; set; }
         public string Status { get; set; }
     }
 }
