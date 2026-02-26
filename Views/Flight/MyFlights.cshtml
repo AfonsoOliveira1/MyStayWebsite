@@ -2,39 +2,116 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-airplane"></i> Os Meus Voos</h2>
-        <a asp-action="Create" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-lg"></i> Anunciar Novo Voo
+        <h2 class="text-primary fw-bold">
+            <i class="bi bi-airplane me-2"></i> @Localizer["Os Meus Voos"]
+        </h2>
+        <a asp-action="Create" class="btn btn-primary shadow-sm px-4">
+            <i class="bi bi-plus-lg me-1"></i> @Localizer["Anunciar Novo Voo"]
         </a>
     </div>
 
-    <table class="table table-hover shadow-sm bg-white rounded">
-        <thead class="table-dark">
-            <tr>
-                <th>Origem</th>
-                <th>Destino</th>
-                <th>Partida</th>
-                <th>Preço</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td class="fw-bold">@item.OriginCity</td>
-                    <td class="fw-bold">@item.DestinationCity</td>
-                    <td>@item.DepartureTime.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td class="text-primary">@item.Price.ToString("C")</td>
-                    <td>
-                        <span class="badge @(item.ApprovalStatus == "APPROVED" ? "bg-success" :
-                                                  item.ApprovalStatus == "REJECTED" ? "bg-warning text-dark" : "bg-secondary")">
-                        <i class="bi @(item.ApprovalStatus == "APPROVED" ? "bi-check-circle" : "bi-clock")"></i>
-                        @item.ApprovalStatus
-                    </span>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted text-uppercase small">
+                        <tr>
+                            <th class="ps-4 py-3">Rota</th>
+                            <th>Partida</th>
+                            <th>Preço</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-end pe-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="bi bi-cloud-slash display-4 d-block mb-2"></i>
+                                    @Localizer["Não tens voos anunciados de momento."]
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="fw-bold text-dark">@item.OriginCity</div>
+                                            <i class="bi bi-arrow-right mx-2 text-primary"></i>
+                                            <div class="fw-bold text-dark">@item.DestinationCity</div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="small">
+                                            <i class="bi bi-calendar3 me-1 text-muted"></i>
+                                            @item.DepartureTime.ToString("dd/MM/yyyy")
+                                        </div>
+                                        <div class="fw-bold">@item.DepartureTime.ToString("HH:mm")</div>
+                                    </td>
+
+                                    <td>
+                                        <span class="fw-bold text-primary">@item.Price.ToString("C2")</span>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @{
+                                            string statusClass = "";
+                                            string statusIcon = "";
+                                            var currentStatus = item.ApprovalStatus?.ToUpper();
+
+                                            if (currentStatus == "APPROVED")
+                                            {
+                                                statusClass = "bg-success-subtle text-success border-success";
+                                                statusIcon = "bi-check-circle-fill";
+                                            }
+                                            else if (currentStatus == "REJECTED")
+                                            {
+                                                statusClass = "bg-danger-subtle text-danger border-danger";
+                                                statusIcon = "bi-x-circle-fill";
+                                            }
+                                            else
+                                            {
+                                                statusClass = "bg-warning-subtle text-warning border-warning";
+                                                statusIcon = "bi-hourglass-split";
+                                            }
+                                        }
+                                        <span class="badge rounded-pill border px-3 py-2 @statusClass">
+                                            <i class="bi @statusIcon me-1"></i>
+                                            @item.ApprovalStatus
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end pe-4">
+                                        <div class="btn-group shadow-sm">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease;
+    }
+
+    .badge {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+</style>
