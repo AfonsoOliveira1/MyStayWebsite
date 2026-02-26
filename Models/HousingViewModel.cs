@@ -10,6 +10,8 @@ namespace Booking.web.Models
         public string Name { get; set; } = "";
         public string Location { get; set; } = "";
         public decimal PricePerNight { get; set; }
+        public decimal? NewPrice { get; set; }
+
         public string Description { get; set; } = "";
         public string ImageUrl { get; set; } = "";
         public bool IsAvailable { get; set; } = true;

@@ -44,10 +44,14 @@
 
             <div class="footer-mini">
                 <div class="price-box">
-                    <span class="old-p text-decoration-line-through small opacity-50">
-                        @((item.PricePerNight * 1.2m).ToString("C", new System.Globalization.CultureInfo("pt-PT")))
-                    </span>
-                    <span class="new-p">@item.PricePerNight.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
+                    @{decimal pricedisplay = item.NewPrice ?? item.PricePerNight;}
+                    @if(item.NewPrice < item.PricePerNight)
+                    {
+                        <span class="old-p text-decoration-line-through small opacity-50">
+                            @((item.PricePerNight * 1.2m).ToString("C", new System.Globalization.CultureInfo("pt-PT")))
+                        </span>
+                    }
+                    <span class="new-p">@pricedisplay.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</span>
                 </div>
 
                 <div class="button-group d-flex align-items-center gap-2">

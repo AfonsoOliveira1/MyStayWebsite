@@ -282,32 +282,6 @@ namespace Booking.Web.Controllers
 
             return View(housings);
         }
-
-        [HttpGet]
-        public async Task<IActionResult> VerifyLockforEdit(int id)
-        {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-
-            if (string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Account");
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            var lockhouse = await client.PostAsync($"api/Housings/lock/{id}", null);
-
-            if (lockhouse.IsSuccessStatusCode)
-                return RedirectToAction("Edit", new { id });
-
-            if (lockhouse.StatusCode == System.Net.HttpStatusCode.Conflict)
-            {
-                TempData["Error"] = "Outro utilizador está a editar este alojamento.";
-                return RedirectToAction("MyHousings");
-            }
-
-            TempData["Error"] = "Erro ao bloquear o alojamento.";
-            return RedirectToAction("MyHousings");
-        }
         [HttpGet]
         public async Task<IActionResult> Cancel(int id)
         {
@@ -329,6 +303,14 @@ namespace Booking.Web.Controllers
             if (string.IsNullOrEmpty(token)) return RedirectToAction("Login", "Account");
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var lockhouse = await client.PostAsync($"api/Housings/lock/{id}", null);
+            if (lockhouse.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                TempData["Error"] = "Outro utilizador está a editar este alojamento.";
+                return RedirectToAction("MyHousings");
+            }
+
             var housing = await client.GetFromJsonAsync<HousingViewModel>("api/Housings/" + id);
             if (housing == null) return NotFound();
 
@@ -350,31 +332,36 @@ namespace Booking.Web.Controllers
             var client = _clientFactory.CreateClient("Booking.API");
             var token = User.FindFirst("JWToken")?.Value;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            var lockhouse = await client.PostAsync($"api/Housings/unlock/{model.Id}", null);
-            if (lockhouse.StatusCode == System.Net.HttpStatusCode.Conflict)
-                return RedirectToAction("MyHousings");
-
+ 
             var updateDto = new
             {
                 Id = model.Id,
                 Name = model.Name,
                 Description = model.Description,
                 PricePerNight = model.PricePerNight,
+                NewPrice = model.NewPrice,
                 CityId = model.CityId,
                 ImageUrl = model.ImageUrl,
                 CompanyId = model.CompanyId,
                 IsAvailable = model.IsAvailable
             };
 
+            if (model.NewPrice < 0 && model.NewPrice != null)
+            {
+                ModelState.AddModelError("", "Preço invalido");
+                return View(model);
+            }
+
             var response = await client.PutAsJsonAsync("api/Housings/" + model.Id, updateDto);
 
             if (response.IsSuccessStatusCode)
             {
                 TempData["Success"] = "Alojamento atualizado com sucesso!";
+                var lockhouse = await client.PostAsync($"api/Housings/unlock/{model.Id}", null);
+                if (lockhouse.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    return RedirectToAction("MyHousings");
                 return RedirectToAction("MyHousings", "Housing");
             }
-
             var citiesResponse = await client.GetAsync("api/Cities");
             var cities = await citiesResponse.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>() ?? new List<CityViewModel>();
             ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", model.CityId);
