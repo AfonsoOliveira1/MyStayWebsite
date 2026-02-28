@@ -540,4 +540,46 @@
   <data name="EndSection" xml:space="preserve">
     <value>Sim, encerrar outra sessão</value>
   </data>
+  <data name="AirlineEmployee" xml:space="preserve">
+    <value>Funcionário de companhia de voo</value>
+  </data>
+  <data name="PassagerGuest" xml:space="preserve">
+    <value>Cliente/Convidado</value>
+  </data>
+  <data name="PropertyManager" xml:space="preserve">
+    <value>Gerente de alojamentos </value>
+  </data>
+  <data name="AccountType" xml:space="preserve">
+    <value>Tipo de conta</value>
+  </data>
+  <data name="ChooseCompany" xml:space="preserve">
+    <value>Escolha a companhia</value>
+  </data>
+  <data name="AlreadyHaveAnAccount" xml:space="preserve">
+    <value>Já tem conta?</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Comentário</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>Nota</value>
+  </data>
+  <data name="Excellent-5" xml:space="preserve">
+    <value>Excelente</value>
+  </data>
+  <data name="Bad" xml:space="preserve">
+    <value>Mau</value>
+  </data>
+  <data name="Reasonable" xml:space="preserve">
+    <value>Razoavel</value>
+  </data>
+  <data name="Good" xml:space="preserve">
+    <value>Bom</value>
+  </data>
+  <data name="VeryGood" xml:space="preserve">
+    <value>Muito bom</value>
+  </data>
+  <data name="SendNote" xml:space="preserve">
+    <value>Enviar avaliação</value>
+  </data>
 </root>

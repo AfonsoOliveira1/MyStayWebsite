@@ -226,20 +226,20 @@
                                 <form asp-controller="Housing" asp-action="EnviarRating" method="post">
                                     <input type="hidden" name="housingId" value="@h.HousingId" />
                                     <div class="mb-3">
-                                        <label>Sua Nota:</label>
+                                        <label>@Localizer["Note"]</label>
                                         <select name="score" class="form-select" required>
-                                            <option value="5">5 - Excelente</option>
-                                            <option value="4">4 - Muito Bom</option>
-                                            <option value="3">3 - Bom</option>
-                                            <option value="2">2 - Razoável</option>
-                                            <option value="1">1 - Mau</option>
+                                            <option value="5">5 - @Localizer["Excellent-5"]</option>
+                                            <option value="4">4 - @Localizer["VeryGood"]</option>
+                                            <option value="3">3 - @Localizer["Good"]</option>
+                                            <option value="2">2 - @Localizer["Reasonable"]</option>
+                                            <option value="1">1 - @Localizer["Bad"]</option>
                                         </select>
                                     </div>
                                     <div class="mb-3">
-                                        <label>Comentário:</label>
+                                        <label>@Localizer["Comment"]:</label>
                                         <textarea name="comment" class="form-control" rows="2" placeholder="Como foi a sua estadia?"></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-warning w-100 fw-bold">Enviar Avaliação</button>
+                                    <button type="submit" class="btn btn-warning w-100 fw-bold">@Localizer["SendNote"]</button>
                                 </form>
                             </div>
                         }
