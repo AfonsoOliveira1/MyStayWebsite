@@ -32,8 +32,8 @@
                             <div class="d-flex align-items-center mb-3">
                                 <span class="badge bg-primary-soft text-primary rounded-pill px-3 py-2">@Localizer["Direct"]</span>
                                 <span class="ms-3 text-muted small"><i class="bi bi-hash me-1"></i>@flight.Id</span>
+                                
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h4 class="fw-bold mb-0">@flight.OriginCity</h4>
@@ -48,9 +48,10 @@
                                     <p class="text-muted small">@flight.DepartureTime.AddHours(2).ToString("HH:mm")</p>
                                 </div>
                             </div>
+                            <p class="badge bg-primary-soft text-primary rounded-pill px-3 py-2">@(flight?.AirlineName ?? Localizer["AirlineNull"])</p>
                         </div>
                         <div class="col-md-4 bg-light d-flex flex-column justify-content-center align-items-center p-4 border-start">
-                            <h3 class="fw-bold text-primary mb-3">@flight.Price.ToString("C")</h3>
+                            <h3 class="fw-bold text-primary mb-3">@flight.Price.ToString("C", new System.Globalization.CultureInfo("pt-PT"))</h3>
                             <a asp-action="Reserve" asp-route-id="@flight.Id" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm">
                                 @Localizer["Reserve"]
                             </a>

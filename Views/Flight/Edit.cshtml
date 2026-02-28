@@ -1,0 +1,82 @@
+﻿@model Booking.web.Models.FlightViewModel
+
+@{
+    ViewData["Title"] = Localizer["Edit Flight"];
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header border-0 p-4" style="background-color: #003580;">
+                    <h4 class="mb-0 fw-bold text-white">
+                        <i class="bi bi-airplane-engines me-2"></i>@Localizer["Edit"]
+                    </h4>
+                </div>
+                <div class="card-body p-5 bg-white">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+
+                        @* Campos Ocultos Necessários *@
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="AirlineId" />
+                        <input type="hidden" asp-for="ApprovalStatus" />
+
+                        <div class="row g-4">
+                            @* Origem *@
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">@Localizer["Origin"]</label>
+                                <select asp-for="OriginId" class="form-select form-select-lg bg-light border-0 shadow-sm" asp-items="ViewBag.OriginId">
+                                    <option value="">-- @Localizer["SelectOrigin"] --</option>
+                                </select>
+                                <span asp-validation-for="OriginId" class="text-danger small"></span>
+                            </div>
+
+                            @* Destino *@
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">@Localizer["Destiny"]</label>
+                                <select asp-for="DestinationId" class="form-select form-select-lg bg-light border-0 shadow-sm" asp-items="ViewBag.DestinationId">
+                                    <option value="">-- @Localizer["SelectDestiny"] --</option>
+                                </select>
+                                <span asp-validation-for="DestinationId" class="text-danger small"></span>
+                            </div>
+
+                            @* Data de Partida *@
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">@Localizer["DepartureTime"]</label>
+                                <input asp-for="DepartureTime" type="datetime-local" class="form-control form-control-lg bg-light border-0 shadow-sm" />
+                                <span asp-validation-for="DepartureTime" class="text-danger small"></span>
+                            </div>
+
+                            @* Preço *@
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">@Localizer["TicketPrice"]</label>
+                                <div class="input-group input-group-lg shadow-sm">
+                                    <span class="input-group-text bg-light border-0 text-muted">€</span>
+                                    <input asp-for="Price" type="number" step="0.01" class="form-control bg-light border-0" placeholder="0.00" />
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        @* Botões de Ação *@
+                        <div class="d-flex gap-3 mt-5">
+                            <button type="submit" class="btn btn-lg flex-grow-1 rounded-3 py-3 fw-bold shadow-sm text-white" style="background-color: #003580;">
+                                <i class="bi bi-check2-circle me-2"></i>@Localizer["Confirm"]
+                            </button>
+                            <a asp-action="List" class="btn btn-outline-secondary btn-lg px-4 rounded-3 py-3 border-2">
+                                @Localizer["Cancel"]
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

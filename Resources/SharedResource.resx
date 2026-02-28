@@ -528,4 +528,16 @@
   <data name="Clean" xml:space="preserve">
     <value>Limpar</value>
   </data>
+  <data name="AirlineNull" xml:space="preserve">
+    <value>Erro ao procurar companhia</value>
+  </data>
+  <data name="NoSeatSelected" xml:space="preserve">
+    <value>Nenhum lugar selecionado</value>
+  </data>
+  <data name="AlreadyHaveSection" xml:space="preserve">
+    <value>Já tem uma sessão iniciada noutro dispositivo. Deseja encerrá-la e entrar neste?</value>
+  </data>
+  <data name="EndSection" xml:space="preserve">
+    <value>Sim, encerrar outra sessão</value>
+  </data>
 </root>

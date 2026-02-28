@@ -525,4 +525,19 @@
   <data name="Apply" xml:space="preserve">
     <value>Apply</value>
   </data>
+  <data name="Clean" xml:space="preserve">
+    <value>Clean</value>
+  </data>
+  <data name="AirlineNull" xml:space="preserve">
+    <value>Error searching for airline</value>
+  </data>
+  <data name="NoSeatSelected" xml:space="preserve">
+    <value>No seat selected</value>
+  </data>
+  <data name="AlreadyHaveSection" xml:space="preserve">
+    <value>You are already logged in on another device. Do you want to log out and log in on this one?</value>
+  </data>
+  <data name="EndSection" xml:space="preserve">
+    <value>Yes, end session</value>
+  </data>
 </root>

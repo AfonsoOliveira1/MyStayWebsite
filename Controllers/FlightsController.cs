@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+
 
 namespace Booking.Web.Controllers
 {
@@ -87,6 +89,93 @@ namespace Booking.Web.Controllers
             ModelState.AddModelError("", "Erro ao comunicar com a API: " + errorMsg);
             await LoadFlightViewBags();
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var client = _clientFactory.CreateClient("BookingAPI");
+
+            var response = await client.GetAsync($"api/flights/{id}");
+            if (!response.IsSuccessStatusCode)
+                return NotFound();
+
+            var flightDto = await response.Content.ReadFromJsonAsync<FlightReadDto>();
+
+            var model = new FlightViewModel
+            {
+                Id = flightDto.Id,
+                OriginId = flightDto.OriginId ?? 0,
+                DestinationId = flightDto.DestinationId ?? 0,
+                DepartureTime = flightDto.DepartureTime,
+                ArrivalTime = flightDto.ArrivalTime,
+                Price = flightDto.Price,
+                AirlineId = flightDto.AirlineId,
+                ApprovalStatus = flightDto.ApprovalStatus,
+                OriginCity = flightDto.OriginCity,
+                DestinationCity = flightDto.DestinationCity,
+                AirlineName = flightDto.AirlineName
+            };
+
+            await LoadCities(client, model);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, FlightViewModel model)
+        {
+            if (id != model.Id)
+                return BadRequest();
+
+            if (!ModelState.IsValid)
+            {
+                await LoadCities(_clientFactory.CreateClient("BookingAPI"), model);
+                return View(model);
+            }
+
+            var client = _clientFactory.CreateClient("BookingAPI");
+
+            var token = HttpContext.Session.GetString("JWToken");
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var updateDto = new FlightUpdateDto
+            {
+                Id = model.Id,
+                OriginId = model.OriginId,
+                DestinationId = model.DestinationId,
+                DepartureTime = model.DepartureTime,
+                ArrivalTime = model.ArrivalTime,
+                Price = model.Price,
+                ApprovalStatus = model.ApprovalStatus
+            };
+
+            var response = await client.PutAsJsonAsync($"api/flights/{id}", updateDto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Voo atualizado com sucesso!";
+                return RedirectToAction("List");
+            }
+
+            ModelState.AddModelError("", "Erro ao atualizar voo.");
+            await LoadCities(client, model);
+
+            return View(model);
+        }
+        private async Task LoadCities(HttpClient client, FlightViewModel model)
+        {
+            var citiesResponse = await client.GetAsync("api/cities");
+
+            if (citiesResponse.IsSuccessStatusCode)
+            {
+                var cities = await citiesResponse.Content.ReadFromJsonAsync<List<CityDto>>();
+
+                ViewBag.OriginId = new SelectList(cities, "Id", "Name", model?.OriginId);
+                ViewBag.DestinationId = new SelectList(cities, "Id", "Name", model?.DestinationId);
+            }
         }
 
         [Authorize(Roles = "ADMIN")]
