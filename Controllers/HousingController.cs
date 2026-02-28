@@ -22,7 +22,8 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
-        [HttpGet]
+
+        [HttpGet("List")]
         public async Task<IActionResult> List(decimal? minPrice, decimal? maxPrice, int? cityId)
         {
             var client = _clientFactory.CreateClient("Booking.API");
@@ -39,7 +40,6 @@ namespace Booking.Web.Controllers
                          ?? new List<CityViewModel>();
             }
 
-            //a  é para colocar as cidades em ptpt ou em en-US dependendo da cultura/lingua do utilizador, pelo menos na "combobox"... nos api
             var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
             var flag = culture.StartsWith("pt") ? "🇵🇹" : "🇺🇸";
             
@@ -64,7 +64,7 @@ namespace Booking.Web.Controllers
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 return PartialView("_HousingCards", housings);
 
-            return View(housings);
+            return View("~/Views/Housing/List.cshtml", housings);
         }
 
         [Authorize(Roles = "RENTER,ADMIN")]
