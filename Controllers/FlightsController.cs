@@ -18,7 +18,7 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
-        // --- Método auxiliar para configurar o cliente com o token ---
+
         private async Task<HttpClient> GetAuthorizedClient()
         {
             var client = _clientFactory.CreateClient("Booking.API");
