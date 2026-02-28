@@ -2,49 +2,50 @@
 
 <div class="row justify-content-center">
     <div class="col-md-5 col-lg-4">
-
         @if (!ViewData.ModelState.IsValid)
         {
-            <div class="alert alert-danger mt-5 small">
+            <div class="alert alert-danger mt-5 small shadow-sm">
                 <div asp-validation-summary="ModelOnly"></div>
             </div>
         }
-        @if (TempData["Message"] != null)
+
+        @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success mt-5 small text-center">
-                @TempData["Message"]
+            <div class="alert alert-success mt-5 small text-center shadow-sm">
+                @TempData["SuccessMessage"]
             </div>
         }
 
-        @* alerta de sessao ativa *@
+        @* sessao ativa *@
         @if (ViewBag.ShowForceLoginPrompt == true)
         {
-            <div class="alert alert-warning mt-5 shadow-sm border-warning">
-                <h5 class="text-center">@Localizer["ActiveSessionDetected"]</h5>
+            <div class="alert alert-warning mt-5 shadow border-warning">
+                <h5 class="text-center font-weight-bold">@Localizer["ActiveSessionDetected"]</h5>
                 <p class="small text-center">@Localizer["AlreadyHaveSection"]</p>
+
                 <form asp-action="Login" method="post">
                     <input type="hidden" asp-for="Email" />
                     <input type="hidden" asp-for="Passwordhash" />
                     <input type="hidden" name="force" value="true" />
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-danger">@Localizer["EndSection"]</button>
+                        <button type="submit" class="btn btn-danger btn-lg">@Localizer["EndSection"]</button>
                         <a href="/Account/Login" class="btn btn-outline-secondary">@Localizer["Cancel"]</a>
                     </div>
                 </form>
             </div>
         }
 
-        <div class="card mt-5 @(ViewBag.ShowForceLoginPrompt == true ? "d-none" : "")">
+        <div class="card mt-5 shadow-sm @(ViewBag.ShowForceLoginPrompt == true ? "d-none" : "")">
             <div class="card-body p-4">
 
-                <h3 class="text-center mb-4">@Localizer["SignIn"]</h3>
+                <h3 class="text-center mb-4 font-weight-bold">@Localizer["SignIn"]</h3>
 
                 <form asp-action="Login" method="post" novalidate>
 
                     <div class="mb-3">
                         <label asp-for="Email" class="form-label">@Localizer["EmailAddress"]</label>
-                        <input asp-for="Email" class="form-control" />
+                        <input asp-for="Email" class="form-control" placeholder="nome@exemplo.com" />
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
@@ -66,8 +67,9 @@
 
                 <hr class="my-4" />
 
-                <div class="d-grid">
-                    <a href="/Account/Register" class="btn btn-outline-primary btn-lg">
+                <div class="text-center">
+                    <p class="small text-muted">@Localizer["DontHaveAccount"]</p>
+                    <a href="/Account/Register" class="btn btn-outline-primary w-100">
                         @Localizer["CreateAccount"]
                     </a>
                 </div>

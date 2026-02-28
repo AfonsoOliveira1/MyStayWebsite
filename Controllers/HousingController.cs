@@ -5,10 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Reflection;
 using System.Security.Claims;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace Booking.Web.Controllers
 {
@@ -22,68 +19,67 @@ namespace Booking.Web.Controllers
             _clientFactory = clientFactory;
         }
 
+        private async Task<HttpClient> GetAuthorizedClient()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = await HttpContext.GetTokenAsync("access_token")
+                        ?? User.FindFirst("JWToken")?.Value;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            return client;
+        }
 
         [HttpGet("List")]
         public async Task<IActionResult> List(decimal? minPrice, decimal? maxPrice, int? cityId)
         {
             var client = _clientFactory.CreateClient("Booking.API");
 
-            var housings = await client.GetFromJsonAsync<List<HousingViewModel>>("api/Housings")
-                           ?? new List<HousingViewModel>();
-
-            var response = await client.GetAsync("api/Cities");
-            IEnumerable<CityViewModel> cities = new List<CityViewModel>();
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                cities = await response.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>()
-                         ?? new List<CityViewModel>();
-            }
+                var housings = await client.GetFromJsonAsync<List<HousingViewModel>>("api/Housings")
+                               ?? new List<HousingViewModel>();
 
-            var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
-            var flag = culture.StartsWith("pt") ? "🇵🇹" : "🇺🇸";
-            
-            if (culture.StartsWith("pt"))
+                var response = await client.GetAsync("api/Cities");
+                IEnumerable<CityViewModel> cities = new List<CityViewModel>();
+                if (response.IsSuccessStatusCode)
+                {
+                    cities = await response.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>()
+                             ?? new List<CityViewModel>();
+                }
+
+                // viewbags 
+                var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+                string cityNameField = culture.StartsWith("pt") ? "Citynamept" : "Citynameen";
+                ViewBag.Cities = new SelectList(cities, "Id", cityNameField, cityId);
+
+                // filtros
+                if (minPrice.HasValue)
+                    housings = housings.Where(h => h.PricePerNight >= minPrice).ToList();
+                if (maxPrice.HasValue)
+                    housings = housings.Where(h => h.PricePerNight <= maxPrice).ToList();
+                if (cityId.HasValue)
+                    housings = housings.Where(h => h.CityId == cityId).ToList();
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return PartialView("_HousingCards", housings);
+
+                return View("~/Views/Housing/List.cshtml", housings);
+            }
+            catch (Exception)
             {
-                ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", cityId);
+                TempData["ErrorMessage"] = "Erro ao carregar os alojamentos.";
+                return View("~/Views/Housing/List.cshtml", new List<HousingViewModel>());
             }
-            else
-            {
-                ViewBag.Cities = new SelectList(cities, "Id", "Citynameen", cityId);
-            }
-
-            if (minPrice.HasValue)
-                housings = housings.Where(h => h.PricePerNight >= minPrice).ToList();
-
-            if (maxPrice.HasValue)
-                housings = housings.Where(h => h.PricePerNight <= maxPrice).ToList();
-
-            if (cityId.HasValue)
-                housings = housings.Where(h => h.CityId == cityId).ToList();
-
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                return PartialView("_HousingCards", housings);
-
-            return View("~/Views/Housing/List.cshtml", housings);
         }
 
         [Authorize(Roles = "RENTER,ADMIN")]
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var response = await client.GetAsync("api/Cities");
-
-            IEnumerable<CityViewModel> cities = new List<CityViewModel>();
-
-            if (response.IsSuccessStatusCode)
-            {
-                cities = await response.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>()
-                         ?? new List<CityViewModel>();
-            }
-
-            ViewBag.Cities = new SelectList(cities, "Id", "Citynamept");
-
+            await PopulateCitiesDropdown();
             return View("Create");
         }
 
@@ -92,25 +88,23 @@ namespace Booking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(HousingCreateDto model)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if (!ModelState.IsValid)
+            {
+                await PopulateCitiesDropdown();
+                return View(model);
+            }
 
+            var client = await GetAuthorizedClient();
             var response = await client.PostAsJsonAsync("api/Housings", model);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Alojamento enviado para aprovação!";
+                TempData["SuccessMessage"] = "Alojamento enviado para aprovação!";
                 return RedirectToAction("List");
             }
 
-            var citiesResponse = await client.GetAsync("api/Cities");
-            var cities = citiesResponse.IsSuccessStatusCode
-                ? await citiesResponse.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>()
-                : new List<CityViewModel>();
-
-            ViewBag.Cities = new SelectList(cities, "Id", "Citynamept");
-
+            TempData["ErrorMessage"] = "Erro ao criar alojamento.";
+            await PopulateCitiesDropdown();
             return View(model);
         }
 
@@ -120,9 +114,7 @@ namespace Booking.Web.Controllers
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction("Login", "Account");
 
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var client = await GetAuthorizedClient();
 
             var housing = await client.GetFromJsonAsync<HousingViewModel>("api/Housings/" + id);
             if (housing == null) return NotFound();
@@ -135,9 +127,7 @@ namespace Booking.Web.Controllers
                 PricePerNight = housing.PricePerNight,
                 CheckInDate = DateTime.Now,
                 CheckOutDate = DateTime.Now.AddDays(1),
-
                 Description = housing.Description,
-
                 Ratings = housing.Ratings?.Select(r => new HousingRatingViewModel
                 {
                     Score = r.Score,
@@ -167,10 +157,9 @@ namespace Booking.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmReservation(HousingBookingViewModel model)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var client = await GetAuthorizedClient();
 
+            //validar datas
             var checkResponse = await client.GetAsync("api/HousingBookings/occupied-dates/" + model.HousingId);
             if (checkResponse.IsSuccessStatusCode)
             {
@@ -203,15 +192,13 @@ namespace Booking.Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Reserva guardada na base de dados!";
+                TempData["SuccessMessage"] = "Reserva guardada na base de dados!";
                 return RedirectToAction("Index", "Home");
             }
             else
             {
                 var errorBody = await response.Content.ReadAsStringAsync();
-                System.Diagnostics.Debug.WriteLine("Erro da API: " + errorBody);
-
-                ModelState.AddModelError("", "A API rejeitou a reserva. Verifique se as datas estão disponíveis.");
+                TempData["ErrorMessage"] = "A API rejeitou a reserva: " + errorBody;
                 return View("Reserve", model);
             }
         }
@@ -219,11 +206,9 @@ namespace Booking.Web.Controllers
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> PendingApprovals()
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            var client = await GetAuthorizedClient();
             var response = await client.GetAsync("api/Housings/pending");
+
             var housings = response.IsSuccessStatusCode
                 ? await response.Content.ReadFromJsonAsync<List<HousingViewModel>>()
                 : new List<HousingViewModel>();
@@ -232,38 +217,34 @@ namespace Booking.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Approve(int id, decimal commissionRate, string description)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            if (!string.IsNullOrEmpty(token))
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            var client = await GetAuthorizedClient();
             var approvalData = new { CommissionRate = commissionRate, Description = description };
             var response = await client.PostAsJsonAsync("api/Housings/" + id + "/approve", approvalData);
 
             if (response.IsSuccessStatusCode)
-                TempData["Success"] = "Alojamento aprovado!";
+                TempData["SuccessMessage"] = "Alojamento aprovado!";
             else
-                TempData["Error"] = "Erro: " + response.StatusCode;
+                TempData["ErrorMessage"] = "Erro ao aprovar alojamento: " + response.StatusCode;
 
             return RedirectToAction("PendingApprovals");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Reject(int id)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            if (!string.IsNullOrEmpty(token))
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            var client = await GetAuthorizedClient();
             var response = await client.PostAsync("api/Housings/" + id + "/reject", null);
+
             if (response.IsSuccessStatusCode)
-                TempData["Success"] = "Alojamento rejeitado!";
+                TempData["SuccessMessage"] = "Alojamento rejeitado!";
             else
-                TempData["Error"] = "Erro ao rejeitar alojamento na API.";
+                TempData["ErrorMessage"] = "Erro ao rejeitar alojamento na API.";
 
             return RedirectToAction("PendingApprovals");
         }
@@ -271,68 +252,73 @@ namespace Booking.Web.Controllers
         [Authorize(Roles = "RENTER")]
         public async Task<IActionResult> MyHousings()
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            var client = await GetAuthorizedClient();
             var response = await client.GetAsync("api/Housings/MyHousings");
+
             var housings = response.IsSuccessStatusCode
                 ? await response.Content.ReadFromJsonAsync<List<HousingViewModel>>()
                 : new List<HousingViewModel>();
 
             return View(housings);
         }
+
         [HttpGet]
+        [Authorize(Roles = "RENTER")]
         public async Task<IActionResult> Cancel(int id)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            var client = await GetAuthorizedClient();
             var unlock = await client.PostAsync($"api/Housings/unlock/{id}", null);
+
             if (unlock.StatusCode == System.Net.HttpStatusCode.Conflict)
-                return BadRequest("Error in unlocking");
+            {
+                TempData["ErrorMessage"] = "Erro ao desbloquear.";
+                return RedirectToAction("MyHousings");
+            }
             return RedirectToAction("MyHousings");
         }
 
         [HttpGet]
+        [Authorize(Roles = "RENTER")]
         public async Task<IActionResult> Edit(int id)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            if (string.IsNullOrEmpty(token)) return RedirectToAction("Login", "Account");
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            var client = await GetAuthorizedClient();
             var lockhouse = await client.PostAsync($"api/Housings/lock/{id}", null);
+
             if (lockhouse.StatusCode == System.Net.HttpStatusCode.Conflict)
             {
-                TempData["Error"] = "Outro utilizador está a editar este alojamento.";
+                TempData["ErrorMessage"] = "Outro utilizador está a editar este alojamento.";
                 return RedirectToAction("MyHousings");
             }
 
             var housing = await client.GetFromJsonAsync<HousingViewModel>("api/Housings/" + id);
             if (housing == null) return NotFound();
 
-            var citiesResponse = await client.GetAsync("api/Cities");
-            var cities = await citiesResponse.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>() ?? new List<CityViewModel>();
-            ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", housing.CityId);
+            await PopulateCitiesDropdown(housing.CityId);
 
             return View(housing);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "RENTER")]
         public async Task<IActionResult> Edit(HousingViewModel model)
         {
             ModelState.Remove("HousingRatingViewModel");
             ModelState.Remove("CityName");
             ModelState.Remove("ApprovalStatus");
 
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
- 
+            if (model.NewPrice.HasValue && model.NewPrice < 0)
+            {
+                ModelState.AddModelError("", "Preço inválido");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                await PopulateCitiesDropdown(model.CityId);
+                return View(model);
+            }
+
+            var client = await GetAuthorizedClient();
             var updateDto = new
             {
                 Id = model.Id,
@@ -346,122 +332,87 @@ namespace Booking.Web.Controllers
                 IsAvailable = model.IsAvailable
             };
 
-            if (model.NewPrice < 0 && model.NewPrice != null)
-            {
-                ModelState.AddModelError("", "Preço invalido");
-                return View(model);
-            }
-
             var response = await client.PutAsJsonAsync("api/Housings/" + model.Id, updateDto);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Alojamento atualizado com sucesso!";
-                var lockhouse = await client.PostAsync($"api/Housings/unlock/{model.Id}", null);
-                if (lockhouse.StatusCode == System.Net.HttpStatusCode.Conflict)
-                    return RedirectToAction("MyHousings");
-                return RedirectToAction("MyHousings", "Housing");
+                TempData["SuccessMessage"] = "Alojamento atualizado com sucesso!";
+                await client.PostAsync($"api/Housings/unlock/{model.Id}", null);
+                return RedirectToAction("MyHousings");
             }
-            var citiesResponse = await client.GetAsync("api/Cities");
-            var cities = await citiesResponse.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>() ?? new List<CityViewModel>();
-            ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", model.CityId);
 
+            TempData["ErrorMessage"] = "Erro ao atualizar alojamento.";
+            await PopulateCitiesDropdown(model.CityId);
             return View(model);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EnviarRating(int housingId, int score, string comment)
         {
             if (housingId <= 0) return RedirectToAction("MyBookings", "Bookings");
 
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
-            if (!string.IsNullOrEmpty(token))
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            var client = await GetAuthorizedClient();
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
 
+            // ve se pode avaliar
             var responseReservas = await client.GetAsync("api/HousingBookings/my-bookings/" + userIdClaim);
             if (responseReservas.IsSuccessStatusCode)
             {
                 var reservas = await responseReservas.Content.ReadFromJsonAsync<List<HousingBookingViewModel>>();
                 DateOnly hoje = DateOnly.FromDateTime(DateTime.Now);
-
                 var podeAvaliar = reservas?.Any(r => r.HousingId == housingId && DateOnly.FromDateTime(r.CheckInDate) <= hoje) ?? false;
-                if (!podeAvaliar) return RedirectToAction("MyBookings", "Bookings");
+
+                if (!podeAvaliar)
+                {
+                    TempData["ErrorMessage"] = "Só pode avaliar alojamentos onde já esteve.";
+                    return RedirectToAction("MyBookings", "Bookings");
+                }
             }
 
             var ratingData = new { housingid = housingId, customerid = int.Parse(userIdClaim), score = score, comment = comment };
             await client.PostAsJsonAsync("api/HousingRatings", ratingData);
+            TempData["SuccessMessage"] = "Avaliação enviada!";
 
             return RedirectToAction("MyBookings", "Bookings");
         }
+
         [HttpGet]
         public IActionResult UpdatePrice(int id)
         {
-            var model = new HousingPriceUpdateViewModel
-            {
-                Id = id
-            };
-
-            return View(model);
+            return View(new HousingPriceUpdateViewModel { Id = id });
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ApplyCommission(int id, decimal newRate)
         {
             if (newRate < 0 || newRate > 100)
             {
-                TempData["Error"] = "Percentagem inválida.";
+                TempData["ErrorMessage"] = "Percentagem inválida.";
                 return RedirectToAction("List");
             }
 
-            var client = _clientFactory.CreateClient("Booking.API");
-
-            var token = User.FindFirst("JWToken")?.Value;
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
-            }
-
+            var client = await GetAuthorizedClient();
             var url = "api/Housings/" + id + "/commission";
-
-            var dto = new
-            {
-                BookingCommissionRate = newRate
-            };
-
+            var dto = new { BookingCommissionRate = newRate };
             var response = await client.PutAsJsonAsync(url, dto);
 
             if (!response.IsSuccessStatusCode)
-            {
-                TempData["Error"] = "Erro ao atualizar comissão.";
-            }
+                TempData["ErrorMessage"] = "Erro ao atualizar comissão.";
             else
-            {
-                TempData["Success"] = "Comissão atualizada com sucesso!";
-            }
+                TempData["SuccessMessage"] = "Comissão atualizada com sucesso!";
 
             return RedirectToAction("List");
         }
 
         [Authorize(Roles = "RENTER")]
-        [HttpGet("Earnings")] 
+        [HttpGet("Earnings")]
         public async Task<IActionResult> Earnings()
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-
-            if (string.IsNullOrEmpty(token))
-            {
-                return RedirectToAction("Login", "Users");
-            }
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            var client = await GetAuthorizedClient();
             var response = await client.GetAsync("api/Housings/FinanceSummary");
 
             if (response.IsSuccessStatusCode)
@@ -470,9 +421,20 @@ namespace Booking.Web.Controllers
                 return View("~/Views/Renter/Earnings.cshtml", data);
             }
 
-            // api falha, mostra a view vazia
             return View("~/Views/Renter/Earnings.cshtml", new RenterFinanceViewModel { Bookings = new List<HousingBookingHistoryViewModel>() });
         }
 
+        private async Task PopulateCitiesDropdown(int? selectedId = null)
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var response = await client.GetAsync("api/Cities");
+            IEnumerable<CityViewModel> cities = new List<CityViewModel>();
+            if (response.IsSuccessStatusCode)
+            {
+                cities = await response.Content.ReadFromJsonAsync<IEnumerable<CityViewModel>>()
+                         ?? new List<CityViewModel>();
+            }
+            ViewBag.Cities = new SelectList(cities, "Id", "Citynamept", selectedId);
+        }
     }
 }

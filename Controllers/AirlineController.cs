@@ -17,6 +17,18 @@ namespace Booking.web.Controllers
             _clientFactory = clientFactory;
         }
 
+        // metodo aux para config o cliente com o token
+        private HttpClient GetAuthorizedClient()
+        {
+            var client = _clientFactory.CreateClient("Booking.API");
+            var token = User.FindFirst("JWToken")?.Value;
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            return client;
+        }
+
         [HttpGet]
         public IActionResult Create() => View();
 
@@ -26,22 +38,13 @@ namespace Booking.web.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var client = _clientFactory.CreateClient("Booking.API");
+            var client = GetAuthorizedClient();
 
-            var token = await HttpContext.GetTokenAsync("access_token")
-                        ?? User.FindFirst("JWToken")?.Value;
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-
-           
             var response = await client.PostAsJsonAsync("api/Airlines", model);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "A companhia " + model.AirlineName + " foi criada com sucesso!";
+                TempData["SuccessMessage"] = "A companhia " + model.AirlineName + " foi criada com sucesso!";
                 return RedirectToAction("Create", "Flight");
             }
 
@@ -50,18 +53,11 @@ namespace Booking.web.Controllers
 
             return View(model);
         }
+
+        [HttpGet]
         public async Task<IActionResult> List()
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-
-            
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-
-          
+            var client = GetAuthorizedClient();
             var response = await client.GetAsync("api/Airlines");
 
             if (response.IsSuccessStatusCode)
@@ -70,29 +66,24 @@ namespace Booking.web.Controllers
                 return View(airlines);
             }
 
+            TempData["ErrorMessage"] = "Erro ao carregar a lista de companhias.";
             return View(new List<AirlineViewModel>());
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken] 
         public async Task<IActionResult> Delete(int id)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-
+            var client = GetAuthorizedClient();
             var response = await client.DeleteAsync("api/Airlines/" + id);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Airline deleted successfully!";
+                TempData["SuccessMessage"] = "Airline deleted successfully!";
             }
             else
             {
-                TempData["Error"] = "Error deleting airline.";
+                TempData["ErrorMessage"] = "Error deleting airline.";
             }
 
             return RedirectToAction("List");
@@ -101,8 +92,7 @@ namespace Booking.web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-           
+            var client = GetAuthorizedClient();
             var response = await client.GetAsync("api/Airlines/" + id);
 
             if (response.IsSuccessStatusCode)
@@ -111,6 +101,7 @@ namespace Booking.web.Controllers
                 return View(model);
             }
 
+            TempData["ErrorMessage"] = "Airline not found.";
             return RedirectToAction("List");
         }
 
@@ -120,13 +111,12 @@ namespace Booking.web.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var client = _clientFactory.CreateClient("Booking.API");
-
+            var client = GetAuthorizedClient();
             var response = await client.PutAsJsonAsync("api/Airlines/" + model.IdAirline, model);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Success"] = "Airline " + model.AirlineName + " updated successfully!";
+                TempData["SuccessMessage"] = "Airline " + model.AirlineName + " updated successfully!";
                 return RedirectToAction("List");
             }
 
@@ -138,18 +128,9 @@ namespace Booking.web.Controllers
         [HttpGet("Earnings")]
         public async Task<IActionResult> Earnings()
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = User.FindFirst("JWToken")?.Value;
-
-            if (string.IsNullOrEmpty(token))
-            {
-                return RedirectToAction("Login", "Users");
-            }
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var client = GetAuthorizedClient();
 
             var culture = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
-
             var response = await client.GetAsync("api/Airlines/FinanceSummary?lang=" + culture);
 
             if (response.IsSuccessStatusCode)
@@ -158,6 +139,7 @@ namespace Booking.web.Controllers
                 return View("~/Views/Airline/Earnings.cshtml", data);
             }
 
+            TempData["ErrorMessage"] = "Erro ao carregar resumo financeiro.";
             return View("~/Views/Airline/Earnings.cshtml", new AirlineFinanceViewModel { Bookings = new List<FlightBookingHistoryViewModel>() });
         }
     }

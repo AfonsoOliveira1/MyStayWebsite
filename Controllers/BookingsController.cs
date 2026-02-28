@@ -18,18 +18,22 @@ namespace Booking.web.Controllers
             _clientFactory = clientFactory;
         }
 
-        [HttpGet]
-        [Route("Bookings/Index")]
-        public async Task<IActionResult> MyBookings()
+        private HttpClient GetAuthorizedClient()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
-
+            var token = User.FindFirst("JWToken")?.Value;
             if (!string.IsNullOrEmpty(token))
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
+            return client;
+        }
 
+        [HttpGet]
+        [Route("Bookings/Index")]
+        public async Task<IActionResult> MyBookings()
+        {
+            var client = GetAuthorizedClient();
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var model = new UserBookingHistory();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -47,15 +51,20 @@ namespace Booking.web.Controllers
                 model.Housings = await housingResponse.Content.ReadFromJsonAsync<List<HousingBookingViewModel>>(options)
                                   ?? new List<HousingBookingViewModel>();
 
+                
                 foreach (var h in model.Housings)
                 {
                     var ratingResponse = await client.GetAsync("api/HousingRatings/housing/" + h.HousingId);
                     if (ratingResponse.IsSuccessStatusCode)
                     {
                         var ratings = await ratingResponse.Content.ReadFromJsonAsync<List<HousingRatingReadDto>>(options);
-                        h.HasRating = ratings.Any(r => r.CustomerName == User.Identity.Name);
+                        h.HasRating = ratings != null && ratings.Any(r => r.CustomerName == User.Identity.Name);
                     }
                 }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Não foi possível carregar as suas reservas de alojamento.";
             }
 
             return View(model);
@@ -64,14 +73,7 @@ namespace Booking.web.Controllers
         [HttpGet]
         public async Task<IActionResult> Receipt(int id)
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-            var token = await HttpContext.GetTokenAsync("access_token") ?? User.FindFirst("JWToken")?.Value;
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-
+            var client = GetAuthorizedClient();
             var response = await client.GetAsync("api/FlightBookings/details/" + id);
 
             if (response.IsSuccessStatusCode)
@@ -81,7 +83,7 @@ namespace Booking.web.Controllers
                 return View(model);
             }
 
-            TempData["Error"] = "Não foi possível carregar o talão.";
+            TempData["ErrorMessage"] = "Não foi possível carregar o talão.";
             return RedirectToAction("MyBookings");
         }
     }

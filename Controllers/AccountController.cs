@@ -27,6 +27,7 @@ namespace Booking.web.Controllers
 
             var client = _clientFactory.CreateClient("Booking.API");
 
+            // CORREÇÃO: Utilizando + em vez de $
             var response = await client.PostAsJsonAsync("api/users/login?force=" + force, model);
 
             if (response.IsSuccessStatusCode)
@@ -49,7 +50,7 @@ namespace Booking.web.Controllers
                         new Claim(ClaimTypes.Email, loginResponse.User.Email),
                         new Claim(ClaimTypes.Role, loginResponse.User.Role),
                         new Claim("JWToken", loginResponse.Token),
-                        new Claim("SessionId", loginResponse.SessionId) 
+                        new Claim("SessionId", loginResponse.SessionId)
                     };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -59,7 +60,7 @@ namespace Booking.web.Controllers
                         new ClaimsPrincipal(claimsIdentity)
                     );
 
-                    TempData["Message"] = "Bem-vindo de volta!";
+                    TempData["SuccessMessage"] = "Bem-vindo de volta, " + loginResponse.User.Name + "!";
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -110,11 +111,12 @@ namespace Booking.web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Message"] = "Registo efetuado! Por favor faça login.";
+                TempData["SuccessMessage"] = "Registo efetuado com sucesso! Por favor faça login.";
                 return RedirectToAction("Login");
             }
 
-            ModelState.AddModelError("", "Falha no registo. Verifique se o email já está em uso.");
+            // CORREÇÃO: Mensagem mais amigável
+            ModelState.AddModelError("", "Falha no registo. Verifique se o email já está em uso ou tente novamente.");
             return View(model);
         }
 
@@ -126,16 +128,12 @@ namespace Booking.web.Controllers
             if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(token))
             {
                 var client = _clientFactory.CreateClient("Booking.API");
-
-                // add token para autorizar a limpeza na api
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
                 await client.PostAsync("api/users/logout/" + userId, null);
             }
 
-            //  limpar Cookie 
-            await HttpContext.SignOutAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
-
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            TempData["SuccessMessage"] = "Sessão encerrada com sucesso.";
             return RedirectToAction("Index", "Home");
         }
 
@@ -170,6 +168,10 @@ namespace Booking.web.Controllers
                 var apiResponse = JsonSerializer.Deserialize<ApiMessage>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 ModelState.AddModelError("", apiResponse?.Message ?? "Falha ao enviar código.");
             }
+            else
+            {
+                TempData["SuccessMessage"] = "Código reenviado para " + Email;
+            }
             return View("ConfirmEmailCode", new VerifyCodeDTO { Email = Email });
         }
 
@@ -190,7 +192,7 @@ namespace Booking.web.Controllers
             {
                 TempData.Keep("RegisterModel");
                 TempData.Keep("Email");
-                ModelState.AddModelError("", "Código incorreto.");
+                ModelState.AddModelError("", "Código incorreto ou expirado.");
                 return View(model);
             }
 
@@ -213,12 +215,13 @@ namespace Booking.web.Controllers
             if (registerResponse.IsSuccessStatusCode)
             {
                 TempData.Remove("RegisterModel");
-                TempData["Message"] = "Registo efetuado com sucesso!";
+                TempData["SuccessMessage"] = "Email confirmado e registo efetuado com sucesso!";
                 return RedirectToAction("Login");
             }
 
+            // CORREÇÃO: Utilizando +
             var errorDetail = await registerResponse.Content.ReadAsStringAsync();
-            ModelState.AddModelError("", "Erro ao registar: " + errorDetail);
+            ModelState.AddModelError("", "Erro ao finalizar registo: " + errorDetail);
             TempData.Keep("RegisterModel");
             return View(model);
         }
@@ -252,7 +255,7 @@ namespace Booking.web.Controllers
             identity.AddClaim(new Claim("EmailConfirmedAt", DateTime.UtcNow.ToString("o")));
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
-
+            TempData["SuccessMessage"] = "Email verificado com sucesso!";
             return RedirectToAction("Profile");
         }
 
@@ -315,8 +318,9 @@ namespace Booking.web.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
 
-                TempData["Message"] = "Perfil atualizado com sucesso!";
+                TempData["SuccessMessage"] = "Perfil atualizado com sucesso!";
 
+                // mudou senha, forca logout 
                 if (!string.IsNullOrEmpty(newpass)) return RedirectToAction("Logout");
 
                 return RedirectToAction("Profile");

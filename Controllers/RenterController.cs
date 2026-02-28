@@ -20,8 +20,6 @@ namespace Booking.web.Controllers
         private HttpClient GetAuthenticatedClient()
         {
             var client = _clientFactory.CreateClient("Booking.API");
-
-           
             var token = User.FindFirstValue("JWToken");
 
             if (!string.IsNullOrEmpty(token))
@@ -31,7 +29,6 @@ namespace Booking.web.Controllers
             return client;
         }
 
-        // get
         public async Task<IActionResult> List()
         {
             var client = GetAuthenticatedClient();
@@ -44,13 +41,14 @@ namespace Booking.web.Controllers
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 return View(renters);
             }
+
+            TempData["ErrorMessage"] = "Erro ao carregar a lista de empresas.";
             return View(new List<RenterViewModel>());
         }
 
-        // get
+        [HttpGet]
         public IActionResult Create() => View();
 
-        // post
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(RenterViewModel model)
@@ -62,7 +60,7 @@ namespace Booking.web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    TempData["Message"] = "Novo Renter criado com sucesso!";
+                    TempData["SuccessMessage"] = "Nova empresa criada com sucesso!";
                     return RedirectToAction(nameof(List));
                 }
 
@@ -73,14 +71,13 @@ namespace Booking.web.Controllers
                 else
                 {
                     var error = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Erro API: {error}");
-                    ModelState.AddModelError("", "Erro ao criar Renter na API.");
+                    ModelState.AddModelError("", "Erro ao criar empresa na API: " + error);
                 }
             }
             return View(model);
         }
 
-        //get
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var client = GetAuthenticatedClient();
@@ -95,7 +92,6 @@ namespace Booking.web.Controllers
             return View(renter);
         }
 
-        //post
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, RenterViewModel model)
@@ -109,15 +105,15 @@ namespace Booking.web.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    TempData["Message"] = "Empresa atualizada com sucesso!";
+                    TempData["SuccessMessage"] = "Empresa atualizada com sucesso!";
                     return RedirectToAction(nameof(List));
                 }
-                ModelState.AddModelError("", "Erro ao atualizar na API.");
+
+                ModelState.AddModelError("", "Erro ao atualizar empresa na API.");
             }
             return View(model);
         }
 
-        // post
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -127,12 +123,12 @@ namespace Booking.web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Message"] = "Renter removido com sucesso!";
+                TempData["SuccessMessage"] = "Empresa removida com sucesso!";
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                TempData["Error"] = !string.IsNullOrEmpty(error) ? error : "Erro ao remover o Renter.";
+                TempData["ErrorMessage"] = "Erro ao remover a empresa: " + error;
             }
 
             return RedirectToAction(nameof(List));
@@ -141,11 +137,7 @@ namespace Booking.web.Controllers
         [Authorize(Roles = "RENTER,ADMIN")]
         public async Task<IActionResult> MyHousings()
         {
-            var client = _clientFactory.CreateClient("Booking.API");
-  
-            var token = User.FindFirst("JWToken")?.Value;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            var client = GetAuthenticatedClient();
             var response = await client.GetAsync("api/Housings/my-housings");
 
             if (response.IsSuccessStatusCode)
@@ -156,6 +148,7 @@ namespace Booking.web.Controllers
                 return View(myHousings);
             }
 
+            TempData["ErrorMessage"] = "Erro ao carregar os seus alojamentos.";
             return View(new List<HousingViewModel>());
         }
     }
